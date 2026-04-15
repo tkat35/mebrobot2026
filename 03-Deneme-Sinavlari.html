@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arduino & Elektrik – Deneme Sınavları</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d2e;
+    --surface2: #222640;
+    --accent: #00d4aa;
+    --accent2: #4f8ef7;
+    --accent3: #f7c948;
+    --text: #e8eaf6;
+    --text-muted: #8892b0;
+    --correct: #22c55e;
+    --wrong: #ef4444;
+    --correct-bg: #052e16;
+    --wrong-bg: #2d0a0a;
+    --border: #2a2f52;
+    --tab-active: #00d4aa;
+    --radius: 14px;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Nunito', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #0d1420 0%, #1a2040 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 32px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(0,212,170,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 20%;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(79,142,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .header-icon {
+    font-size: 2.4rem;
+    filter: drop-shadow(0 0 12px rgba(0,212,170,0.5));
+  }
+  .header-text h1 {
+    font-family: var(--mono);
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+  .header-text p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+  .badge {
+    margin-left: auto;
+    background: rgba(0,212,170,0.1);
+    border: 1px solid rgba(0,212,170,0.3);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 5px 12px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  /* Score bar */
+  .score-bar {
+    max-width: 900px;
+    margin: 18px auto 0;
+    padding: 0 32px;
+  }
+  .score-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+  .score-num { color: var(--accent); font-weight: 700; font-size: 1rem; }
+
+  /* Tabs */
+  .tabs-wrap {
+    max-width: 900px;
+    margin: 28px auto 0;
+    padding: 0 20px;
+  }
+  .tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0;
+  }
+  .tab-btn {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 9px 18px;
+    border: 2px solid transparent;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    bottom: -2px;
+    letter-spacing: 0.3px;
+  }
+  .tab-btn:hover {
+    color: var(--text);
+    background: rgba(255,255,255,0.04);
+  }
+  .tab-btn.active {
+    color: var(--accent);
+    border-color: var(--border);
+    border-bottom: 2px solid var(--bg);
+    background: var(--bg);
+  }
+  .tab-btn .tab-score {
+    display: inline-block;
+    margin-left: 6px;
+    background: rgba(0,212,170,0.15);
+    color: var(--accent);
+    font-size: 0.65rem;
+    padding: 1px 6px;
+    border-radius: 99px;
+    vertical-align: middle;
+  }
+  .tab-btn.active .tab-score { background: rgba(0,212,170,0.25); }
+
+  /* Quiz panel */
+  .quiz-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 20px;
+  }
+  .quiz-panel { display: none; }
+  .quiz-panel.active { display: block; }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .panel-title {
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    color: var(--accent2);
+  }
+  .q-count {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    padding: 4px 12px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+  }
+  .reset-btn {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  /* Question card */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .question-card.has-answer { border-color: rgba(255,255,255,0.08); }
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .q-num {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    background: rgba(79,142,247,0.15);
+    color: var(--accent2);
+    border: 1px solid rgba(79,142,247,0.25);
+    padding: 3px 9px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .q-text {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  .q-text code {
+    display: block;
+    background: #0a0e1a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: #7dd3fc;
+    margin-top: 10px;
+    white-space: pre;
+    line-height: 1.6;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 16px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: left;
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    color: var(--text);
+    width: 100%;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent2);
+    background: rgba(79,142,247,0.08);
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    flex-shrink: 0;
+    transition: all 0.18s;
+  }
+  .option-btn.correct {
+    background: var(--correct-bg);
+    border-color: var(--correct);
+  }
+  .option-btn.correct .option-letter {
+    background: var(--correct);
+    color: #fff;
+    border-color: var(--correct);
+  }
+  .option-btn.wrong {
+    background: var(--wrong-bg);
+    border-color: var(--wrong);
+  }
+  .option-btn.wrong .option-letter {
+    background: var(--wrong);
+    color: #fff;
+    border-color: var(--wrong);
+  }
+  .option-btn.reveal-correct {
+    background: rgba(34,197,94,0.05);
+    border-color: rgba(34,197,94,0.4);
+  }
+  .option-btn.reveal-correct .option-letter {
+    background: rgba(34,197,94,0.2);
+    color: var(--correct);
+    border-color: rgba(34,197,94,0.4);
+  }
+  .check-icon {
+    margin-left: auto;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* Explanation */
+  .explanation {
+    display: none;
+    margin-top: 14px;
+    background: rgba(247,201,72,0.06);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    font-size: 0.84rem;
+    color: #e0d5b0;
+    line-height: 1.65;
+    animation: fadeIn 0.3s ease;
+  }
+  .explanation.show { display: block; }
+  .explanation strong { color: var(--accent3); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Progress ring */
+  .progress-ring {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 22px;
+  }
+  .ring-wrap { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: var(--border); stroke-width: 5; }
+  .ring-fill { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+  .ring-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+  }
+  .progress-text h3 { font-size: 0.85rem; font-weight: 800; color: var(--text); }
+  .progress-text p { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+  .progress-stats {
+    margin-left: auto;
+    display: flex;
+    gap: 18px;
+  }
+  .stat {
+    text-align: center;
+    font-family: var(--mono);
+  }
+  .stat-num { font-size: 1.2rem; font-weight: 700; }
+  .stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat.correct .stat-num { color: var(--correct); }
+  .stat.wrong .stat-num { color: var(--wrong); }
+
+  /* Section divider */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 22px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header-inner { flex-wrap: wrap; }
+    .badge { margin-left: 0; }
+    .progress-stats { display: none; }
+    .q-text { font-size: 0.88rem; }
+    .option-btn { font-size: 0.84rem; padding: 10px 13px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-icon">⚡</div>
+    <div class="header-text">
+      <h1>Arduino & Elektrik</h1>
+      <p>Yeterlilik Sınavına Hazırlık · 7 Deneme · 150 Soru</p>
+    </div>
+    <div class="badge">🎓 Öğrenci Modu</div>
+  </div>
+</header>
+
+<div class="tabs-wrap">
+  <div class="tabs" id="tabBar"></div>
+</div>
+
+<div class="quiz-wrap" id="quizWrap"></div>
+
+<script>
+const EXAMS = [
+  {
+    title: "Deneme 1",
+    icon: "📘",
+    questions: [
+      { q: "Direnç renk kodunda kırmızı-siyah-kahverengi kaç ohm'dur?", opts: ["200 Ω","20 Ω","2000 Ω","2 Ω"], ans: 0, exp: "<strong>Direnç Renk Kodu:</strong> Kırmızı=2, Siyah=0, Kahverengi=çarpan×10¹. Yani 20 × 10 = <strong>200 Ω</strong>. Renk kodunu ezberlemek için \"KaSaMoKıSaMaYeMaBey\" gibi kısaltmalar kullanabilirsin." },
+      { q: "Elektrik akımının birimi nedir?", opts: ["Volt","Amper","Ohm","Watt"], ans: 1, exp: "<strong>Amper (A)</strong>, elektrik akımını ifade eder. Volt gerilim, Ohm direnç, Watt güç birimidir. V = I × R (Ohm Yasası) formülünü unutma!" },
+      { q: "Devrede anahtarın görevi nedir?", opts: ["Işık üretmek","Akımı ölçmek","Akımı kontrol etmek","Enerji üretmek"], ans: 2, exp: "<strong>Anahtar (switch)</strong>, devreyi açıp kapatarak akımı kontrol eder. Arduino'da buton aynı rolü oynar — digitalRead() ile durumu okunur." },
+      { q: "Aşağıdakilerden hangisi iletkendir?", opts: ["Plastik","Cam","Bakır","Tahta"], ans: 2, exp: "<strong>Bakır</strong> en yaygın iletkenlerden biridir. Elektron hareketi serbesttir. Plastik, cam, tahta yalıtkandır — elektron geçirmez." },
+      { q: "Seri bağlı devrede ampul sayısı artarsa parlaklık ne olur?", opts: ["Artar","Azalır","Değişmez","Patlar"], ans: 1, exp: "<strong>Seri devrede</strong> dirençler toplanır. Ampul sayısı arttıkça toplam direnç artar, akım azalır (I=V/R) ve her ampulün parlaklığı düşer." },
+      { q: "Dijital sinyal kaç değere sahiptir?", opts: ["1","2","3","Sonsuz"], ans: 1, exp: "<strong>Dijital sinyal</strong> yalnızca 2 durum alır: 0 (LOW/kapalı) ve 1 (HIGH/açık). Analog sinyal ise sürekli değişen sonsuz değer alabilir." },
+      { q: "Arduino'da HIGH neyi ifade eder?", opts: ["0 volt","Kapalı","Açık / 1","Hata"], ans: 2, exp: "<strong>HIGH</strong>, Arduino Uno'da yaklaşık 5V demektir. Dijital olarak '1' değerine karşılık gelir. LOW ise 0V / '0' değerini temsil eder." },
+      { q: "digitalWrite(5, HIGH); ne yapar?", opts: ["5 pinini giriş yapar","5 pinini LOW yapar","5 pinini aktif eder","5 pinini siler"], ans: 2, exp: "<strong>digitalWrite(pin, değer)</strong> komutu bir dijital pine HIGH veya LOW sinyal gönderir. 5. pini HIGH (5V) yaparak bağlı LED'i yakar." },
+      { q: "pinMode(3, OUTPUT); ne işe yarar?", opts: ["Veri okur","Pin'i çıkış yapar","Volt ölçer","Direnç ölçer"], ans: 1, exp: "<strong>pinMode()</strong> bir pinin giriş mi çıkış mı olduğunu belirler. OUTPUT: sinyal gönderir (LED, buzzer). INPUT: sinyal alır (buton, sensör)." },
+      { q: "LED devresinde direnç neden kullanılır?", opts: ["Işığı artırmak","Akımı sınırlamak","Volt üretmek","Renk değiştirmek"], ans: 1, exp: "<strong>Seri direnç</strong> LED'e giden akımı sınırlar. Tipik LED 20mA'ya dayanır; direnç olmadan aşırı akım LED'i ya da Arduino pinini bozabilir. R = (Vcc - Vled) / I formülü kullanılır." },
+      { q: "Paralel devrede ampuller nasıldır?", opts: ["Aynı parlaklıkta","Biri söner","Hepsi sönük","Patlar"], ans: 0, exp: "<strong>Paralel devrede</strong> her ampul aynı gerilimi alır. Bu yüzden tümü eşit parlaklıkta yanar. Biri bozulursa diğerleri çalışmaya devam eder." },
+      { q: "Aşağıdakilerden hangisi sensördür?", opts: ["Motor","LED","Ultrasonik sensör","Pil"], ans: 2, exp: "<strong>Ultrasonik sensör</strong> (HC-SR04), ses dalgalarını kullanarak mesafe ölçer. Sensörler çevreden veri algılar; motor ve LED çıkış elemanı, pil enerji kaynağıdır." },
+      { q: "Arduino'da setup() ne zaman çalışır?", opts: ["Sürekli","Bir kez","Hiç","Rastgele"], ans: 1, exp: "<strong>setup()</strong> Arduino açıldığında veya reset'lendiğinde <strong>yalnızca bir kez</strong> çalışır. Pin modları ve başlangıç ayarları buraya yazılır." },
+      { q: "loop() ne yapar?", opts: ["Bir kez çalışır","Sürekli tekrar eder","Programı siler","Gücü kapatır"], ans: 1, exp: "<strong>loop()</strong>, setup() bittikten sonra program durdurulana kadar <strong>sonsuz döngüde</strong> tekrar eder. Sensör okuma, LED kontrol gibi ana işlemler burada yapılır." },
+      { q: "Aşağıdakilerden hangisi giriş elemanıdır?", opts: ["Motor","LED","Buton","Hoparlör"], ans: 2, exp: "<strong>Buton</strong> bir giriş elemanıdır — kullanıcıdan veri alır. Motor, LED ve hoparlör çıkış elemanlarıdır — Arduino'dan sinyal alarak iş yaparlar." },
+      { q: "Volt neyi ölçer?", opts: ["Akım","Direnç","Gerilim","Güç"], ans: 2, exp: "<strong>Volt (V)</strong>, iki nokta arasındaki elektrik potansiyel farkını (gerilimi) ölçer. Amper akım, Ohm direnç, Watt güç birimidir." },
+      { q: "Direncin birimi nedir?", opts: ["Volt","Amper","Ohm","Joule"], ans: 2, exp: "<strong>Ohm (Ω)</strong>, elektriksel direnci ifade eder. Georg Simon Ohm tarafından tanımlanmıştır. V=IR formülünde R, direnç değeridir." },
+      { q: "Arduino'da analogRead ne yapar?", opts: ["Dijital veri okur","Analog veri okur","Pin kapatır","Kod yazar"], ans: 1, exp: "<strong>analogRead(pin)</strong>, A0-A5 gibi analog pinlerden sürekli değişen voltajı okur ve 0-1023 arasında bir sayıya dönüştürür (10-bit ADC)." },
+      { q: "Devrede pilin görevi nedir?", opts: ["Akımı kesmek","Enerji sağlamak","Işık üretmek","Ses çıkarmak"], ans: 1, exp: "<strong>Pil</strong>, kimyasal enerjiyi elektrik enerjisine çevirerek devreye güç sağlar. Enerji kaynağı olmadan devre çalışamaz." },
+      { q: "Çizgi izleyen robot hangi sensörü kullanır?", opts: ["Ultrasonik","IR sensör","Sıcaklık sensörü","Basınç sensörü"], ans: 1, exp: "<strong>IR (Kızılötesi) sensör</strong>, zemine ışık gönderir ve yansımayı ölçer. Siyah çizgi ışığı emer, beyaz zemin yansıtır — bu fark ile çizgi algılanır." }
+    ]
+  },
+  {
+    title: "Deneme 2",
+    icon: "📗",
+    questions: [
+      { q: "1 kΩ kaç ohm'dur?", opts: ["100","1000","10","10000"], ans: 1, exp: "<strong>kΩ = kilohm</strong> anlamına gelir. 1 kΩ = 1000 Ω. Benzer şekilde 1 MΩ = 1.000.000 Ω. Bu ön ekler büyük direnç değerlerini kısaltmak için kullanılır." },
+      { q: "İyi bir iletken nedir?", opts: ["Lastik","Tahta","Alüminyum","Plastik"], ans: 2, exp: "<strong>Alüminyum</strong> metalik yapısı sayesinde iyi bir iletkendir. Lastik, tahta ve plastik yalıtkandır. En iyi iletkenler: gümüş, bakır, altın, alüminyum." },
+      { q: "Ampul ışık üretirken hangi enerji dönüşür?", opts: ["Isı → elektrik","Elektrik → ışık","Işık → elektrik","Ses → ışık"], ans: 1, exp: "<strong>Elektrik enerjisi → ışık (ve ısı) enerjisi</strong>. LED ampuller bu dönüşümü çok verimli yapar. Eski flamanlı ampuller enerjinin büyüğünü ısıya dönüştürürdü." },
+      { q: "Dijital sistemlerde 0 neyi ifade eder?", opts: ["Açık","Kapalı","Yüksek","Akım"], ans: 1, exp: "<strong>0 = LOW = Kapalı</strong>. Arduino'da 0-0.8V arası düşük (LOW) kabul edilir. 1 = HIGH = Açık demektir. İkili (binary) sistemin temelidir." },
+      { q: "Arduino hangi karttır?", opts: ["Güç kaynağı","Mikrodenetleyici kartı","Sensör","Motor"], ans: 1, exp: "<strong>Arduino</strong>, üzerinde mikrodenetleyici (ATmega) bulunan açık kaynak kodlu bir geliştirme kartıdır. C/C++ ile programlanır ve elektroniği kolaylaştırır." },
+      { q: "digitalRead ne yapar?", opts: ["Çıkış verir","Giriş okur","Volt üretir","Kod yazar"], ans: 1, exp: "<strong>digitalRead(pin)</strong>, INPUT olarak ayarlı bir pindeki dijital değeri okur. HIGH (1) veya LOW (0) döndürür. Buton durumu okumak için kullanılır." },
+      { q: "Buton basılınca ne olur?", opts: ["Devre açılır","Devre kapanır","Enerji yok olur","Direnç artar"], ans: 1, exp: "<strong>Buton</strong> basıldığında devre tamamlanır (kapanır) ve akım akmaya başlar. Arduino'da INPUT_PULLUP ile bağlandığında basıldığında LOW okunur." },
+      { q: "Aşağıdakilerden hangisi çıkıştır?", opts: ["Sensör","Buton","LED","Potansiyometre"], ans: 2, exp: "<strong>LED</strong> bir çıkış (output) elemanıdır. Sensör ve buton giriş (input), potansiyometre ise analog giriş elemanlarıdır." },
+      { q: "Arduino'da LOW ne demektir?", opts: ["1","Açık","0","Yüksek"], ans: 2, exp: "<strong>LOW = 0</strong>. Arduino'da dijital pinde yaklaşık 0V seviyesini ifade eder. LED'i söndürmek için digitalWrite(pin, LOW) kullanılır." },
+      { q: "Direnç değeri neyi etkiler?", opts: ["Renk","Akım","Volt","Ses"], ans: 1, exp: "<strong>Direnç (R)</strong> akım miktarını etkiler. Ohm Yasası: I = V/R. Direnç arttıkça aynı gerilimde daha az akım geçer. Bu yüzden LED devresine seri direnç eklenir." },
+      { q: "Paralel devrede voltaj nasıldır?", opts: ["Aynı","Farklı","Yok","Artar"], ans: 0, exp: "<strong>Paralel devrede</strong> her dal aynı gerilimi alır. Bu ev elektrik tesisatında kullanılan bağlantı şeklidir; böylece her cihaz tam voltajla çalışır." },
+      { q: "Ultrasonik sensör ne ölçer?", opts: ["Sıcaklık","Mesafe","Işık","Ses"], ans: 1, exp: "<strong>Ultrasonik sensör (HC-SR04)</strong>, 40kHz'lik ses dalgaları gönderir ve yansımasını ölçerek mesafeyi hesaplar. d = (süre × ses hızı) / 2 formülü kullanılır." },
+      { q: "loop() içinde yazılan kodlar…", opts: ["Tekrar etmez","Sürekli çalışır","Silinir","Hata verir"], ans: 1, exp: "<strong>loop()</strong> fonksiyonu sonsuz döngüde çalışır. İçindeki her kod satırı tekrar tekrar işlenir. Arduino kapatılana veya reset'lenene kadar durmaz." },
+      { q: "pinMode(INPUT) ne demektir?", opts: ["Çıkış","Giriş","Volt","Akım"], ans: 1, exp: "<strong>INPUT</strong> modu, o pinin veri <em>alacağını</em> belirtir. Sensör, buton gibi elemanlar INPUT olarak tanımlanır. OUTPUT ise veri <em>gönderir</em>." },
+      { q: "Devrede kablo ne işe yarar?", opts: ["Işık verir","Akımı iletir","Volt üretir","Ses çıkarır"], ans: 1, exp: "<strong>Kablo (iletken tel)</strong>, elektrik akımını bir noktadan diğerine taşır. İçi bakır, dışı plastik (yalıtkan) kaplıdır. Breadboard jumper kabloları da aynı görevi yapar." },
+      { q: "LED'in uzun bacağı neyi gösterir?", opts: ["Eksi","Artı","Direnç","Renk"], ans: 1, exp: "<strong>LED'in uzun bacağı = anot = + (artı)</strong>. Kısa bacak = katot = - (eksi). Akım anot'tan katot'a akar. Ters bağlanırsa LED yanmaz." },
+      { q: "Arduino'da delay(1000); ne yapar?", opts: ["1 saniye bekler","1 ms bekler","Sonsuz bekler","Çalışmaz"], ans: 0, exp: "<strong>delay(ms)</strong>, parametresi milisaniye cinsindendir. delay(1000) = 1000 ms = <strong>1 saniye</strong> bekler. delay(500) = 0.5 saniye." },
+      { q: "Analog sinyal nedir?", opts: ["0-1","Sürekli değer","Sabit","Yok"], ans: 1, exp: "<strong>Analog sinyal</strong>, belirli bir aralıkta sürekli değişen değerler alır (örn. 0-5V arası her değer). Sıcaklık, ışık, ses gibi doğal büyüklükler analog sinyaldir." },
+      { q: "Motor ne yapar?", opts: ["Işık üretir","Hareket sağlar","Ses keser","Volt ölçer"], ans: 1, exp: "<strong>Motor</strong>, elektrik enerjisini mekanik harekete (dönme) çevirir. DC motorlar robotlarda tekerlekleri döndürür. H-köprü devresi (L298N) ile yön kontrolü yapılır." },
+      { q: "Breadboard ne için kullanılır?", opts: ["Kod yazmak","Devre kurmak","Ölçmek","Şarj etmek"], ans: 1, exp: "<strong>Breadboard</strong>, lehimsiz devre kurulum tahtasıdır. İçindeki metal klipler bileşenleri birbirine bağlar. Prototip devreler kurmak için idealdir." }
+    ]
+  },
+  {
+    title: "Deneme 3",
+    icon: "📙",
+    questions: [
+      { q: "5V neyi ifade eder?", opts: ["Akım","Gerilim","Direnç","Güç"], ans: 1, exp: "<strong>5V</strong>, 5 Volt anlamına gelir ve gerilimi (potansiyel farkı) ifade eder. Arduino Uno'nun dijital pinleri 5V lojik seviyede çalışır." },
+      { q: "Aşağıdakilerden hangisi yalıtkandır?", opts: ["Demir","Bakır","Plastik","Alüminyum"], ans: 2, exp: "<strong>Plastik</strong> yalıtkandır — elektron geçişine direnir. Bu yüzden kablo kılıfı olarak kullanılır. Demir, bakır ve alüminyum metalik iletkenlerdir." },
+      { q: "LED ters bağlanırsa ne olur?", opts: ["Daha parlak yanar","Yanmaz","Patlar","Renk değiştirir"], ans: 1, exp: "<strong>LED polaritesi önemlidir</strong>. Ters bağlandığında (anot → eksi, katot → artı) akım geçemez ve LED <strong>yanmaz</strong>. Uzun bacak artı (+) tarafa bağlanmalıdır." },
+      { q: "Arduino'nun kaç pin'i vardır?", opts: ["Sabit değil (modele göre değişir)","5","10","100"], ans: 0, exp: "<strong>Pin sayısı modele göre değişir</strong>. Arduino Uno'da 14 dijital + 6 analog = 20 pin bulunur. Mega'da 54 dijital + 16 analog pin vardır." },
+      { q: "digitalWrite(8, LOW); ne yapar?", opts: ["Açar","Kapatır","Okur","Yazar"], ans: 1, exp: "<strong>digitalWrite(8, LOW)</strong>, 8. dijital pine 0V (LOW) sinyali gönderir. Bağlı LED söner. HIGH yerine LOW kullanarak çıkışı kapamış oluruz." },
+      { q: "Direnç arttıkça akım…", opts: ["Artar","Azalır","Değişmez","Yok olur"], ans: 1, exp: "<strong>Ohm Yasası: I = V/R</strong>. Gerilim sabit kalırken direnç artarsa akım azalır. Bu ters orantılı ilişki devrelerin temel prensibidir." },
+      { q: "Seri devrede akım nasıldır?", opts: ["Aynı","Farklı","Yok","Artar"], ans: 0, exp: "<strong>Seri devrede</strong> akımın geçecek tek yol vardır. Bu yüzden her elemandan <strong>aynı miktarda akım</strong> geçer. Gerilim ise dirençlere orantılı bölünür." },
+      { q: "Aşağıdakilerden hangisi analog giriştir?", opts: ["A0","D3","GND","5V"], ans: 0, exp: "<strong>A0</strong>, Arduino'nun analog giriş pinidir. analogRead(A0) ile 0-1023 arası değer okunur. D3 dijital pin, GND toprak, 5V güç pinidir." },
+      { q: "Sensör ne yapar?", opts: ["Hareket sağlar","Veri algılar","Enerji üretir","Işık verir"], ans: 1, exp: "<strong>Sensör</strong>, çevreden fiziksel büyüklükleri (sıcaklık, mesafe, ışık, ses) algılayıp elektrik sinyaline dönüştürür. Robotların 'duyu organı' gibidir." },
+      { q: "Arduino IDE nedir?", opts: ["Donanım","Yazılım","Pil","Sensör"], ans: 1, exp: "<strong>Arduino IDE</strong> (Integrated Development Environment), kod yazmak, derlemek ve Arduino'ya yüklemek için kullanılan ücretsiz yazılımdır. C/C++ tabanlıdır." },
+      { q: "Kod nereye yüklenir?", opts: ["Sensöre","Arduino'ya","Motora","Dirence"], ans: 1, exp: "<strong>Kod Arduino kartına yüklenir</strong>. IDE'deki 'Yükle' butonu kodu derler ve USB üzerinden Arduino'nun flash belleğine aktarır." },
+      { q: "PWM nedir?", opts: ["Sabit volt","Değişken sinyal","Akım","Direnç"], ans: 1, exp: "<strong>PWM (Pulse Width Modulation)</strong>, dijital pinden analog benzeri çıkış üretme yöntemidir. analogWrite(pin, 0-255) ile LED parlaklığı veya motor hızı kontrol edilir." },
+      { q: "delay(500); kaç saniyedir?", opts: ["0.5","5","50","500"], ans: 0, exp: "<strong>delay(500)</strong> = 500 milisaniye = <strong>0.5 saniye</strong>. 1000 ms = 1 saniye olduğundan 500 ms yarım saniyedir." },
+      { q: "Hangi eleman enerji kaynağıdır?", opts: ["LED","Pil","Direnç","Sensör"], ans: 1, exp: "<strong>Pil (batarya)</strong>, kimyasal enerjiyi elektrik enerjisine dönüştürerek devreye güç sağlar. USB bağlantısında bilgisayar, adaptör bağlantısında adaptör güç kaynağı olur." },
+      { q: "Aşağıdakilerden hangisi dijital pin'dir?", opts: ["A0","D5","VCC","GND"], ans: 1, exp: "<strong>D5</strong>, Arduino'nun 5 numaralı dijital pinidir. A0 analog giriş, VCC güç (+5V), GND toprak (0V) pinleridir." },
+      { q: "Robotta motor ne yapar?", opts: ["Ölçüm","Hareket","Işık","Veri"], ans: 1, exp: "<strong>Motor</strong>, elektriği mekanik harekete çevirir. Robotlarda tekerlekleri döndürerek ileri-geri-sağ-sol hareketi sağlar." },
+      { q: "Çizgi izleyen robot hangi mantıkla çalışır?", opts: ["Ses","Işık farkı","Isı","Basınç"], ans: 1, exp: "<strong>Işık farkı mantığı</strong>: IR sensör siyah çizgiyi (ışık emer) ve beyaz zemin (ışık yansıtır) arasındaki farkı algılar. Bu farka göre motorlar kontrol edilir." },
+      { q: "GND ne demektir?", opts: ["Artı","Eksi (toprak)","Volt","Akım"], ans: 1, exp: "<strong>GND (Ground = Toprak)</strong>, devrenin referans noktasıdır (0V). Tüm gerilimler GND'ye göre ölçülür. Devrenin eksi (-) kutbuna bağlanır." },
+      { q: "Kod yazarken hata olursa ne olur?", opts: ["Çalışır","Çalışmaz","Daha hızlı olur","Silinir"], ans: 1, exp: "<strong>Kod hatası (syntax error)</strong> varsa Arduino IDE derleme yapmaz ve kod yüklenemez. Hata mesajları altta kırmızıyla gösterilir. Hataları düzeltmek programlamanın önemli parçasıdır!" },
+      { q: "Arduino'da seri haberleşme ne içindir?", opts: ["Işık","Veri iletişimi","Güç","Ses"], ans: 1, exp: "<strong>Serial.begin(9600)</strong> ile başlatılan seri haberleşme, Arduino ile bilgisayar arasında veri alışverişi sağlar. Serial Monitor ile sensör verilerini izleyebilirsin." }
+    ]
+  },
+  {
+    title: "Deneme 4",
+    icon: "📕",
+    questions: [
+      { q: "Konvansiyonel (geleneksel) akım yönü hangi uçtan hangi uca kabul edilir?", opts: ["eksi → artı","artı → eksi","ortadan dışa","yönü yoktur"], ans: 1, exp: "<strong>Konvansiyonel akım</strong> artı (+) kutuptan eksi (-) kutba doğru akar. Gerçekte elektronlar eksi'den artı'ya gider ama tarihsel nedenle akım yönü tersi kabul edilir." },
+      { q: "Aşağıdakilerden hangisi bir devrede enerji kaynağıdır?", opts: ["direnç","kablo","LED","pil"], ans: 3, exp: "<strong>Pil</strong>, kimyasal enerjiyi elektrik enerjisine dönüştüren enerji kaynağıdır. Direnç akımı sınırlar, kablo iletir, LED ışık üretir." },
+      { q: "LED seri direnç kullanılmadan Arduino'ya bağlanırsa en olası risk nedir?", opts: ["Arduino pini aşırı akımdan zarar görebilir","LED mutlaka yanmaz","Devre her zaman güvenli çalışır","LED yalnızca daha parlak yanar"], ans: 0, exp: "<strong>Direnç olmadan</strong> LED'den aşırı akım geçer. Arduino pininin maksimum akımı 40mA'dir. Bu aşılırsa pin kalıcı olarak hasar görebilir. Her zaman seri direnç kullan!" },
+      { q: "LED ile Arduino arasında neden seri direnç kullanılır?", opts: ["gerilimi artırmak için","LED'i soğutmak için","akımı sınırlamak için","kabloyu korumak için"], ans: 2, exp: "<strong>Seri direnç</strong>, LED'e giden akımı güvenli seviyede tutar. R = (Vcc - Vf) / If formülüyle hesaplanır. Tipik: (5V - 2V) / 0.02A = 150Ω." },
+      { q: "Aşağıdakilerden hangisi iletken bir malzemedir?", opts: ["plastik","bakır","cam","tahta"], ans: 1, exp: "<strong>Bakır</strong>, mükemmel bir iletkendir. Serbest elektronları kolayca hareket eder. Devre kabloları ve PCB yolları bakır kullanır." },
+      { q: "Bir devrede GND neyi ifade eder?", opts: ["yüksek voltaj","pil","direnç","toprak hattı"], ans: 3, exp: "<strong>GND (Ground)</strong>, devrenin 0V referans noktasıdır. Tüm voltaj ölçümleri bu noktaya göre yapılır. Güç kaynağının eksi (-) ucudur." },
+      { q: "Aşağıdakilerden hangisi elektrik enerjisini ışık enerjisine çevirir?", opts: ["LED","motor","direnç","kablo"], ans: 0, exp: "<strong>LED (Light Emitting Diode)</strong>, elektrik enerjisini doğrudan ışığa dönüştürür. Verimlidir çünkü az ısı üretir. Motor mekanik, direnç ısı enerjisi üretir." },
+      { q: "Arduino Uno kartının tipik lojik çalışma gerilimi nedir?", opts: ["1V","3V","5V","220V"], ans: 2, exp: "<strong>Arduino Uno 5V</strong> lojik seviyede çalışır. Arduino Due ve bazı modern modeller 3.3V ile çalışır. 220V şehir elektriği — Arduino ile doğrudan kullanılamaz!" },
+      { q: "Seri bağlı bir devrede akım nasıl davranır?", opts: ["devrede ilerledikçe artar","her noktada aynıdır","azalır","yok olur"], ans: 1, exp: "<strong>Seri devrede</strong> tek bir yol olduğundan akım her noktada aynıdır. Gerilim ise dirençlere orantılı olarak bölünür. Bu devrelerin temel kuralıdır." },
+      { q: "Elektrik devresinde anahtarın görevi nedir?", opts: ["akımı hızlandırmak","voltaj üretmek","ışık üretmek","akımı açıp kapatmak"], ans: 3, exp: "<strong>Anahtar</strong>, devreyi açıp kapatarak akım akışını kontrol eder. Arduino'da buton aynı işlevi görür ve digitalRead() ile durumu okunur." },
+      { q: "Dijital elektronik sistemlerde kaç farklı durum vardır?", opts: ["2","3","4","10"], ans: 0, exp: "<strong>Dijital sistemler 2 durumlu</strong>: 0 (LOW/false/kapalı) ve 1 (HIGH/true/açık). Bu binary (ikili) sistem, bilgisayarların ve mikrodenetleyicilerin temelini oluşturur." },
+      { q: "Arduino'da HIGH sinyali neyi ifade eder?", opts: ["düşük voltaj","kapalı devre","yüksek voltaj seviyesi","açık devre"], ans: 2, exp: "<strong>HIGH</strong>, Arduino Uno'da yaklaşık 5V yüksek gerilim seviyesini ifade eder. Dijital '1' değerine karşılık gelir." },
+      { q: "Arduino'da LOW sinyali yaklaşık hangi voltaj seviyesini temsil eder?", opts: ["0V civarı","5V civarı","12V","değişmez"], ans: 0, exp: "<strong>LOW ≈ 0V</strong>. Arduino'da 0-0.8V arası LOW kabul edilir. 2-5V arası HIGH kabul edilir. Aradaki bölge belirsizdir ve kullanılmamalıdır." },
+      { q: "Bir buton Arduino'ya bağlandığında genellikle hangi pin modu kullanılır?", opts: ["OUTPUT","INPUT","MOTOR","VOLT"], ans: 1, exp: "<strong>INPUT</strong> modu, pinin dışarıdan sinyal <em>alacağını</em> belirtir. Genellikle INPUT_PULLUP tercih edilir — dahili pull-up direnci sayesinde harici dirence gerek kalmaz." },
+      { q: "Bir LED'i kontrol etmek için Arduino pininin modu ne olmalıdır?", opts: ["INPUT","ANALOG","MOTOR","OUTPUT"], ans: 3, exp: "<strong>OUTPUT</strong> modu, pinin sinyal <em>göndereceğini</em> belirtir. LED'e, motora, buzzer'a sinyal göndermek için pin OUTPUT yapılır." },
+      { q: "Arduino programı hangi iki temel fonksiyondan oluşur?", opts: ["start – stop","setup – loop","main – run","input – output"], ans: 1, exp: "<strong>setup() ve loop()</strong> Arduino'nun iki zorunlu fonksiyonudur. setup() başlangıç ayarlarını yapar, loop() sürekli çalışır. Bu yapı olmadan kod derlenmez." },
+      { q: "setup() fonksiyonu ne zaman çalışır?", opts: ["sürekli","gerektiğinde","bir kez","iki kez"], ans: 2, exp: "<strong>setup()</strong> Arduino açıldığında veya reset edildiğinde <strong>yalnızca bir kez</strong> çalışır. Pin modları, Serial.begin(), başlangıç değerleri buraya yazılır." },
+      { q: "loop() fonksiyonu ne yapar?", opts: ["sürekli tekrar eder","bir kez çalışır","çalışmaz","sadece LED yakar"], ans: 0, exp: "<strong>loop()</strong>, setup() bittikten sonra sonsuz döngüde tekrar eder. Her döngüde sensörler okunur, kararlar verilir, çıkışlar güncellenir." },
+      { q: "Bir dijital pini çıkış olarak ayarlamak için hangi komut kullanılır?", opts: ["digitalWrite","analogRead","delay","pinMode"], ans: 3, exp: "<strong>pinMode(pin, MOD)</strong> komutu pinin giriş/çıkış modunu belirler. OUTPUT çıkış, INPUT giriş modudur. Bu ayar genellikle setup() içinde yapılır." },
+      { q: "Bir LED'i yakmak için hangi komut kullanılır?", opts: ["analogRead","digitalWrite","pinMode","delay"], ans: 1, exp: "<strong>digitalWrite(pin, HIGH)</strong> komutu ile pini HIGH yaparak LED yakılır. LOW ile söndürülür. Pin önce OUTPUT olarak tanımlanmalıdır." },
+      { q: "Arduino'da analog sensör değerini okumak için hangi komut kullanılır?", opts: ["digitalWrite","delay","analogRead","pinMode"], ans: 2, exp: "<strong>analogRead(A0)</strong>, A0-A5 analog pinlerinden 0-1023 arası değer okur. 10-bit ADC kullanır. 0 = 0V, 1023 = 5V anlamına gelir." },
+      { q: "delay(1000); ne yapar?", opts: ["1 saniye bekler","LED yakar","sensör okur","1000 kere tekrar eder"], ans: 0, exp: "<strong>delay(1000)</strong> = 1000 ms = <strong>1 saniye</strong> bekler. Bu süre içinde Arduino başka hiçbir şey yapmaz. Çok uzun delay kullanmak tepki süresini yavaşlatır." },
+      { q: "if komutu ne işe yarar?", opts: ["döngü oluşturur","sensör okur","motor sürer","koşul kontrol eder"], ans: 3, exp: "<strong>if(koşul){...}</strong> koşul doğruysa içindeki kodu çalıştırır. Örn: if(okunan > 500){ LED yak; }. Karar vermek için temel programlama yapısıdır." },
+      { q: "Aşağıdaki kod ne yapar?\ndigitalWrite(8, HIGH);", opts: ["A8'i LOW yapar","D8'i HIGH yapar","A8'i giriş yapar","D8'i analog yapar"], ans: 1, exp: "<strong>digitalWrite(8, HIGH)</strong>, 8. dijital pini HIGH (5V) yapar. Buraya bağlı LED yanar, buzzer ses çıkarır veya röle kapanır." },
+      { q: "Aşağıdaki koddaki hata hangisidir?\npinMode(5, output);", opts: ["pin numarası yanlış","pin 5 kullanılamaz","OUTPUT büyük harfle yazılmalıdır","hata yok"], ans: 2, exp: "<strong>Arduino C/C++ büyük/küçük harf duyarlıdır!</strong> Doğrusu: pinMode(5, OUTPUT). 'output' küçük harfle yazıldığında derleyici tanımaz ve hata verir." },
+      { q: "Çizgi izleyen robot hangi sensörü kullanır?", opts: ["çizgi sensörü","mesafe sensörü","ışık sensörü","basınç sensörü"], ans: 0, exp: "<strong>Çizgi sensörü (IR tabanlı)</strong>, siyah-beyaz kontrast farkını algılar. Robot çizginin sağına/soluna saptıkça ilgili motor yavaşlatılarak rota düzeltilir." },
+      { q: "Ultrasonik sensör genellikle ne ölçer?", opts: ["sıcaklık","ışık","ses","mesafe"], ans: 3, exp: "<strong>Ultrasonik sensör (HC-SR04)</strong>, ses darbesi gönderip geri dönene kadar geçen süreyi ölçerek mesafeyi hesaplar. 2cm - 400cm arası ölçüm yapabilir." },
+      { q: "Robotun ileri gitmesi için iki motor nasıl çalışmalıdır?", opts: ["biri ileri biri geri","ikisi de ileri yönde","ikisi de durur pozisyonda","biri durur diğeri ileri"], ans: 1, exp: "<strong>İki motor da ileri</strong> yönde döndüğünde robot düz ileri gider. Sağa dönmek için sol motor hızlanır ya da sağ motor yavaşlatılır." },
+      { q: "Robot'un otonom çalışması ne demektir?", opts: ["uzaktan kumandalı olması","kablolu çalışması","kendi kendine çalışması","insan kontrolünde çalışması"], ans: 2, exp: "<strong>Otonom çalışma</strong>, robotun önceden programlanmış algoritmalarla insan müdahalesi olmadan çevresiyle etkileşime girmesidir. Sensörden veri alır, karar verir, hareket eder." },
+      { q: "Robot yarışmalarında sensörlerin temel görevi nedir?", opts: ["robotun çevreyi algılamasını sağlamak","robotu ağırlaştırmak","robotu şarj etmek","robotu süslemek"], ans: 0, exp: "<strong>Sensörler</strong>, robotun çevresini algılamasını sağlar. Çizgi, engel, renk gibi bilgileri toplayarak yazılımın doğru kararlar vermesini mümkün kılar." }
+    ]
+  },
+  {
+    title: "Deneme 5",
+    icon: "📓",
+    questions: [] // Will be loaded from file
+  },
+  {
+    title: "Deneme 6",
+    icon: "📒",
+    questions: [
+      { q: "Kırmızı-Kırmızı-Kahverengi direnç değeri kaçtır?", opts: ["220 Ω","2.2 kΩ","2200 Ω","22 Ω"], ans: 0, exp: "<strong>Renk kodu:</strong> Kırmızı=2, Kırmızı=2, Kahverengi=×10¹. 22 × 10 = <strong>220 Ω</strong>. Bu çok yaygın bir LED seri direncidir!" },
+      { q: "Seri bağlı 3 ampulden biri çıkarılırsa ne olur?", opts: ["Diğerleri daha parlak yanar","Devre çalışmaz","Sadece biri yanar","Hiç değişmez"], ans: 1, exp: "<strong>Seri devre</strong>de akımın geçeceği tek yol vardır. Bir ampul çıkarılırsa devre açık kalır, akım akmaz ve <strong>tüm devre çalışmaz</strong>." },
+      { q: "Paralel devrede bir ampul bozulursa diğerleri…", opts: ["Sönük yanar","Sönmez","Daha parlak olur","Patlar"], ans: 1, exp: "<strong>Paralel devrede</strong> her dal bağımsızdır. Bir dal açılsa bile diğerleri kendi yollarından akım almaya devam eder ve <strong>sönmez</strong>." },
+      { q: "Aşağıdaki kod ne yapar?\npinMode(5, OUTPUT);\ndigitalWrite(5, HIGH);\ndelay(1000);\ndigitalWrite(5, LOW);", opts: ["LED sürekli yanar","LED 1 sn yanar sonra söner","LED hiç yanmaz","LED yanıp söner"], ans: 1, exp: "Kod sırasıyla: pin 5'i çıkış yap → HIGH ile yak → 1000ms (1 sn) bekle → LOW ile söndür. Bu bir kez çalışır. Sürekli yanıp sönmesi için loop() içinde olması gerekir." },
+      { q: "Aşağıdaki kodda hata nedir?\npinMode(3, output);", opts: ["pin numarası yanlış","OUTPUT büyük harf olmalı","pinMode yanlış","Hata yok"], ans: 1, exp: "<strong>C++ büyük/küçük harf duyarlıdır!</strong> 'output' hatalı, doğrusu <strong>OUTPUT</strong>. Bu hata derleme zamanında 'output was not declared' hatası verir." },
+      { q: "Analog girişten okunan değer aralığı nedir?", opts: ["0-1","0-255","0-1023","0-5"], ans: 2, exp: "<strong>analogRead()</strong>, 10-bit ADC kullanır: 2^10 = 1024 farklı değer → <strong>0-1023</strong> arası. 0V=0, 5V=1023. 1 birim ≈ 4.9mV'a karşılık gelir." },
+      { q: "Aşağıdaki kod ne yapar?\nfor(int i=3;i<6;i++){\n  pinMode(i, OUTPUT);\n}", opts: ["3,4,5 pinlerini giriş yapar","3,4,5 pinlerini çıkış yapar","Tüm pinleri kapatır","Kod çalışmaz"], ans: 1, exp: "<strong>for döngüsü</strong> i=3,4,5 için çalışır (i<6 koşulu 6'da durur). Her iterasyonda o pini OUTPUT yapar. Çok pini tek tek yazmak yerine döngü kullanmak verimlidir." },
+      { q: "Bir LED'e direnç bağlanmazsa ne olur?", opts: ["Daha parlak yanar","LED zarar görebilir","Hiç yanmaz","Daha az enerji harcar"], ans: 1, exp: "<strong>Direnç olmadan</strong> LED'e aşırı akım girer. Kısa süre parlak yanar ama <strong>LED yanar (bozulur)</strong>. Arduino pini de zarar görebilir. Her zaman seri direnç kullan!" },
+      { q: "Ultrasonik sensör hangi durumda yanlış ölçüm yapabilir?", opts: ["Çok parlak ışıkta","Yumuşak yüzeyde","Çok kısa mesafede","Hepsi"], ans: 3, exp: "<strong>Hepsi doğru:</strong> Işık ultrasonik sinyali etkilemez ama yumuşak yüzeyler sesi emer (yanlış ölçüm), çok kısa mesafe (< 2cm) ölçüm aralığı dışında kalır." },
+      { q: "Arduino'da loop() neden gereklidir?", opts: ["Kod başlatmak için","Kodun sürekli çalışması için","Pin tanımlamak için","Veri silmek için"], ans: 1, exp: "<strong>loop()</strong>, Arduino'nun sürekli çalışmasını sağlar. Olmadan program setup() bittikten sonra durur. Sensör okuma, kontrol, iletişim gibi tüm ana işlemler burada tekrar eder." },
+      { q: "PWM çıkışı ne sağlar?", opts: ["Sabit volt","Değişken parlaklık / hız","Sabit akım","Ölçüm"], ans: 1, exp: "<strong>PWM (Pulse Width Modulation)</strong> ile analogWrite(pin, 0-255) kullanılır. LED parlaklığını veya motor hızını kademeli olarak ayarlamak mümkün olur." },
+      { q: "Aşağıdaki kod ne yapar?\ndigitalWrite(6, HIGH);\ndelay(500);\ndigitalWrite(6, LOW);\ndelay(500);", opts: ["LED sürekli yanar","LED yanıp söner","LED yanmaz","LED 1 sn yanar"], ans: 1, exp: "HIGH → 500ms bekle → LOW → 500ms bekle. Bu dizi loop() içinde tekrarlandığında LED <strong>saniyede 1 kez yanıp söner</strong>. Klasik 'Blink' örneği!" },
+      { q: "Bir devrede volt artarsa akım ne olur?", opts: ["Artar","Azalır","Değişmez","Sıfır olur"], ans: 0, exp: "<strong>Ohm Yasası: I = V/R</strong>. Direnç sabitken gerilim artarsa akım <strong>artar</strong>. Bu yüzden yüksek voltajda daha fazla akım geçer ve elemanlar zarar görebilir." },
+      { q: "Aşağıdakilerden hangisi yanlış?", opts: ["Pil enerji sağlar","Kablo akımı taşır","Direnç akımı artırır","Anahtar kontrol eder"], ans: 2, exp: "<strong>Direnç akımı AZALTIR</strong>, artırmaz! Ohm Yasası: I=V/R. Direnç arttıkça akım düşer. Bu yüzden LED'e direnç ekleyerek akımı sınırlarız." },
+      { q: "Bir robot çizgiyi kaybederse ilk yapılması gereken nedir?", opts: ["Motoru kapatmak","Sensör kalibrasyonu","Pil değiştirmek","LED yakmak"], ans: 1, exp: "<strong>Sensör kalibrasyonu</strong> önceliklidir. Ortam ışığına göre eşik değerleri ayarlanmalıdır. Ardından yazılım algoritması gözden geçirilir." },
+      { q: "delay(2000); ne demektir?", opts: ["0.2 sn","2 sn","20 sn","200 sn"], ans: 1, exp: "<strong>delay(2000)</strong> = 2000 ms = <strong>2 saniye</strong>. delay() parametresi her zaman milisaniye cinsindendir. 1000ms = 1sn." },
+      { q: "Aşağıdaki kod kaç kez çalışır?\nfor(int i=0;i<3;i++)", opts: ["2","3","4","Sonsuz"], ans: 1, exp: "<strong>for döngüsü</strong>: i=0, i=1, i=2 → i<3 koşulu i=3'te yanlış olur ve durur. Toplam <strong>3 kez</strong> çalışır. i=0,1,2 yani 3 değer." },
+      { q: "Dijital pin ile analog pin farkı nedir?", opts: ["Biri daha hızlı","Biri sürekli değer okur","Fark yok","Biri enerji üretir"], ans: 1, exp: "<strong>Analog pin (A0-A5)</strong>, 0-1023 arası sürekli değer okur. Dijital pin ise yalnızca HIGH/LOW (0 veya 1) okur/yazar. Sıcaklık sensörü analog, buton dijital pin kullanır." },
+      { q: "GND bağlanmazsa ne olur?", opts: ["Daha hızlı çalışır","Devre tamamlanmaz","LED yanar","Sensör çalışır"], ans: 1, exp: "<strong>GND (toprak)</strong> bağlanmazsa devre tamamlanmaz ve akım akamaz. Devre elemanları çalışmaz. Her bileşenin GND'si mutlaka Arduino GND'sine bağlanmalıdır." },
+      { q: "Bir robotta sensör sayısı artırılırsa:", opts: ["Her zaman daha iyi olur","Yazılım karmaşıklaşır","Enerji azalır","Motor durur"], ans: 1, exp: "<strong>Daha fazla sensör</strong> her zaman iyi değildir. Yazılımı karmaşıklaştırır, enerji tüketimini artırır ve işleme süresini uzatır. Doğru sensörü doğru yerde kullanmak önemlidir." }
+    ]
+  },
+  {
+    title: "Deneme 7",
+    icon: "📔",
+    questions: [
+      { q: "Kahverengi-Siyah-Kırmızı direnç değeri nedir?", opts: ["1 kΩ","100 Ω","10 kΩ","1 MΩ"], ans: 0, exp: "<strong>Renk kodu:</strong> Kahverengi=1, Siyah=0, Kırmızı=×10². 10 × 100 = <strong>1000 Ω = 1 kΩ</strong>. Çok yaygın bir direnç değeridir." },
+      { q: "Aşağıdaki kod ne yapar?\npinMode(2, INPUT);\nint deger = digitalRead(2);", opts: ["Pin 2'ye enerji verir","Pin 2'den veri okur","Motor çalıştırır","LED yakar"], ans: 1, exp: "<strong>pinMode(2, INPUT)</strong> ile pini giriş yap, ardından <strong>digitalRead(2)</strong> ile HIGH/LOW değerini oku. Bu tipik buton okuma kodudur." },
+      { q: "Aşağıdaki kodda sorun nedir?\ndigitalWrite(4, HIGH);\npinMode(4, OUTPUT);", opts: ["Sıra yanlış","Pin yanlış","HIGH yanlış","Hata yok"], ans: 0, exp: "<strong>Sıra önemlidir!</strong> Önce <strong>pinMode()</strong> ile modu belirle, sonra <strong>digitalWrite()</strong> ile değer yaz. Ters sırada pin varsayılan giriş modunda kalır ve istenen çıkış elde edilmez." },
+      { q: "delay() fonksiyonu neyi etkiler?", opts: ["Volt","Zaman","Akım","Direnç"], ans: 1, exp: "<strong>delay(ms)</strong> yalnızca <strong>zamanı</strong> etkiler — programın belirtilen süre beklemesini sağlar. Elektriksel büyüklüklere (volt, akım) dokunmaz." },
+      { q: "Aşağıdaki durumdan hangisi doğru?", opts: ["Seri devrede volt bölünür","Paralel devrede akım aynıdır","Seri devrede akım aynıdır","Paralel devrede volt yoktur"], ans: 2, exp: "<strong>Seri devrede akım her noktada aynıdır</strong> (tek yol). Gerilim bölünür. Paralel devrede gerilim aynı, akım dallara bölünür. Bu temel devre kuralıdır." },
+      { q: "Aşağıdaki kod ne yapar?\nfor(int i=0;i<5;i++){\n  digitalWrite(3,HIGH);\n}", opts: ["LED 5 kez yanıp söner","LED sürekli HIGH olur","LED hiç yanmaz","Kod hata verir"], ans: 1, exp: "Döngü 5 kez HIGH yapar ama arada LOW ve delay yok. Son durum HIGH olduğundan LED <strong>sürekli HIGH kalır</strong>. Yanıp sönmesi için delay+LOW gerekir." },
+      { q: "Arduino'da analogWrite ne için kullanılır?", opts: ["Sensör okumak","PWM çıkışı","Volt ölçmek","Direnç hesaplamak"], ans: 1, exp: "<strong>analogWrite(pin, 0-255)</strong>, PWM sinyali üretir. 0=tamamen kapalı, 255=tamamen açık. LED parlaklığı veya motor hızı kademeli kontrol için kullanılır. ~(tilde) işaretli pinler PWM destekler." },
+      { q: "Bir robot sürekli sağa sapıyorsa sebep ne olabilir?", opts: ["Sensör dengesizliği","Motor farkı","Yazılım hatası","Hepsi"], ans: 3, exp: "<strong>Hepsi olası sebep:</strong> Sensörler yanlış hizalanmış olabilir, iki motorun hızı farklı olabilir ya da algoritma sağ/sol kararını yanlış verebilir. Sistematik olarak her ihtimali test etmek gerekir." },
+      { q: "Aşağıdakilerden hangisi hata içerir?", opts: ["digitalWrite(3,HIGH);","pinMode(3,OUTPUT);","digitalWrite(3,high);","delay(1000);"], ans: 2, exp: "<strong>HIGH büyük harfle yazılmalıdır!</strong> 'high' Arduino IDE tarafından tanınmaz ve derleme hatası verir. C/C++ büyük/küçük harf duyarlıdır." },
+      { q: "Bir sensör gürültülü veri veriyorsa ne yapılır?", opts: ["Kapatılır","Filtreleme yapılır","Motor değiştirilir","LED eklenir"], ans: 1, exp: "<strong>Filtreleme</strong> gürültüyü azaltır. Yöntemler: birden fazla ölçümün ortalaması, hareketli ortalama (moving average) veya Kalman filtresi. Bu yazılımsal olarak uygulanır." },
+      { q: "loop() içinde delay çok kullanılırsa ne olur?", opts: ["Robot yavaş tepki verir","Daha hızlı olur","Hata verir","Çalışmaz"], ans: 0, exp: "<strong>delay() bloklayıcıdır</strong> — bu sürede Arduino başka hiçbir işlem yapamaz. Çok delay kullanılırsa robot sensörü geç okur, geç tepki verir ve yavaş davranır. Alternatif: millis() ile zaman kontrolü." },
+      { q: "Aşağıdaki kod sonucu nedir?\nint x = 0;\nx = x + 1;\nx = x + 1;", opts: ["0","1","2","3"], ans: 2, exp: "x=0 başlar, x = 0+1 = 1, ardından x = 1+1 = <strong>2</strong>. Değişkenlerin değerleri satır satır güncellenir. Sayaç mantığının temelidir." },
+      { q: "if(x>5) ne demektir?", opts: ["x küçüktür","x eşittir","x büyüktür","x sıfırdır"], ans: 2, exp: "<strong>x > 5</strong> koşulu, x'in 5'ten <strong>büyük</strong> olduğu durumlarda doğrudur. x=6,7,100... için çalışır. x=5 için çalışmaz (> değil, >= gerekir)." },
+      { q: "Robot neden kalibrasyon ister?", opts: ["Hız için","Doğru ölçüm için","Enerji için","LED için"], ans: 1, exp: "<strong>Kalibrasyon</strong>, sensörlerin ortam koşullarına göre ayarlanmasıdır. Farklı ışık, yüzey veya sıcaklıkta sensör değerleri değişir. Kalibrasyon olmadan ölçümler hatalı olabilir." },
+      { q: "Arduino resetlenirse ne olur?", opts: ["Kod silinir","Kod baştan başlar","Motor durur","Sensör bozulur"], ans: 1, exp: "<strong>Reset</strong>, kodu silmez — flash bellekte kalır. Program setup()'tan itibaren <strong>baştan başlar</strong>. Bu, takılıp kalan bir programı kurtarmanın hızlı yoludur." },
+      { q: "analogRead(A0) değeri 1023 ise:", opts: ["Minimum","Maksimum","Hata","Sıfır"], ans: 1, exp: "<strong>1023, maksimum değerdir</strong>. analogRead 10-bit çözünürlüklü: 0=0V (minimum), 1023=5V (maksimum). 512 yaklaşık 2.5V anlamına gelir." },
+      { q: "Aşağıdaki kod ne yapar?\nif(digitalRead(2)==HIGH){\n  digitalWrite(3,HIGH);\n}", opts: ["Sürekli yanar","Butona basınca LED yanar","LED söner","Motor çalışır"], ans: 1, exp: "<strong>Koşullu kontrol:</strong> Pin 2 HIGH olduğunda (buton basılı) → pin 3'ü HIGH yap (LED yak). Bırakınca koşul sağlanmaz ve LED söner. Buton-LED etkileşiminin temeli." },
+      { q: "Bir robotta gecikme (delay) azaltılırsa:", opts: ["Tepki hızlanır","Motor durur","Sensör bozulur","Volt düşer"], ans: 0, exp: "<strong>Delay azaldıkça</strong> loop() daha sık çalışır. Sensörler daha sık okunur ve kararlar daha hızlı verilir → robot <strong>daha hızlı tepki verir</strong>. Çizgi izlemede kritik bir parametre!" },
+      { q: "Breadboard hatalı bağlanırsa ne olur?", opts: ["Daha iyi çalışır","Devre çalışmaz","Volt artar","LED yanar"], ans: 1, exp: "<strong>Breadboard</strong> yanlış bağlantıda devre tamamlanmaz veya kısa devre oluşur. İç yapısını bilmek önemli: yatay satırlar bağlantı noktaları, dikey kenarlar güç raylarıdır." },
+      { q: "En kritik başarı faktörü hangisidir?", opts: ["Çok sensör","Güçlü motor","Doğru algoritma","Büyük robot"], ans: 2, exp: "<strong>Doğru algoritma</strong> her şeyden önce gelir. En pahalı donanım bile kötü yazılımla başarısız olur. İyi bir algoritma, sınırlı kaynaklarla mükemmel sonuçlar üretebilir." }
+    ]
+  }
+];
+
+// Deneme 5 soruları — birebir docx'ten alınmıştır
+EXAMS[4].questions = [
+  // Bölüm 1: Temel Elektrik-Elektronik (1–8)
+  { q: "Bir LED'in uzun bacağı genellikle neyi ifade eder?", opts: ["anot (+)","katot (-)","gövde bağlantısı","direnç ucu"], ans: 0, exp: "<strong>LED'in uzun bacağı = anot (+)</strong>. Kısa bacak = katot (-). Akım anot'tan katot'a akar. Ters bağlanırsa LED yanmaz." },
+  { q: "Direnç değeri arttıkça, aynı gerilim altında devreden geçen akım nasıl değişir?", opts: ["artar","sabit kalır","azalır","önce artar sonra azalır"], ans: 2, exp: "<strong>Ohm Yasası: I = V/R</strong>. Gerilim sabit, direnç artarsa akım <strong>azalır</strong>. Ters orantılıdır." },
+  { q: "Bir devrede anahtar açık durumdaysa aşağıdakilerden hangisi doğrudur?", opts: ["akım yolu açıktır","pil boşalmıştır","devrede kısa devre vardır","akım yolu kesilmiştir"], ans: 3, exp: "<strong>Anahtar açıkta</strong> devre tamamlanmaz, akım yolu kesilir ve devre çalışmaz. Kapalıda ise akım akar." },
+  { q: "Aşağıdakilerden hangisi elektriksel olarak yalıtkan malzemeye örnektir?", opts: ["bakır tel","plastik kaplama","alüminyum levha","lehim teli"], ans: 1, exp: "<strong>Plastik kaplama</strong> yalıtkandır. Bu yüzden kablo dışları plastikle kaplanır. Bakır, alüminyum ve lehim teli iletkendir." },
+  { q: "İki pil seri bağlandığında genel olarak hangi büyüklük artar?", opts: ["toplam gerilim","kablo direnci","anahtar sayısı","devrenin yönü"], ans: 0, exp: "<strong>Seri bağlı pillerde gerilimler toplanır.</strong> 2 adet 1.5V pil seri bağlanırsa toplam 3V elde edilir." },
+  { q: "Aşağıdakilerden hangisi kısa devre riskini en iyi açıklar?", opts: ["Devrede LED kullanılması","Direncin büyük seçilmesi","Güç kaynağının uçlarının çok düşük dirençle doğrudan bağlanması","Anahtarın açılıp kapanması"], ans: 2, exp: "<strong>Kısa devre</strong>, güç kaynağı uçlarının neredeyse dirençsiz bağlanmasıdır. Aşırı akım akar, bileşenler ve pil zarar görebilir." },
+  { q: "Bir LED devresinde, diğer koşullar sabitken LED'in parlaklığını artırmak için aşağıdakilerden hangisi yapılabilir?", opts: ["daha ince kablo kullanmak","direnç değerini artırmak","yalıtkan malzeme eklemek","uygun sınırlar içinde devreye uygulanan gerilimi artırmak"], ans: 3, exp: "<strong>Gerilimi artırmak</strong> (güvenli sınırlar içinde) akımı artırır ve LED daha parlak yanar. Direnç artırılırsa tam tersi olur — LED solar." },
+  { q: "Aşağıdakilerden hangisi polariteli (yönlü) bir devre elemanıdır?", opts: ["jumper kablo","LED","direnç","LDR"], ans: 1, exp: "<strong>LED polaritelidir</strong> — anot ve katot uçları vardır, ters bağlanırsa çalışmaz. Direnç ve LDR yönsüzdür, her iki yönde de çalışır." },
+  // Bölüm 2: Temel Dijital Elektronik ve Devre Uygulamaları (9–15)
+  { q: "Bir dijital giriş pininin rastgele HIGH/LOW okumaması için ne yapılmalıdır?", opts: ["pin boşta bırakılmalıdır","pil sayısı artırılmalıdır","pin bir pull-up veya pull-down direnci ile sabitlenmelidir","pine paralel LED bağlanmalıdır"], ans: 2, exp: "<strong>Pull-up / pull-down direnci</strong>, pini belirli bir seviyeye sabitler. Boşta bırakılan pin 'floating' durumda rastgele değer okur. Arduino'da INPUT_PULLUP dahili pull-up kullanır." },
+  { q: "Bir buton Arduino'ya bağlandığında, butona basılmadığında pinin HIGH okunması için hangi yöntem kullanılır?", opts: ["pull-up direnci kullanmak","pini OUTPUT yapmak","analogWrite kullanmak","seri monitörü kapatmak"], ans: 0, exp: "<strong>Pull-up direnci</strong>, basılmadığında pini VCC'ye (HIGH) çeker. Basıldığında GND'ye bağlandığından LOW okunur. pinMode(pin, INPUT_PULLUP) ile dahili pull-up aktif edilir." },
+  { q: "Bir sensör çıkışı 0V ve 5V arasında sürekli değişen değerler üretiyorsa bu sinyal türü hangisidir?", opts: ["yalnızca dijital","yalnızca saat sinyali","kesikli lojik","analog"], ans: 3, exp: "<strong>Analog sinyal</strong>, sürekli değişen değerler alır. 0-5V arasında sonsuz farklı değer alabilir. Sıcaklık, ışık yoğunluğu gibi fiziksel büyüklükler analog sinyaldir." },
+  { q: "Breadboard üzerinde aynı sıradaki deliklerin içten bağlı olmasının temel amacı nedir?", opts: ["pili şarj etmek","devre kurmayı kolaylaştırmak","akımı sınırlamak","motoru sürmek"], ans: 1, exp: "<strong>Breadboard</strong>'un aynı satırdaki delikleri içten metal klipslerle bağlıdır. Bu yapı lehimsiz devre kurmayı kolaylaştırır; bileşenleri aynı satıra takarak bağlantı sağlanır." },
+  { q: "Bir çizgi izleme uygulamasında sensör siyah zeminden farklı, beyaz zeminden farklı değer okuyorsa bu farkın temel nedeni nedir?", opts: ["pilin renginin değişmesi","motorların farklı dönmesi","yüzeylerin ışığı farklı yansıtması","kabloların uzun olması"], ans: 2, exp: "<strong>Yüzey rengi yansıma oranını belirler.</strong> Beyaz zemin IR ışığı yansıtır (yüksek değer), siyah çizgi emerek yansıtmaz (düşük değer). Bu fark ile çizgi algılanır." },
+  { q: "Aşağıdakilerden hangisi robot devresinde ortak referans noktası olarak kullanılır?", opts: ["GND","PWM","RX","VIN"], ans: 0, exp: "<strong>GND (Ground)</strong>, devrenin 0V referans noktasıdır. Tüm bileşenlerin GND'si ortak bağlanmalıdır; aksi hâlde devre düzgün çalışmaz." },
+  { q: "Robot devresindeki gevşek elektrik bağlantıları aşağıdaki sonuçlardan hangisine en olası şekilde yol açar?", opts: ["robotun daha hafif olmasına","sensör menzilinin artmasına","pil kapasitesinin artmasına","robotun kararsız veya kesintili çalışmasına"], ans: 3, exp: "<strong>Gevşek bağlantılar</strong> aralıklı temas kaybına yol açar. Robot tutarsız davranır, sensör yanlış okur veya motor aniden durabilir. Bağlantıları sağlam yapmak kritiktir." },
+  // Bölüm 3: Arduino ve Programlama (16–24)
+  { q: "Bir pinin giriş mi çıkış mı olacağını belirleyen komut hangisidir?", opts: ["digitalRead()","pinMode()","delay()","Serial.print()"], ans: 1, exp: "<strong>pinMode(pin, MOD)</strong> komutu pinin giriş (INPUT) veya çıkış (OUTPUT) olduğunu belirler. Bu ayar setup() fonksiyonunda yapılır." },
+  { q: "Aşağıdaki ifadelerden hangisi setup() fonksiyonu için doğrudur?", opts: ["Program başladığında bir kez çalışır","Sürekli tekrar eder","Sadece hata varsa çalışır","Sadece sensör varsa çalışır"], ans: 0, exp: "<strong>setup()</strong>, Arduino açıldığında veya reset'lendiğinde <strong>yalnızca bir kez</strong> çalışır. Pin tanımlamaları ve başlangıç ayarları buraya yazılır." },
+  { q: "Bir dijital pine bağlı butonun durumunu okumak için en uygun komut hangisidir?", opts: ["analogWrite()","tone()","digitalRead()","millis()"], ans: 2, exp: "<strong>digitalRead(pin)</strong>, INPUT modundaki bir pinin HIGH veya LOW değerini okur. Buton basılı → LOW (pull-up ile), bırakıldı → HIGH." },
+  { q: "Aşağıdaki komutlardan hangisi 6 numaralı pini LOW yapar?", opts: ["pinMode(6, LOW);","digitalRead(6, LOW);","analogRead(6);","digitalWrite(6, LOW);"], ans: 3, exp: "<strong>digitalWrite(6, LOW)</strong> komutu 6. pini LOW (0V) yapar. pinMode ve digitalRead farklı amaçlar için kullanılır; LOW parametresi onlara verilmez." },
+  { q: "Aşağıdaki kod ne amaçla kullanılır?\nfor (int i = 2; i <= 5; i++) {\n  pinMode(i, OUTPUT);\n}", opts: ["2 ile 5 arasındaki pinleri giriş yapar","2 ile 5 arasındaki pinleri çıkış yapar","2 ile 5 arasındaki pinleri LOW yapar","2 ile 5 arasındaki pinleri okur"], ans: 1, exp: "Döngü i=2,3,4,5 için çalışır (i<=5). Her adımda pinMode(i, OUTPUT) ile o pini çıkış yapar. Pin 2, 3, 4 ve 5 OUTPUT olarak ayarlanır." },
+  { q: "Aşağıdakilerden hangisi program içindeki koşullu karar yapısıdır?", opts: ["if","delay","void","include"], ans: 0, exp: "<strong>if(koşul){...}</strong> koşullu karar yapısıdır. Koşul doğruysa blok çalışır. delay() bekletir, void fonksiyon tipidir, include kütüphane ekler." },
+  { q: "delay(250); komutu ne yapar?", opts: ["250 saniye bekler","25 saniye bekler","250 milisaniye bekler","pini 250 yapar"], ans: 2, exp: "<strong>delay(250)</strong> = <strong>250 milisaniye</strong> = 0.25 saniye bekler. Parametre her zaman ms cinsindendir. 1000ms = 1 saniye." },
+  { q: "Bir LED'in yanıp sönmesi (blink) için programda aşağıdaki işlemlerden hangisinin yapılması gerekir?", opts: ["analog sensör okumak","seri haberleşme başlatmak","giriş pinini okumak","çıkış pininin durumunu değiştirmek ve bekleme süresi kullanmak"], ans: 3, exp: "<strong>Blink</strong> için: HIGH yap → delay() bekle → LOW yap → delay() bekle. Bu döngü loop() içinde sürekli tekrarlanır." },
+  { q: "Aşağıdaki satırlardan hangisi sözdizimi bakımından doğrudur?", opts: ["digitalWrite(13 HIGH);","digitalWrite(13, HIGH);","digitalWrite 13, HIGH;","digitalWrite(13)(HIGH);"], ans: 1, exp: "<strong>digitalWrite(13, HIGH);</strong> doğru sözdizimidir. İki parametre arasına virgül konur, parantezler ve noktalı virgül gereklidir." },
+  // Bölüm 4: Yarışma Kılavuzu ve Uygulama Kuralları (25–30)
+  { q: "Tasarla-Çalıştır Temel Seviye kategorisinde bir ekip kaç öğrenciden oluşmalıdır?", opts: ["2","1","3","4"], ans: 0, exp: "<strong>Tasarla-Çalıştır Temel Seviye</strong> kategorisinde her ekip <strong>2 öğrenciden</strong> oluşmalıdır." },
+  { q: "Yeterlilik sınavını geçen ekipler, robotun yarışacağı parkur bilgilerine ne zaman erişir?", opts: ["başvuru sırasında","okulda hazırlık sürecinde","yarışma başlamadan hemen önce","final yarışı bittikten sonra"], ans: 2, exp: "Parkur bilgileri ekiplere <strong>yarışma başlamadan hemen önce</strong> açıklanır. Bu sayede tüm ekipler eşit koşullarda hazırlanır." },
+  { q: "Aşağıdakilerden hangisi yarışma sırasında robot üzerinde bulunmamalıdır?", opts: ["çizgi sensörü","bluetooth gibi kablosuz haberleşme modülü","motor sürücü kartı","açık kaynak mikrodenetleyici kartı"], ans: 1, exp: "<strong>Bluetooth gibi kablosuz haberleşme modülleri</strong> yarışma sırasında robot üzerinde bulunmamalıdır. Robot otonom çalışmalı, uzaktan kontrol edilmemelidir." },
+  { q: "Tasarla-Çalıştır Temel Seviye yeterlilik sınavında puan eşitliği oluşursa öncelik hangi ölçüte verilir?", opts: ["danışman öğretmenin kıdemi","okulun bulunduğu şehir","robotun ağırlığı","sınav evrakını daha erken teslim eden ekip"], ans: 3, exp: "Puan eşitliğinde <strong>sınav evrakını daha erken teslim eden ekip</strong> öncelik kazanır." },
+  { q: "Yarışmacıların yanında aşağıdakilerden hangisini bulundurmaması gerekir?", opts: ["cep telefonu","breadboard","jumper kablo","mini pense"], ans: 0, exp: "<strong>Cep telefonu</strong> yarışma alanına alınmamalıdır. Breadboard, jumper kablo ve pense gibi elektronik aletler kullanılabilir." },
+  { q: "Tasarla-Çalıştır Temel Seviye kategorisinde robotun çalışma biçimi nasıl olmalıdır?", opts: ["uzaktan kumandalı","kablolu bilgisayar kontrolünde","otonom","sürekli internete bağlı"], ans: 2, exp: "<strong>Otonom çalışma</strong> zorunludur. Robot, sensörlerinden aldığı verilere göre kendi kararlarını vererek parkuru tamamlamalıdır. İnsan kontrolü yasaktır." }
+];
+
+// State
+const state = {};
+EXAMS.forEach((_, i) => {
+  state[i] = { answers: {}, correct: 0, wrong: 0, total: 0 };
+});
+
+function buildUI() {
+  const tabBar = document.getElementById('tabBar');
+  const quizWrap = document.getElementById('quizWrap');
+
+  EXAMS.forEach((exam, ei) => {
+    // Tab
+    const tab = document.createElement('button');
+    tab.className = 'tab-btn' + (ei === 0 ? ' active' : '');
+    tab.id = `tab-${ei}`;
+    tab.innerHTML = `${exam.icon} ${exam.title} <span class="tab-score" id="tab-score-${ei}">0/${exam.questions.length}</span>`;
+    tab.onclick = () => switchTab(ei);
+    tabBar.appendChild(tab);
+
+    // Panel
+    const panel = document.createElement('div');
+    panel.className = 'quiz-panel' + (ei === 0 ? ' active' : '');
+    panel.id = `panel-${ei}`;
+
+    // Progress ring
+    const circumference = 2 * Math.PI * 20;
+    panel.innerHTML = `
+      <div class="progress-ring" id="ring-wrap-${ei}">
+        <div class="ring-wrap">
+          <svg width="52" height="52" viewBox="0 0 52 52">
+            <circle class="ring-bg" cx="26" cy="26" r="20"/>
+            <circle class="ring-fill" id="ring-${ei}" cx="26" cy="26" r="20"
+              stroke-dasharray="${circumference}"
+              stroke-dashoffset="${circumference}"/>
+          </svg>
+          <div class="ring-center" id="ring-pct-${ei}">0%</div>
+        </div>
+        <div class="progress-text">
+          <h3>${exam.icon} ${exam.title}</h3>
+          <p id="ring-status-${ei}">Henüz cevap verilmedi</p>
+        </div>
+        <div class="progress-stats">
+          <div class="stat correct"><div class="stat-num" id="stat-c-${ei}">0</div><div class="stat-label">Doğru</div></div>
+          <div class="stat wrong"><div class="stat-num" id="stat-w-${ei}">0</div><div class="stat-label">Yanlış</div></div>
+        </div>
+      </div>
+      <div class="panel-header">
+        <div class="panel-title">${exam.title} Soruları</div>
+        <div class="q-count">${exam.questions.length} Soru</div>
+        <button class="reset-btn" onclick="resetExam(${ei})">↺ Sıfırla</button>
+      </div>
+    `;
+
+    // Questions
+    let sectionLabel = null;
+    exam.questions.forEach((q, qi) => {
+      // Section labels for exam 4 and 5
+      const sectionMaps = {
+        3: {0:'Temel Elektrik (1–10)', 10:'Temel Dijital Elektronik (11–15)', 15:'Arduino Programlama (16–25)', 25:'Robotik ve Sensörler (26–30)'},
+        4: {0:'Temel Elektrik-Elektronik (1–8)', 8:'Temel Dijital Elektronik ve Devre Uygulamaları (9–15)', 15:'Arduino ve Programlama (16–24)', 24:'Yarışma Kılavuzu ve Uygulama Kuralları (25–30)'}
+      };
+      if (sectionMaps[ei] && sectionMaps[ei][qi] !== undefined) {
+        const lbl = document.createElement('div');
+        lbl.className = 'section-label';
+        lbl.textContent = sectionMaps[ei][qi];
+        panel.appendChild(lbl);
+      }
+
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.id = `card-${ei}-${qi}`;
+
+      const qTextHtml = q.q.includes('\n')
+        ? q.q.split('\n').map((line, i) => i===0 ? line : `<code>${line}</code>`).join('')
+        : q.q;
+
+      let optsHtml = '';
+      ['a','b','c','d'].forEach((letter, oi) => {
+        optsHtml += `
+          <button class="option-btn" id="opt-${ei}-${qi}-${oi}" onclick="answer(${ei},${qi},${oi})">
+            <span class="option-letter">${letter.toUpperCase()}</span>
+            <span>${q.opts[oi]}</span>
+          </button>`;
+      });
+
+      card.innerHTML = `
+        <div class="q-header">
+          <span class="q-num">S.${qi+1}</span>
+          <div class="q-text">${qTextHtml}</div>
+        </div>
+        <div class="options" id="opts-${ei}-${qi}">${optsHtml}</div>
+        <div class="explanation" id="exp-${ei}-${qi}">${q.exp}</div>
+      `;
+      panel.appendChild(card);
+    });
+
+    quizWrap.appendChild(panel);
+  });
+}
+
+function switchTab(ei) {
+  document.querySelectorAll('.tab-btn').forEach((t,i) => t.classList.toggle('active', i===ei));
+  document.querySelectorAll('.quiz-panel').forEach((p,i) => p.classList.toggle('active', i===ei));
+}
+
+function answer(ei, qi, oi) {
+  const q = EXAMS[ei].questions[qi];
+  const s = state[ei];
+  if (s.answers[qi] !== undefined) return; // already answered
+
+  s.answers[qi] = oi;
+  s.total++;
+
+  const isCorrect = oi === q.ans;
+  if (isCorrect) s.correct++; else s.wrong++;
+
+  // Style options
+  const optsEl = document.getElementById(`opts-${ei}-${qi}`);
+  optsEl.querySelectorAll('.option-btn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === oi && isCorrect) {
+      btn.classList.add('correct');
+      btn.innerHTML += '<span class="check-icon">✓</span>';
+    } else if (i === oi && !isCorrect) {
+      btn.classList.add('wrong');
+      btn.innerHTML += '<span class="check-icon">✗</span>';
+    } else if (i === q.ans && !isCorrect) {
+      btn.classList.add('reveal-correct');
+    }
+  });
+
+  // Show explanation only if wrong
+  if (!isCorrect) {
+    const expEl = document.getElementById(`exp-${ei}-${qi}`);
+    expEl.classList.add('show');
+  }
+
+  // Mark card
+  document.getElementById(`card-${ei}-${qi}`).classList.add('has-answer');
+
+  updateProgress(ei);
+}
+
+function updateProgress(ei) {
+  const s = state[ei];
+  const total = EXAMS[ei].questions.length;
+  const answered = Object.keys(s.answers).length;
+  const pct = Math.round((answered / total) * 100);
+
+  // Ring
+  const circumference = 2 * Math.PI * 20;
+  const offset = circumference - (pct / 100) * circumference;
+  const ring = document.getElementById(`ring-${ei}`);
+  if (ring) {
+    ring.style.strokeDashoffset = offset;
+    // Color based on score
+    const scorePct = answered > 0 ? (s.correct / answered) : 0;
+    ring.style.stroke = scorePct >= 0.7 ? '#22c55e' : scorePct >= 0.4 ? '#f7c948' : '#ef4444';
+  }
+  const pctEl = document.getElementById(`ring-pct-${ei}`);
+  if (pctEl) pctEl.textContent = pct + '%';
+
+  const statusEl = document.getElementById(`ring-status-${ei}`);
+  if (statusEl) {
+    if (answered === 0) statusEl.textContent = 'Henüz cevap verilmedi';
+    else if (answered === total) statusEl.textContent = `Tamamlandı! ${s.correct}/${total} doğru`;
+    else statusEl.textContent = `${answered}/${total} soru cevaplandı`;
+  }
+
+  document.getElementById(`stat-c-${ei}`).textContent = s.correct;
+  document.getElementById(`stat-w-${ei}`).textContent = s.wrong;
+
+  // Tab score
+  document.getElementById(`tab-score-${ei}`).textContent = `${s.correct}/${total}`;
+}
+
+function resetExam(ei) {
+  state[ei] = { answers: {}, correct: 0, wrong: 0, total: 0 };
+  EXAMS[ei].questions.forEach((q, qi) => {
+    const optsEl = document.getElementById(`opts-${ei}-${qi}`);
+    optsEl.querySelectorAll('.option-btn').forEach((btn, oi) => {
+      btn.disabled = false;
+      btn.className = 'option-btn';
+      btn.onclick = () => answer(ei, qi, oi);
+      // Rebuild inner HTML
+      const letters = ['A','B','C','D'];
+      btn.innerHTML = `<span class="option-letter">${letters[oi]}</span><span>${q.opts[oi]}</span>`;
+    });
+    document.getElementById(`exp-${ei}-${qi}`).classList.remove('show');
+    document.getElementById(`card-${ei}-${qi}`).classList.remove('has-answer');
+  });
+  updateProgress(ei);
+}
+
+buildUI();
+</script>
+</body>
+</html>

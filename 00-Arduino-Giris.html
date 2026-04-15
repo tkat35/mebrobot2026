@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arduino Hızlandırılmış Kurs | MEB Robot Tasarla Çalıştır</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Nunito:wght@400;600;700;800;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2235;
+    --border: #2a2f45;
+    --accent: #00d4aa;
+    --accent2: #7c6bff;
+    --accent3: #ff6b6b;
+    --accent4: #ffd166;
+    --text: #e8eaf0;
+    --text-muted: #8890aa;
+    --code-bg: #0d1117;
+    --code-border: #30363d;
+    --keyword: #ff7b72;
+    --type: #79c0ff;
+    --string: #a5d6ff;
+    --comment: #8b949e;
+    --number: #ffa657;
+    --func: #d2a8ff;
+    --macro: #7ee787;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(15,17,23,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+  }
+
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .nav-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: -0.5px;
+  }
+
+  .nav-logo span { color: var(--text-muted); }
+
+  .progress-bar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    width: 0%;
+    transition: width 0.1s;
+    z-index: 99;
+  }
+
+  /* ── SIDEBAR ── */
+  .layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 0;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 56px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    padding: 1.5rem 1rem;
+    border-right: 1px solid var(--border);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .sidebar-title {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    padding-left: 0.5rem;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.5rem;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.15s;
+    line-height: 1.3;
+  }
+
+  .sidebar-link:hover, .sidebar-link.active {
+    background: var(--surface2);
+    color: var(--accent);
+  }
+
+  .sidebar-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    min-width: 20px;
+    opacity: 0.7;
+  }
+
+  /* ── MAIN ── */
+  main {
+    padding: 3rem 3rem 4rem;
+    max-width: 860px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    margin-bottom: 4rem;
+    padding: 3rem 2.5rem;
+    background: var(--surface);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, rgba(0,212,170,0.15), transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(0,212,170,0.12);
+    border: 1px solid rgba(0,212,170,0.3);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+  }
+
+  .hero h1 {
+    font-family: 'Nunito', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: #fff;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .hero p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 560px;
+  }
+
+  .hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    margin-bottom: 4rem;
+    scroll-margin-top: 80px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(0,212,170,0.1);
+    border: 1px solid rgba(0,212,170,0.25);
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    margin-top: 0.35rem;
+    white-space: nowrap;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.25;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 1.75rem 0 0.75rem;
+  }
+
+  p { margin-bottom: 1rem; color: var(--text-muted); }
+  p strong { color: var(--text); }
+
+  /* ── CODE BLOCKS ── */
+  .code-wrap {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: var(--radius);
+    margin: 1.25rem 0;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--code-border);
+    background: #161b22;
+  }
+
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .code-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .code-dots span:nth-child(1) { background: #ff5f56; }
+  .code-dots span:nth-child(2) { background: #ffbd2e; }
+  .code-dots span:nth-child(3) { background: #27c93f; }
+
+  pre {
+    padding: 1.25rem 1.25rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .kw { color: var(--keyword); font-weight: 600; }
+  .tp { color: var(--type); }
+  .st { color: var(--string); }
+  .cm { color: var(--comment); font-style: italic; }
+  .nm { color: var(--number); }
+  .fn { color: var(--func); }
+  .mc { color: var(--macro); }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.83em;
+    background: rgba(124,107,255,0.15);
+    color: var(--accent2);
+    padding: 0.15em 0.45em;
+    border-radius: 4px;
+  }
+
+  /* ── CALLOUT BOXES ── */
+  .box {
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+    border-left: 4px solid;
+    font-size: 0.92rem;
+  }
+
+  .box-why {
+    background: rgba(124,107,255,0.08);
+    border-color: var(--accent2);
+    color: var(--text);
+  }
+
+  .box-tip {
+    background: rgba(0,212,170,0.07);
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .box-warn {
+    background: rgba(255,107,107,0.08);
+    border-color: var(--accent3);
+    color: var(--text);
+  }
+
+  .box-summary {
+    background: rgba(255,209,102,0.08);
+    border-color: var(--accent4);
+    color: var(--text);
+  }
+
+  .box-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.4rem;
+    opacity: 0.75;
+  }
+
+  .box-why .box-label { color: var(--accent2); }
+  .box-tip .box-label { color: var(--accent); }
+  .box-warn .box-label { color: var(--accent3); }
+  .box-summary .box-label { color: var(--accent4); }
+
+  .box ul {
+    margin: 0.5rem 0 0 1.25rem;
+    color: var(--text-muted);
+  }
+  .box ul li { margin-bottom: 0.3rem; }
+  .box p { margin-bottom: 0; }
+
+  /* ── TABLES ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.25rem 0;
+    font-size: 0.88rem;
+  }
+
+  th {
+    background: var(--surface2);
+    color: var(--text);
+    font-weight: 800;
+    padding: 0.65rem 1rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+  }
+
+  td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+
+  td code { font-size: 0.82em; }
+
+  tr:hover td { background: var(--surface2); }
+
+  /* ── COMPARISON CARDS ── */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+
+  .compare-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+  }
+
+  .compare-card h4 {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* ── SIGNAL VISUAL ── */
+  .signal-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+
+  .signal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .signal-card h4 {
+    font-weight: 800;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  .signal-card p {
+    font-size: 0.82rem;
+    margin: 0;
+  }
+
+  .signal-digital svg, .signal-analog svg {
+    width: 100%;
+    height: 60px;
+    margin: 0.75rem 0;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 3rem 0;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 3rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  footer strong { color: var(--accent); font-weight: 800; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    main { padding: 2rem 1.25rem; }
+    .compare, .signal-row { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 1.65rem; }
+  }
+
+  /* mini project highlight */
+  .mini-project {
+    background: linear-gradient(135deg, rgba(0,212,170,0.05), rgba(124,107,255,0.05));
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-top: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">arduino<span>/</span>hızlandırılmış</a>
+    <span style="font-size:0.78rem;color:var(--text-muted);font-weight:700;">MEB Robot Tasarla Çalıştır</span>
+  </div>
+</nav>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-title">İçindekiler</div>
+    <a href="#s1" class="sidebar-link"><span class="sidebar-num">01</span> Giriş</a>
+    <a href="#s2" class="sidebar-link"><span class="sidebar-num">02</span> Değişkenler & Tipler</a>
+    <a href="#s3" class="sidebar-link"><span class="sidebar-num">03</span> Operatörler</a>
+    <a href="#s4" class="sidebar-link"><span class="sidebar-num">04</span> Dijital & Analog</a>
+    <a href="#s5" class="sidebar-link"><span class="sidebar-num">05</span> Koşul İfadeleri</a>
+    <a href="#s6" class="sidebar-link"><span class="sidebar-num">06</span> Döngüler</a>
+    <a href="#s7" class="sidebar-link"><span class="sidebar-num">07</span> Fonksiyonlar</a>
+    <a href="#s8" class="sidebar-link"><span class="sidebar-num">08</span> Temel Bileşenler</a>
+    <a href="#s9" class="sidebar-link"><span class="sidebar-num">09</span> Kütüphane & Nesne</a>
+    <a href="#s10" class="sidebar-link"><span class="sidebar-num">10</span> Kod Stili</a>
+    <a href="#s11" class="sidebar-link"><span class="sidebar-num">11</span> Çizgi Modülü</a>
+    <a href="#s12" class="sidebar-link"><span class="sidebar-num">12</span> L298N & DC Motor</a>
+    <a href="#s13" class="sidebar-link"><span class="sidebar-num">13</span> HY-SRF05</a>
+    <a href="#s14" class="sidebar-link"><span class="sidebar-num">14</span> QTR-8A</a>
+    <a href="#s15" class="sidebar-link"><span class="sidebar-num">15</span> Mini Proje</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-badge">🤖 MEB Robot Tasarla Çalıştır</div>
+      <h1>Arduino'yu<br><em>Hızlı Öğren</em></h1>
+      <p>Bu sayfa seni adım adım Arduino programlamanın temellerinden yarışma bileşenlerine götürecek. Her bölümü sırayla oku, örnekleri dikkatlice incele.</p>
+      <div class="hero-chips">
+        <span class="chip">4'lü Çizgi Modülü</span>
+        <span class="chip">L298N</span>
+        <span class="chip">HY-SRF05</span>
+        <span class="chip">QTR-8A</span>
+      </div>
+    </div>
+
+    <!-- ─── BÖLÜM 1: GİRİŞ ─── -->
+    <section id="s1">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2>Arduino Nedir ve Kod Nasıl Çalışır?</h2>
+      </div>
+
+      <p><strong>Arduino</strong>, üzerinde küçük bir bilgisayar çipi bulunan bir devre kartıdır. Robotu hareket ettirmek, sensörlerden veri okumak, LED yakmak gibi işlemleri bu kart sayesinde yaparsın. Kartı çalıştırmak için ona ne yapması gerektiğini bir <strong>program (kod)</strong> yazarak söylemen gerekir.</p>
+
+      <div class="box box-why">
+        <div class="box-label">🧠 Neden Böyle?</div>
+        <p>Arduino C++ diline dayalı bir dil kullanır. Ama endişelenme — yarışma için gereken kısmı çok anlaşılır ve öğrenilebilir.</p>
+      </div>
+
+      <p>Her Arduino programının iki zorunlu parçası vardır:</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++</span>
+        </div>
+        <pre><span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="cm">// Başlangıç ayarları — sadece bir kez çalışır</span>
+  <span class="cm">// Pinleri hazırla, kütüphaneleri başlat</span>
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// Sürekli tekrar eder — robot kapanana kadar</span>
+  <span class="cm">// Sensör oku, motoru sürdür, karar ver...</span>
+}</pre>
+      </div>
+
+      <div class="box box-tip">
+        <div class="box-label">💡 Bunu Aklında Tut</div>
+        <p><strong>setup()</strong> bir kez çalışır — kart açılınca. <strong>loop()</strong> ise durmadan döner. Robotun davranışının büyük çoğunluğunu <code>loop()</code> içine yazarsın.</p>
+      </div>
+
+      <p>Her satırın sonunda <strong>noktalı virgül (;)</strong> kullanman gerekir. Parantez <code>{ }</code> arasındaki her şey o bloğa aittir. Yorum satırları <code>//</code> ile başlar ve kod çalıştırılmaz, sadece sana not bırakmak içindir.</p>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Ne Öğrendik?</div>
+        <ul>
+          <li><code>setup()</code> bir kez çalışır, <code>loop()</code> sürekli tekrar eder</li>
+          <li>Her satır <code>;</code> ile biter</li>
+          <li><code>// yorum</code> satırları çalıştırılmaz, not almak içindir</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 2: DEĞİŞKENLER ─── -->
+    <section id="s2">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2>Değişkenler ve Veri Tipleri</h2>
+      </div>
+
+      <p><strong>Değişken</strong>, bir bilgiyi saklayan kutucuktur. Tıpkı oyunda skoru aklında tutman gibi — Arduino da bazı bilgileri değişkenlerde saklar. Her değişkenin bir <strong>tipi</strong> ve bir <strong>adı</strong> olmalıdır.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Söz Dizimi</span>
+        </div>
+        <pre><span class="tp">tip</span> degiskenAdi = deger;</pre>
+      </div>
+
+      <h3>Veri Tipleri</h3>
+
+      <table>
+        <tr>
+          <th>Tip</th>
+          <th>Ne Saklar?</th>
+          <th>Örnek Değer</th>
+          <th>Bellek</th>
+        </tr>
+        <tr>
+          <td><code>int</code></td>
+          <td>Tam sayı</td>
+          <td><code>-32768 ... 32767</code></td>
+          <td>2 byte</td>
+        </tr>
+        <tr>
+          <td><code>uint8_t</code></td>
+          <td>0–255 arası sayı</td>
+          <td><code>0, 100, 255</code></td>
+          <td>1 byte</td>
+        </tr>
+        <tr>
+          <td><code>float</code></td>
+          <td>Ondalıklı sayı</td>
+          <td><code>3.14, -0.5</code></td>
+          <td>4 byte</td>
+        </tr>
+        <tr>
+          <td><code>bool</code></td>
+          <td>Doğru/Yanlış</td>
+          <td><code>true, false</code></td>
+          <td>1 byte</td>
+        </tr>
+        <tr>
+          <td><code>String</code></td>
+          <td>Metin</td>
+          <td><code>"Merhaba!"</code></td>
+          <td>Değişken</td>
+        </tr>
+      </table>
+
+      <div class="box box-tip">
+        <div class="box-label">💡 uint8_t Nedir?</div>
+        <p><code>uint8_t</code> aslında "0 ile 255 arasında tam sayı" demektir. Arduino pinlerinin değerleri (0–255 arası PWM, HIGH/LOW) hep bu aralıktadır. Bu yüzden pin numaraları ve PWM değerleri için <code>uint8_t</code> kullanmak hem doğrudur hem de <code>int</code>'e göre daha az bellek kullanır. <strong>u</strong> = işaretsiz (eksi sayı yok), <strong>8</strong> = 8 bit, <strong>t</strong> = tip.</p>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++</span>
+        </div>
+        <pre><span class="tp">int</span> skor = <span class="nm">0</span>;              <span class="cm">// tam sayı</span>
+<span class="tp">float</span> mesafe = <span class="nm">23.5</span>;       <span class="cm">// ondalıklı</span>
+<span class="tp">bool</span> engelVar = <span class="kw">false</span>;     <span class="cm">// evet/hayır</span>
+<span class="tp">String</span> mesaj = <span class="st">"Hazır!"</span>;   <span class="cm">// metin</span>
+<span class="tp">uint8_t</span> hiz = <span class="nm">200</span>;         <span class="cm">// 0-255 arası hız değeri</span>
+<span class="tp">uint8_t</span> ledPin = <span class="nm">13</span>;       <span class="cm">// pin numarası için ideal</span></pre>
+      </div>
+
+      <h3>#define ile Sabit Tanımlama</h3>
+
+      <p>Bazen bir değerin program boyunca <strong>hiç değişmeyeceğini</strong> bilirsin — mesela bir pine bağlı LED'in pin numarası. Bu durumda değişken yerine <code>#define</code> kullanabilirsin.</p>
+
+      <div class="box box-why">
+        <div class="box-label">🧠 Neden #define?</div>
+        <p>Normal değişkenler Arduino'nun RAM belleğinde yer kaplar. <code>#define</code> ise bellek kullanmaz — kodu derlenmeden önce, tanımladığın ismi direkt sayıyla değiştiriri. Robotlarda bellek kıymetlidir. Ayrıca kodu okuyan biri <code>13</code> yerine <code>LED_PIN</code> görünce ne olduğunu hemen anlar.</p>
+      </div>
+
+      <div class="compare">
+        <div class="compare-card">
+          <h4>❌ Sihirli sayı — anlaşılmaz</h4>
+          <div class="code-wrap" style="margin:0">
+            <pre style="font-size:0.8rem"><span class="fn">digitalWrite</span>(<span class="nm">13</span>, <span class="kw">HIGH</span>);
+<span class="fn">analogWrite</span>(<span class="nm">9</span>, <span class="nm">200</span>);</pre>
+          </div>
+        </div>
+        <div class="compare-card">
+          <h4>✅ #define ile — net ve anlaşılır</h4>
+          <div class="code-wrap" style="margin:0">
+            <pre style="font-size:0.8rem"><span class="mc">#define</span> LED_PIN <span class="nm">13</span>
+<span class="mc">#define</span> SOL_MOTOR <span class="nm">9</span>
+<span class="fn">digitalWrite</span>(LED_PIN, <span class="kw">HIGH</span>);
+<span class="fn">analogWrite</span>(SOL_MOTOR, <span class="nm">200</span>);</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="box box-warn">
+        <div class="box-label">⚠️ Dikkat</div>
+        <p><code>#define</code> ile tanımlanan sabitin değeri program çalışırken <strong>değiştirilemez</strong>. Eğer sonradan değişmesi gerekiyorsa <code>const int</code> veya normal değişken kullan.</p>
+      </div>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Ne Öğrendik?</div>
+        <ul>
+          <li>Değişken = bilgi saklayan kutucuk, mutlaka tipi olmalı</li>
+          <li><code>uint8_t</code> = 0–255 arası sayı, pin ve hız değerleri için idealdir</li>
+          <li><code>#define</code> = sabit değer için, bellek kullanmaz, kodu açık eder</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 3: OPERATÖRLER ─── -->
+    <section id="s3">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2>Operatörler</h2>
+      </div>
+
+      <p>Operatörler, değişkenlerle işlem yapmanı sağlar. İki grubu bilmen yeterli:</p>
+
+      <h3>Matematiksel Operatörler</h3>
+      <table>
+        <tr><th>Operatör</th><th>Anlamı</th><th>Örnek</th><th>Sonuç</th></tr>
+        <tr><td><code>+</code></td><td>Toplama</td><td><code>3 + 4</code></td><td><code>7</code></td></tr>
+        <tr><td><code>-</code></td><td>Çıkarma</td><td><code>10 - 3</code></td><td><code>7</code></td></tr>
+        <tr><td><code>*</code></td><td>Çarpma</td><td><code>3 * 4</code></td><td><code>12</code></td></tr>
+        <tr><td><code>/</code></td><td>Bölme</td><td><code>10 / 2</code></td><td><code>5</code></td></tr>
+        <tr><td><code>%</code></td><td>Bölümden kalan</td><td><code>10 % 3</code></td><td><code>1</code></td></tr>
+      </table>
+
+      <h3>Karşılaştırma Operatörleri</h3>
+      <p>Bu operatörler sonuç olarak <strong>true (doğru)</strong> ya da <strong>false (yanlış)</strong> üretir. Koşul ifadelerinde kullanılır.</p>
+      <table>
+        <tr><th>Operatör</th><th>Anlamı</th><th>Örnek</th></tr>
+        <tr><td><code>==</code></td><td>Eşit mi?</td><td><code>x == 5</code></td></tr>
+        <tr><td><code>!=</code></td><td>Eşit değil mi?</td><td><code>x != 0</code></td></tr>
+        <tr><td><code>&gt;</code></td><td>Büyük mü?</td><td><code>mesafe &gt; 20</code></td></tr>
+        <tr><td><code>&lt;</code></td><td>Küçük mü?</td><td><code>mesafe &lt; 10</code></td></tr>
+        <tr><td><code>&gt;=</code></td><td>Büyük eşit mi?</td><td><code>hiz &gt;= 100</code></td></tr>
+        <tr><td><code>&lt;=</code></td><td>Küçük eşit mi?</td><td><code>hiz &lt;= 255</code></td></tr>
+      </table>
+
+      <h3>Mantıksal Operatörler</h3>
+      <table>
+        <tr><th>Operatör</th><th>Anlamı</th><th>Örnek</th></tr>
+        <tr><td><code>&amp;&amp;</code></td><td>Ve (ikisi de doğru mu?)</td><td><code>x > 0 &amp;&amp; x &lt; 100</code></td></tr>
+        <tr><td><code>||</code></td><td>Veya (biri doğru mu?)</td><td><code>a == 1 || b == 1</code></td></tr>
+        <tr><td><code>!</code></td><td>Değil (tersine çevir)</td><td><code>!engelVar</code></td></tr>
+      </table>
+
+      <div class="box box-warn">
+        <div class="box-label">⚠️ Sık Yapılan Hata</div>
+        <p>Eşitlik kontrolü için <strong>çift eşittir</strong> <code>==</code> kullan. Tek eşittir <code>=</code> atama operatörüdür; değer kontrol etmez, değer atar!</p>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 4: DİJİTAL & ANALOG ─── -->
+    <section id="s4">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2>Dijital ve Analog Sinyal / Pin Kavramı</h2>
+      </div>
+
+      <p>Arduino kartındaki her delik bir <strong>pin</strong>'dir. Pinlerden veri gönderip alırsın. Ama önce iki farklı sinyal türünü anlamak gerekir:</p>
+
+      <div class="signal-row">
+        <div class="signal-card signal-digital">
+          <h4>🔲 Dijital Sinyal</h4>
+          <svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="10,50 10,10 50,10 50,50 90,50 90,10 130,10 130,50 170,50 170,10 195,10" fill="none" stroke="#00d4aa" stroke-width="3" stroke-linejoin="round"/>
+            <text x="10" y="58" fill="#8890aa" font-size="8" font-family="monospace">LOW(0)</text>
+            <text x="10" y="8" fill="#8890aa" font-size="8" font-family="monospace">HIGH(1)</text>
+          </svg>
+          <p>Sadece <strong>iki değer</strong> alır: <code>HIGH</code> (5V, açık) veya <code>LOW</code> (0V, kapalı). Ya var ya yok, arası yoktur. Buton, çizgi sensörü gibi bileşenler dijital sinyal verir.</p>
+        </div>
+        <div class="signal-card signal-analog">
+          <h4>〰️ Analog Sinyal</h4>
+          <svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,30 Q30,5 50,30 Q70,55 90,30 Q110,5 130,30 Q150,55 170,30 Q185,15 195,25" fill="none" stroke="#7c6bff" stroke-width="3"/>
+            <text x="10" y="58" fill="#8890aa" font-size="8" font-family="monospace">0</text>
+            <text x="170" y="58" fill="#8890aa" font-size="8" font-family="monospace">1023</text>
+          </svg>
+          <p>Sürekli değişen, <strong>sonsuz ara değer</strong> alabilir. Arduino'da 0–1023 arasında okunur. Sıcaklık sensörü (LM35), ışık sensörü (LDR) gibi bileşenler analog sinyal verir.</p>
+        </div>
+      </div>
+
+      <h3>Arduino Pin Türleri</h3>
+      <table>
+        <tr><th>Pin Türü</th><th>Etiket</th><th>Ne İçin?</th></tr>
+        <tr><td>Dijital Çıkış/Giriş</td><td><code>D2–D13</code></td><td>LED yakma, buton okuma, motor sürücüsüne sinyal</td></tr>
+        <tr><td>PWM (analog benzeri çıkış)</td><td><code>~3, ~5, ~6, ~9, ~10, ~11</code></td><td>Motor hızı, LED parlaklığı (0–255)</td></tr>
+        <tr><td>Analog Giriş</td><td><code>A0–A5</code></td><td>Sensörden değer okuma (0–1023)</td></tr>
+      </table>
+
+      <div class="box box-why">
+        <div class="box-label">🧠 PWM Nedir?</div>
+        <p>Arduino dijital pinler aslında tam analog değer üretemez. Bunun yerine çok hızlı açıp kapatarak "<em>sanki analog gibi</em>" bir sinyal üretir — buna <strong>PWM (Pulse Width Modulation)</strong> denir. Kartın üzerinde <code>~</code> işareti olan pinler PWM destekler. Motor hızını bu pinlerden kontrol edersin.</p>
+      </div>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Ne Öğrendik?</div>
+        <ul>
+          <li>Dijital sinyal = 0 ya da 1, analog sinyal = sürekli değişen</li>
+          <li>Analog okuma = 0–1023, PWM yazma = 0–255</li>
+          <li><code>~</code> işaretli pinler PWM destekler — motor hızı için bunları kullan</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 5: KOŞUL ─── -->
+    <section id="s5">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2>Koşul İfadeleri: if / else if / else</h2>
+      </div>
+
+      <p>Robot karar vermelidir: "Önünde engel var mı? Çizgide mi?" Bu kararları <code>if</code> ile alırsın. <em>"Eğer şu doğruysa bunu yap, değilse şunu yap"</em> mantığıdır.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Söz Dizimi</span>
+        </div>
+        <pre><span class="kw">if</span> (koşul) {
+  <span class="cm">// koşul doğruysa burası çalışır</span>
+} <span class="kw">else if</span> (başka_koşul) {
+  <span class="cm">// ilk koşul yanlış, bu doğruysa çalışır</span>
+} <span class="kw">else</span> {
+  <span class="cm">// hiçbiri doğru değilse burası çalışır</span>
+}</pre>
+      </div>
+
+      <p>Gerçek bir robotik örneğiyle görelim:</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++</span>
+        </div>
+        <pre><span class="tp">float</span> mesafe = <span class="nm">15.0</span>;  <span class="cm">// sensörden okunan mesafe (cm)</span>
+
+<span class="kw">if</span> (mesafe &lt; <span class="nm">10</span>) {
+  <span class="cm">// 10 cm'den yakın engel var, dur!</span>
+  <span class="fn">motorlariDurdur</span>();
+} <span class="kw">else if</span> (mesafe &lt; <span class="nm">20</span>) {
+  <span class="cm">// 10-20 cm arası, yavaşla</span>
+  <span class="fn">yavasGit</span>();
+} <span class="kw">else</span> {
+  <span class="cm">// 20 cm'den uzak, normal git</span>
+  <span class="fn">ileriGit</span>();
+}</pre>
+      </div>
+
+      <div class="box box-tip">
+        <div class="box-label">💡 Koşulları Birleştirme</div>
+        <p>Birden fazla koşulu aynı anda kontrol edebilirsin:</p>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++</span>
+        </div>
+        <pre><span class="cm">// HEM çizgi üstünde HEM mesafe güvenliyse git</span>
+<span class="kw">if</span> (cizgideмi == <span class="kw">true</span> &amp;&amp; mesafe &gt; <span class="nm">15</span>) {
+  <span class="fn">ileriGit</span>();
+}
+
+<span class="cm">// Sol VEYA sağ sensör çizgi görüyorsa dön</span>
+<span class="kw">if</span> (solSensor == <span class="kw">HIGH</span> || sagSensor == <span class="kw">HIGH</span>) {
+  <span class="fn">don</span>();
+}</pre>
+      </div>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Ne Öğrendik?</div>
+        <ul>
+          <li><code>if</code> ile koşullu karar alınır</li>
+          <li><code>else if</code> ile birden fazla durum kontrol edilir</li>
+          <li><code>else</code> hiçbiri tutmazsa çalışır</li>
+          <li><code>&amp;&amp;</code> (ve), <code>||</code> (veya) ile koşullar birleştirilebilir</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 6: DÖNGÜLER ─── -->
+    <section id="s6">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2>Döngüler: for ve while</h2>
+      </div>
+
+      <p>Aynı işi birden fazla kez yapmak istediğinde döngü kullanırsın. <em>"5 kez yap"</em>, <em>"engel geçene kadar dön"</em> gibi durumlar için birebir.</p>
+
+      <h3>for Döngüsü</h3>
+      <p><code>for</code>, kaç kez çalışacağı belli olan döngülerde kullanılır.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Söz Dizimi</span>
+        </div>
+        <pre><span class="kw">for</span> (<span class="tp">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">5</span>; i++) {
+  <span class="cm">// Bu blok 5 kez çalışır (i: 0, 1, 2, 3, 4)</span>
+}</pre>
+      </div>
+
+      <div class="box box-why">
+        <div class="box-label">🧠 Üç Parçayı Anla</div>
+        <p><code>int i = 0</code> → sayacı başlat &nbsp;|&nbsp; <code>i &lt; 5</code> → koşul doğruysa devam et &nbsp;|&nbsp; <code>i++</code> → her turda sayacı bir artır (<code>i++ = i + 1</code> kısaltması)</p>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++ — Gerçek Örnek</span>
+        </div>
+        <pre><span class="cm">// Robotun LED'ini 5 kez yakıp söndür</span>
+<span class="kw">for</span> (<span class="tp">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">5</span>; i++) {
+  <span class="fn">digitalWrite</span>(LED_PIN, <span class="kw">HIGH</span>);   <span class="cm">// LED yak</span>
+  <span class="fn">delay</span>(<span class="nm">300</span>);                      <span class="cm">// 300ms bekle</span>
+  <span class="fn">digitalWrite</span>(LED_PIN, <span class="kw">LOW</span>);    <span class="cm">// LED söndür</span>
+  <span class="fn">delay</span>(<span class="nm">300</span>);
+}
+
+<span class="cm">// 4 çizgi sensöründen sırayla değer oku ve yazdır</span>
+<span class="kw">for</span> (<span class="tp">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">4</span>; i++) {
+  <span class="tp">int</span> deger = <span class="fn">digitalRead</span>(cizgiPinleri[i]);
+  <span class="fn">Serial</span>.<span class="fn">println</span>(deger);
+}</pre>
+      </div>
+
+      <h3>while Döngüsü</h3>
+      <p><code>while</code>, <em>ne zaman duracağı belli olmayan</em> ama bir koşula bağlı döngülerde kullanılır.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++</span>
+        </div>
+        <pre><span class="cm">// Mesafe 20 cm'nin altında kaldığı sürece bekle</span>
+<span class="kw">while</span> (mesafe &lt; <span class="nm">20</span>) {
+  mesafe = <span class="fn">mesafeOku</span>();  <span class="cm">// yeniden ölç</span>
+  <span class="fn">delay</span>(<span class="nm">50</span>);
+}</pre>
+      </div>
+
+      <div class="box box-warn">
+        <div class="box-label">⚠️ Sonsuz Döngüye Dikkat</div>
+        <p>Koşul hiç <code>false</code> olmazsa döngü sonsuza kadar devam eder ve robot takılır. <code>while</code> içinde koşulu değiştirecek bir işlem mutlaka olmalıdır.</p>
+      </div>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Ne Öğrendik?</div>
+        <ul>
+          <li><code>for</code> → kaç kez tekrarlayacağı bilinen işlemler için</li>
+          <li><code>while</code> → bir koşul sağlandığı sürece devam eden işlemler için</li>
+          <li>Her döngüde koşul güncellenmeli, yoksa robot takılır</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 7: FONKSİYONLAR ─── -->
+    <section id="s7">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <h2>Fonksiyon Tanımlama</h2>
+      </div>
+
+      <p>Fonksiyon, bir işi yapan ve isim verdiğin kod bloğudur. Aynı işi defalarca yazman gerekmez — bir kez tanımlarsın, istediğin yerde çağırırsın.</p>
+
+      <div class="box box-why">
+        <div class="box-label">🧠 Neden Fonksiyon?</div>
+        <p>Düşün: robot her engelde durmalı, birkaç saniye beklemeli, sonra geri gitmeli. Bunu her seferinde 10 satır yazmak yerine <code>engeldenKac()</code> diye bir fonksiyon yaz ve tek satırda çağır. Hem daha kısa hem de hatayı tek yerden düzeltirsin.</p>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Söz Dizimi</span>
+        </div>
+        <pre><span class="tp">geri_donus_tipi</span> <span class="fn">fonksiyonAdi</span>(<span class="tp">parametre_tipi</span> parametre) {
+  <span class="cm">// işlemler</span>
+  <span class="kw">return</span> deger; <span class="cm">// geri dönüş varsa</span>
+}</pre>
+      </div>
+
+      <h3>Değer Döndürmeyen Fonksiyon (void)</h3>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++</span>
+        </div>
+        <pre><span class="cm">// Motorları tamamen durdur</span>
+<span class="kw">void</span> <span class="fn">motorlariDurdur</span>() {
+  <span class="fn">analogWrite</span>(SOL_MOTOR, <span class="nm">0</span>);
+  <span class="fn">analogWrite</span>(SAG_MOTOR, <span class="nm">0</span>);
+}
+
+<span class="cm">// İstenen hızda ileri git (0-255)</span>
+<span class="kw">void</span> <span class="fn">ileriGit</span>(<span class="tp">uint8_t</span> hiz) {
+  <span class="fn">analogWrite</span>(SOL_MOTOR, hiz);
+  <span class="fn">analogWrite</span>(SAG_MOTOR, hiz);
+}
+
+<span class="cm">// loop() içinde kullanım:</span>
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="fn">ileriGit</span>(<span class="nm">200</span>);        <span class="cm">// 200 hızında git</span>
+  <span class="fn">delay</span>(<span class="nm">2000</span>);
+  <span class="fn">motorlariDurdur</span>();    <span class="cm">// dur</span>
+}</pre>
+      </div>
+
+      <h3>Değer Döndüren Fonksiyon</h3>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++</span>
+        </div>
+        <pre><span class="cm">// İki değerin ortalamasını hesapla ve döndür</span>
+<span class="tp">float</span> <span class="fn">ortalama</span>(<span class="tp">float</span> a, <span class="tp">float</span> b) {
+  <span class="kw">return</span> (a + b) / <span class="nm">2.0</span>;
+}
+
+<span class="cm">// Kullanım:</span>
+<span class="tp">float</span> sonuc = <span class="fn">ortalama</span>(<span class="nm">14.5</span>, <span class="nm">16.3</span>);
+<span class="fn">Serial</span>.<span class="fn">println</span>(sonuc);  <span class="cm">// 15.40 yazar</span></pre>
+      </div>
+
+      <div class="box box-tip">
+        <div class="box-label">💡 Fonksiyon İsimlendirme</div>
+        <p>Fonksiyon isimleri ne yaptığını anlatmalı: <code>ileriGit()</code>, <code>sagaDon()</code>, <code>mesafeOku()</code> gibi. İlk harf küçük, her yeni kelime büyük harfle başlar — buna <strong>camelCase</strong> denir.</p>
+      </div>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Ne Öğrendik?</div>
+        <ul>
+          <li>Fonksiyon = isimlendirilmiş, tekrar kullanılabilen kod bloğu</li>
+          <li><code>void</code> = değer döndürmez; <code>int/float/...</code> = değer döndürür</li>
+          <li>Parametrelerle farklı değerler gönderilebilir</li>
+          <li>İyi isimlendirilmiş fonksiyonlar kodu okunaklı yapar</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 8: TEMEL BİLEŞENLER ─── -->
+    <section id="s8">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <h2>Temel Arduino Yapıları ve Bileşenler</h2>
+      </div>
+
+      <h3>pinMode — Pini Hazırla</h3>
+      <p>Bir pini kullanmadan önce ona "giriş mi çıkış mı?" diye sorman gerekir. Bunu <code>setup()</code> içinde yaparsın.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++</span>
+        </div>
+        <pre><span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="nm">13</span>, <span class="kw">OUTPUT</span>);   <span class="cm">// 13 numaralı pin çıkış (LED yakacağız)</span>
+  <span class="fn">pinMode</span>(<span class="nm">7</span>,  <span class="kw">INPUT</span>);    <span class="cm">// 7 numaralı pin giriş (buton okuyacağız)</span>
+}</pre>
+      </div>
+
+      <h3>digitalWrite & digitalRead</h3>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++</span>
+        </div>
+        <pre><span class="fn">digitalWrite</span>(<span class="nm">13</span>, <span class="kw">HIGH</span>);   <span class="cm">// pine 5V ver → LED yanar</span>
+<span class="fn">digitalWrite</span>(<span class="nm">13</span>, <span class="kw">LOW</span>);    <span class="cm">// pine 0V ver → LED söner</span>
+
+<span class="tp">int</span> durum = <span class="fn">digitalRead</span>(<span class="nm">7</span>); <span class="cm">// butonun durumunu oku (HIGH veya LOW)</span></pre>
+      </div>
+
+      <h3>analogWrite & analogRead</h3>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++</span>
+        </div>
+        <pre><span class="fn">analogWrite</span>(<span class="nm">9</span>, <span class="nm">128</span>);      <span class="cm">// PWM: ~yarı hız (0=dur, 255=tam hız)</span>
+<span class="fn">analogWrite</span>(<span class="nm">9</span>, <span class="nm">0</span>);         <span class="cm">// dur</span>
+<span class="fn">analogWrite</span>(<span class="nm">9</span>, <span class="nm">255</span>);       <span class="cm">// tam hız</span>
+
+<span class="tp">int</span> deger = <span class="fn">analogRead</span>(<span class="kw">A0</span>); <span class="cm">// A0 pininden oku (0–1023)</span></pre>
+      </div>
+
+      <h3>Serial — Bilgisayarla Konuş</h3>
+      <p>Robotun ne yaptığını bilgisayar ekranında görmek için kullanılır. Hata ayıklarken (debug) çok işe yarar.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++</span>
+        </div>
+        <pre><span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">Serial</span>.<span class="fn">begin</span>(<span class="nm">9600</span>);   <span class="cm">// haberleşme hızını ayarla</span>
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="tp">int</span> deger = <span class="fn">analogRead</span>(<span class="kw">A0</span>);
+  <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="st">"Sensör: "</span>);
+  <span class="fn">Serial</span>.<span class="fn">println</span>(deger);  <span class="cm">// sonra yeni satır ekler</span>
+  <span class="fn">delay</span>(<span class="nm">500</span>);
+}</pre>
+      </div>
+
+      <h3>delay ve millis — Zamanlama</h3>
+
+      <div class="compare">
+        <div class="compare-card">
+          <h4>delay(ms) — Basit Bekleme</h4>
+          <div class="code-wrap" style="margin:0.5rem 0 0">
+            <pre style="font-size:0.8rem"><span class="fn">delay</span>(<span class="nm">1000</span>); <span class="cm">// 1 saniye dur</span></pre>
+          </div>
+          <p style="font-size:0.82rem;margin-top:0.75rem;">Kullanımı kolay ama bu sürede robot <strong>hiçbir şey yapamaz</strong> — sensör okuyamaz, karar veremez.</p>
+        </div>
+        <div class="compare-card">
+          <h4>millis() — Engelsiz Zamanlama</h4>
+          <div class="code-wrap" style="margin:0.5rem 0 0">
+            <pre style="font-size:0.8rem"><span class="tp">unsigned long</span> baslangic = <span class="fn">millis</span>();
+<span class="kw">if</span> (<span class="fn">millis</span>() - baslangic &gt; <span class="nm">1000</span>) {
+  <span class="cm">// 1 saniye geçti</span>
+}</pre>
+          </div>
+          <p style="font-size:0.82rem;margin-top:0.75rem;">Robot arka planda çalışmaya devam eder. Yarışmada daha profesyonel bir yaklaşım.</p>
+        </div>
+      </div>
+
+      <div class="box box-tip">
+        <div class="box-label">💡 Hangisini Kullan?</div>
+        <p>Başlangıçta <code>delay()</code> ile pratik yap. Robotun aynı anda birden fazla şey yapması gerektiğinde (sensör + motor + kontrol) <code>millis()</code>'e geç.</p>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 9: KÜTÜPHANE & NESNE ─── -->
+    <section id="s9">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <h2>Kütüphane, Sınıf ve Nesne Kavramı</h2>
+      </div>
+
+      <p>Bazı bileşenler çok karmaşık çalışır — onları sıfırdan programlamak yerine <strong>kütüphane</strong> kullanırsın. Kütüphane, başkasının senin için hazırladığı bir araç kutusudur.</p>
+
+      <div class="box box-why">
+        <div class="box-label">🧠 Benzetme</div>
+        <p>Telefon kullanmak için içini bilmen gerekmez — açarsın, kullanırsın. Kütüphane de böyledir: kütüphaneyi eklersin, hazır komutlarını kullanırsın.</p>
+      </div>
+
+      <p>Kütüphaneler genellikle bir <strong>sınıf (class)</strong> içerir. Sınıf, o bileşenle ilgili tüm özellik ve komutları bir arada tutar. Sınıftan bir <strong>nesne (object)</strong> oluşturursun — bu artık senin o bileşenin kendi kopyasıdır.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++ — Servo Örneği (kavram için)</span>
+        </div>
+        <pre><span class="mc">#include</span> &lt;<span class="st">Servo.h</span>&gt;         <span class="cm">// 1. Kütüphaneyi ekle</span>
+
+<span class="tp">Servo</span> kolServo;             <span class="cm">// 2. Servo sınıfından "kolServo" adında nesne oluştur</span>
+<span class="tp">Servo</span> kameraServo;          <span class="cm">// 3. İkinci bir Servo nesnesi — aynı sınıftan 2 farklı nesne!</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  kolServo.<span class="fn">attach</span>(<span class="nm">9</span>);       <span class="cm">// kolServo → 9. pine bağlı</span>
+  kameraServo.<span class="fn">attach</span>(<span class="nm">10</span>);   <span class="cm">// kameraServo → 10. pine bağlı</span>
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  kolServo.<span class="fn">write</span>(<span class="nm">90</span>);       <span class="cm">// kol servosunu 90°'ye getir</span>
+  kameraServo.<span class="fn">write</span>(<span class="nm">45</span>);   <span class="cm">// kamera servosunu 45°'ye getir</span>
+}</pre>
+      </div>
+
+      <div class="box box-tip">
+        <div class="box-label">💡 Sınıf ve Nesne İlişkisi</div>
+        <p><code>Servo</code> sınıf (şablon), <code>kolServo</code> ise o şablondan üretilmiş nesne (gerçek kopya). Tıpkı "Araba" bir şablon, "bizim arabamız" ise somut bir kopya gibi. Her nesne birbirinden bağımsız çalışır.</p>
+      </div>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Ne Öğrendik?</div>
+        <ul>
+          <li>Kütüphane = hazır araç kutusu, <code>#include</code> ile eklenir</li>
+          <li>Sınıf = şablon, nesne = o şablondan üretilen gerçek kopya</li>
+          <li>Nesne ile sınıfın komutlarına <code>nesne.komut()</code> şeklinde erişilir</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 10: KOD STİLİ ─── -->
+    <section id="s10">
+      <div class="section-header">
+        <span class="section-num">10</span>
+        <h2>Kodda Doğruluk, Tasarım ve Stil</h2>
+      </div>
+
+      <p>Çalışan bir kod yazmak yetmez — <strong>okunabilir, düzgün</strong> bir kod yazmak da şart. Yarışmada kodu sen yazarsın ama hata ayıklarken, üstüne bir şey eklerken ya da jüri incelerken bu fark büyük önem taşır.</p>
+
+      <h3>1. Anlamlı İsimlendirme</h3>
+
+      <div class="compare">
+        <div class="compare-card">
+          <h4>❌ Kötü</h4>
+          <div class="code-wrap" style="margin:0">
+            <pre style="font-size:0.8rem"><span class="tp">int</span> x = <span class="nm">15</span>;
+<span class="tp">int</span> y = <span class="nm">200</span>;
+<span class="kw">void</span> <span class="fn">f1</span>() { }</pre>
+          </div>
+        </div>
+        <div class="compare-card">
+          <h4>✅ İyi</h4>
+          <div class="code-wrap" style="margin:0">
+            <pre style="font-size:0.8rem"><span class="tp">int</span> engelMesafesi = <span class="nm">15</span>;
+<span class="tp">uint8_t</span> normalHiz = <span class="nm">200</span>;
+<span class="kw">void</span> <span class="fn">engeldeDur</span>() { }</pre>
+          </div>
+        </div>
+      </div>
+
+      <h3>2. Girintileme (Indentation)</h3>
+      <p>Her iç blok bir tab (ya da 2 boşluk) içeri çekilmeli. Arduino IDE bunu otomatik düzenleyebilir (<kbd>Ctrl+T</kbd>).</p>
+
+      <div class="compare">
+        <div class="compare-card">
+          <h4>❌ Girintisiz</h4>
+          <div class="code-wrap" style="margin:0">
+            <pre style="font-size:0.8rem"><span class="kw">if</span> (mesafe &lt; <span class="nm">10</span>) {
+<span class="fn">motorlariDurdur</span>();
+<span class="kw">if</span> (solSerbest) {
+<span class="fn">solaDon</span>();
+}
+}</pre>
+          </div>
+        </div>
+        <div class="compare-card">
+          <h4>✅ Girintili</h4>
+          <div class="code-wrap" style="margin:0">
+            <pre style="font-size:0.8rem"><span class="kw">if</span> (mesafe &lt; <span class="nm">10</span>) {
+  <span class="fn">motorlariDurdur</span>();
+  <span class="kw">if</span> (solSerbest) {
+    <span class="fn">solaDon</span>();
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <h3>3. Yorum Satırları — Ama Abartma</h3>
+      <p>Her satıra yorum yazma; açıklamaya ihtiyaç duyan karmaşık yerleri açıkla. Fonksiyonların üstüne ne yaptığını yaz.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++ — Yorum Örneği</span>
+        </div>
+        <pre><span class="cm">// Motor hızlarını dengele: sol motor sağdan %10 güçlü</span>
+<span class="cm">// çünkü mekanik asimetri var</span>
+<span class="kw">void</span> <span class="fn">dengeliyIleriGit</span>(<span class="tp">uint8_t</span> hiz) {
+  <span class="fn">analogWrite</span>(SOL_MOTOR, hiz * <span class="nm">0.9</span>);  <span class="cm">// sol daha yavaş</span>
+  <span class="fn">analogWrite</span>(SAG_MOTOR, hiz);
+}</pre>
+      </div>
+
+      <h3>4. Sabitleri #define veya const ile Tanımla</h3>
+      <p>Kodun içinde <em>sihirli sayılar</em> bırakma. <code>200</code> yerine <code>NORMAL_HIZ</code> yazmak kodu hem anlaşılır hem değiştirilebilir yapar.</p>
+
+      <h3>5. Her Fonksiyon Tek İş Yapsın</h3>
+      <p><code>herSeyi yap()</code> diye bir fonksiyon olmamalı. Fonksiyonları küçük ve odaklı tut: <code>mesafeOku()</code>, <code>sagaDon()</code>, <code>cizgiKontrolEt()</code> gibi.</p>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Temiz Kod Altın Kuralları</div>
+        <ul>
+          <li>İsimler ne yaptığını anlatmalı</li>
+          <li>Girintileme tutarlı olmalı (<kbd>Ctrl+T</kbd> ile otomatik düzelt)</li>
+          <li>Yorum: karmaşık yerlerde açıkla, her satıra yazma</li>
+          <li>Sihirli sayı yok — sabitler için <code>#define</code> kullan</li>
+          <li>Fonksiyonlar kısa ve tek amaçlı olsun</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 11: ÇİZGİ MODÜLÜ ─── -->
+    <section id="s11">
+      <div class="section-header">
+        <span class="section-num">11</span>
+        <h2>4'lü Çizgi İzleme Modülü</h2>
+      </div>
+
+      <p>Bu modülde 4 adet kızılötesi (IR) sensör bulunur. Her sensör altındaki zemine bakar: <strong>siyah çizgi</strong> gördüğünde <code>HIGH</code> (ya da <code>LOW</code> — modül tipine göre değişir), <strong>beyaz zemin</strong> gördüğünde ise tersini verir.</p>
+
+      <div class="box box-tip">
+        <div class="box-label">💡 Hangi Değer Hangi Anlama Geliyor?</div>
+        <p>Modülüne göre siyah çizgide <code>HIGH</code> veya <code>LOW</code> alabilirsin. Bağlamadan önce <code>Serial.println()</code> ile test et ve hangi değerin çizgiyi temsil ettiğini not et.</p>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++ — 4'lü Çizgi Modülü</span>
+        </div>
+        <pre><span class="cm">// Pin tanımları</span>
+<span class="mc">#define</span> CIZGI_SOL_DIS   <span class="nm">2</span>
+<span class="mc">#define</span> CIZGI_SOL_IC    <span class="nm">3</span>
+<span class="mc">#define</span> CIZGI_SAG_IC    <span class="nm">4</span>
+<span class="mc">#define</span> CIZGI_SAG_DIS   <span class="nm">5</span>
+
+<span class="mc">#define</span> CIZGI_VAR  <span class="kw">HIGH</span>   <span class="cm">// modülüne göre değiştir</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(CIZGI_SOL_DIS, <span class="kw">INPUT</span>);
+  <span class="fn">pinMode</span>(CIZGI_SOL_IC,  <span class="kw">INPUT</span>);
+  <span class="fn">pinMode</span>(CIZGI_SAG_IC,  <span class="kw">INPUT</span>);
+  <span class="fn">pinMode</span>(CIZGI_SAG_DIS, <span class="kw">INPUT</span>);
+  <span class="fn">Serial</span>.<span class="fn">begin</span>(<span class="nm">9600</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="tp">bool</span> solDis = <span class="fn">digitalRead</span>(CIZGI_SOL_DIS) == CIZGI_VAR;
+  <span class="tp">bool</span> solIc  = <span class="fn">digitalRead</span>(CIZGI_SOL_IC)  == CIZGI_VAR;
+  <span class="tp">bool</span> sagIc  = <span class="fn">digitalRead</span>(CIZGI_SAG_IC)  == CIZGI_VAR;
+  <span class="tp">bool</span> sagDis = <span class="fn">digitalRead</span>(CIZGI_SAG_DIS) == CIZGI_VAR;
+
+  <span class="kw">if</span> (solIc &amp;&amp; sagIc) {
+    <span class="cm">// Her iki iç sensör çizgide → düz git</span>
+    <span class="fn">ileriGit</span>(NORMAL_HIZ);
+  } <span class="kw">else if</span> (solIc &amp;&amp; !sagIc) {
+    <span class="cm">// Sadece sol iç sensör çizgide → sola dön</span>
+    <span class="fn">solaDon</span>(DONUS_HIZ);
+  } <span class="kw">else if</span> (!solIc &amp;&amp; sagIc) {
+    <span class="cm">// Sadece sağ iç sensör çizgide → sağa dön</span>
+    <span class="fn">sagaDon</span>(DONUS_HIZ);
+  } <span class="kw">else if</span> (solDis) {
+    <span class="cm">// Çok sola kaydı, sert sol dönüş</span>
+    <span class="fn">solaDon</span>(SERT_DONUS_HIZ);
+  } <span class="kw">else if</span> (sagDis) {
+    <span class="cm">// Çok sağa kaydı, sert sağ dönüş</span>
+    <span class="fn">sagaDon</span>(SERT_DONUS_HIZ);
+  } <span class="kw">else</span> {
+    <span class="cm">// Çizgi kayboldu → yavaşla</span>
+    <span class="fn">yavasGit</span>(YAVASH_HIZ);
+  }
+}</pre>
+      </div>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Ne Öğrendik?</div>
+        <ul>
+          <li>4 sensör = 4 dijital pin, hepsi <code>INPUT</code> olarak ayarlanır</li>
+          <li>Her sensörü ayrı <code>bool</code> değişkene atamak kodu okunaklı yapar</li>
+          <li><code>if/else if</code> zinciri ile hangi sensörde çizgi varsa dönüş yapılır</li>
+          <li>Modülüne göre siyah çizgi <code>HIGH</code> veya <code>LOW</code> olabilir — test et!</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 12: L298N ─── -->
+    <section id="s12">
+      <div class="section-header">
+        <span class="section-num">12</span>
+        <h2>L298N ile DC Motor Sürme</h2>
+      </div>
+
+      <p>L298N, Arduino'nun küçük çıkışını DC motorlar için gereken büyük güce dönüştüren bir <strong>motor sürücü</strong> kartıdır. Arduino motorları doğrudan süremez — L298N aracı gerekir.</p>
+
+      <h3>Pim Bağlantısı</h3>
+      <table>
+        <tr><th>L298N Pini</th><th>Bağlandığı Yer</th><th>Görevi</th></tr>
+        <tr><td><code>IN1, IN2</code></td><td>Arduino dijital pin</td><td>Sol motor yön kontrolü</td></tr>
+        <tr><td><code>IN3, IN4</code></td><td>Arduino dijital pin</td><td>Sağ motor yön kontrolü</td></tr>
+        <tr><td><code>ENA</code></td><td>Arduino PWM pin (~)</td><td>Sol motor hız (0–255)</td></tr>
+        <tr><td><code>ENB</code></td><td>Arduino PWM pin (~)</td><td>Sağ motor hız (0–255)</td></tr>
+      </table>
+
+      <div class="box box-why">
+        <div class="box-label">🧠 Yön Nasıl Belirlenir?</div>
+        <p>IN1=HIGH, IN2=LOW → ileri &nbsp;|&nbsp; IN1=LOW, IN2=HIGH → geri &nbsp;|&nbsp; IN1=LOW, IN2=LOW → dur. ENA pinine analogWrite(hız) ile hızı belirlersin.</p>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++ — L298N Motor Kontrolü</span>
+        </div>
+        <pre><span class="cm">// Pin tanımları</span>
+<span class="mc">#define</span> IN1  <span class="nm">6</span>
+<span class="mc">#define</span> IN2  <span class="nm">7</span>
+<span class="mc">#define</span> IN3  <span class="nm">8</span>
+<span class="mc">#define</span> IN4  <span class="nm">9</span>
+<span class="mc">#define</span> ENA  <span class="nm">5</span>   <span class="cm">// PWM pin!</span>
+<span class="mc">#define</span> ENB  <span class="nm">10</span>  <span class="cm">// PWM pin!</span>
+
+<span class="mc">#define</span> NORMAL_HIZ    <span class="nm">200</span>
+<span class="mc">#define</span> DONUS_HIZ     <span class="nm">160</span>
+<span class="mc">#define</span> SERT_DONUS    <span class="nm">200</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(IN1, <span class="kw">OUTPUT</span>); <span class="fn">pinMode</span>(IN2, <span class="kw">OUTPUT</span>);
+  <span class="fn">pinMode</span>(IN3, <span class="kw">OUTPUT</span>); <span class="fn">pinMode</span>(IN4, <span class="kw">OUTPUT</span>);
+  <span class="fn">pinMode</span>(ENA, <span class="kw">OUTPUT</span>); <span class="fn">pinMode</span>(ENB, <span class="kw">OUTPUT</span>);
+}
+
+<span class="cm">// İleri git</span>
+<span class="kw">void</span> <span class="fn">ileriGit</span>(<span class="tp">uint8_t</span> hiz) {
+  <span class="fn">analogWrite</span>(ENA, hiz); <span class="fn">analogWrite</span>(ENB, hiz);
+  <span class="fn">digitalWrite</span>(IN1, <span class="kw">HIGH</span>); <span class="fn">digitalWrite</span>(IN2, <span class="kw">LOW</span>);
+  <span class="fn">digitalWrite</span>(IN3, <span class="kw">HIGH</span>); <span class="fn">digitalWrite</span>(IN4, <span class="kw">LOW</span>);
+}
+
+<span class="cm">// Geri git</span>
+<span class="kw">void</span> <span class="fn">geriGit</span>(<span class="tp">uint8_t</span> hiz) {
+  <span class="fn">analogWrite</span>(ENA, hiz); <span class="fn">analogWrite</span>(ENB, hiz);
+  <span class="fn">digitalWrite</span>(IN1, <span class="kw">LOW</span>); <span class="fn">digitalWrite</span>(IN2, <span class="kw">HIGH</span>);
+  <span class="fn">digitalWrite</span>(IN3, <span class="kw">LOW</span>); <span class="fn">digitalWrite</span>(IN4, <span class="kw">HIGH</span>);
+}
+
+<span class="cm">// Sola dön (sağ motor ileri, sol motor dur)</span>
+<span class="kw">void</span> <span class="fn">solaDon</span>(<span class="tp">uint8_t</span> hiz) {
+  <span class="fn">analogWrite</span>(ENA, <span class="nm">0</span>);   <span class="cm">// sol motor dur</span>
+  <span class="fn">analogWrite</span>(ENB, hiz);  <span class="cm">// sağ motor ileri</span>
+  <span class="fn">digitalWrite</span>(IN1, <span class="kw">LOW</span>);  <span class="fn">digitalWrite</span>(IN2, <span class="kw">LOW</span>);
+  <span class="fn">digitalWrite</span>(IN3, <span class="kw">HIGH</span>); <span class="fn">digitalWrite</span>(IN4, <span class="kw">LOW</span>);
+}
+
+<span class="cm">// Sağa dön</span>
+<span class="kw">void</span> <span class="fn">sagaDon</span>(<span class="tp">uint8_t</span> hiz) {
+  <span class="fn">analogWrite</span>(ENA, hiz);  <span class="cm">// sol motor ileri</span>
+  <span class="fn">analogWrite</span>(ENB, <span class="nm">0</span>);   <span class="cm">// sağ motor dur</span>
+  <span class="fn">digitalWrite</span>(IN1, <span class="kw">HIGH</span>); <span class="fn">digitalWrite</span>(IN2, <span class="kw">LOW</span>);
+  <span class="fn">digitalWrite</span>(IN3, <span class="kw">LOW</span>);  <span class="fn">digitalWrite</span>(IN4, <span class="kw">LOW</span>);
+}
+
+<span class="cm">// Tamamen dur</span>
+<span class="kw">void</span> <span class="fn">motorlariDurdur</span>() {
+  <span class="fn">analogWrite</span>(ENA, <span class="nm">0</span>); <span class="fn">analogWrite</span>(ENB, <span class="nm">0</span>);
+  <span class="fn">digitalWrite</span>(IN1, <span class="kw">LOW</span>); <span class="fn">digitalWrite</span>(IN2, <span class="kw">LOW</span>);
+  <span class="fn">digitalWrite</span>(IN3, <span class="kw">LOW</span>); <span class="fn">digitalWrite</span>(IN4, <span class="kw">LOW</span>);
+}</pre>
+      </div>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Ne Öğrendik?</div>
+        <ul>
+          <li>L298N, Arduino ile DC motorlar arasında güç köprüsüdür</li>
+          <li>IN1/IN2 yönü, ENA hızı belirler (PWM)</li>
+          <li>Motor fonksiyonlarını ayrı tanımlamak <code>loop()</code>'u temiz tutar</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 13: HY-SRF05 ─── -->
+    <section id="s13">
+      <div class="section-header">
+        <span class="section-num">13</span>
+        <h2>HY-SRF05 Ultrasonik Mesafe Sensörü</h2>
+      </div>
+
+      <p>HY-SRF05, ultrases dalgası göndererek önündeki engele olan mesafeyi ölçer. Yarasa gibi — ses gider, geri döner, süreyi ölç, mesafeyi hesapla.</p>
+
+      <h3>Pin Bağlantısı</h3>
+      <table>
+        <tr><th>Sensör Pini</th><th>Bağlantı</th><th>Görevi</th></tr>
+        <tr><td><code>VCC</code></td><td>5V</td><td>Güç</td></tr>
+        <tr><td><code>GND</code></td><td>GND</td><td>Toprak</td></tr>
+        <tr><td><code>TRIG</code></td><td>Arduino dijital pin</td><td>Ses dalgası tetikle</td></tr>
+        <tr><td><code>ECHO</code></td><td>Arduino dijital pin</td><td>Geri dönen dalgayı al</td></tr>
+        <tr><td><code>OUT</code></td><td>Bağlanmayabilir</td><td>Eşik modunda kullanılır</td></tr>
+      </table>
+
+      <p>HY-SRF05'i iki şekilde kullanabilirsin: kütüphanesiz (elle hesap) veya <strong>NewPing kütüphanesiyle</strong>. Kütüphane kullanmak çok daha kolaydır:</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++ — NewPing Kütüphanesi ile</span>
+        </div>
+        <pre><span class="mc">#include</span> &lt;<span class="st">NewPing.h</span>&gt;       <span class="cm">// 1. Kütüphaneyi ekle</span>
+
+<span class="mc">#define</span> TRIG_PIN  <span class="nm">11</span>
+<span class="mc">#define</span> ECHO_PIN  <span class="nm">12</span>
+<span class="mc">#define</span> MAX_MESAFE <span class="nm">200</span>    <span class="cm">// cm cinsinden maksimum ölçüm</span>
+
+<span class="cm">// 2. NewPing sınıfından "sonar" adında nesne oluştur</span>
+<span class="tp">NewPing</span> sonar(TRIG_PIN, ECHO_PIN, MAX_MESAFE);
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">Serial</span>.<span class="fn">begin</span>(<span class="nm">9600</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="tp">float</span> mesafe = sonar.<span class="fn">ping_cm</span>();  <span class="cm">// cm cinsinden mesafeyi al</span>
+
+  <span class="kw">if</span> (mesafe == <span class="nm">0</span>) {
+    <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="st">"Engel yok veya çok uzak"</span>);
+  } <span class="kw">else</span> {
+    <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="st">"Mesafe: "</span>);
+    <span class="fn">Serial</span>.<span class="fn">print</span>(mesafe);
+    <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="st">" cm"</span>);
+  }
+
+  <span class="fn">delay</span>(<span class="nm">100</span>);
+}</pre>
+      </div>
+
+      <div class="box box-tip">
+        <div class="box-label">💡 NewPing Kütüphanesini Eklemek</div>
+        <p>Arduino IDE → Araçlar → Kütüphane Yöneticisi → "<strong>NewPing</strong>" ara → Yükle. Kurulumdan sonra <code>#include &lt;NewPing.h&gt;</code> ile kullanmaya başlarsın.</p>
+      </div>
+
+      <div class="box box-warn">
+        <div class="box-label">⚠️ Dikkat</div>
+        <p><code>ping_cm()</code> mesafe çok büyük veya hiç engel yoksa <code>0</code> döndürür. Kodunda bunu mutlaka kontrol et!</p>
+      </div>
+
+      <h3>Kütüphanesiz Kullanım (Referans için)</h3>
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++ — Elle Hesap</span>
+        </div>
+        <pre><span class="mc">#define</span> TRIG <span class="nm">11</span>
+<span class="mc">#define</span> ECHO <span class="nm">12</span>
+
+<span class="tp">float</span> <span class="fn">mesafeOku</span>() {
+  <span class="fn">digitalWrite</span>(TRIG, <span class="kw">LOW</span>);
+  <span class="fn">delayMicroseconds</span>(<span class="nm">2</span>);
+  <span class="fn">digitalWrite</span>(TRIG, <span class="kw">HIGH</span>);
+  <span class="fn">delayMicroseconds</span>(<span class="nm">10</span>);      <span class="cm">// 10µs tetik sinyali</span>
+  <span class="fn">digitalWrite</span>(TRIG, <span class="kw">LOW</span>);
+
+  <span class="tp">long</span> sure = <span class="fn">pulseIn</span>(ECHO, <span class="kw">HIGH</span>);  <span class="cm">// geri dönüş süresi (µs)</span>
+  <span class="kw">return</span> sure * <span class="nm">0.034</span> / <span class="nm">2</span>;           <span class="cm">// cm'ye çevir</span>
+}</pre>
+      </div>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Ne Öğrendik?</div>
+        <ul>
+          <li>HY-SRF05 → ses dalgasıyla mesafe ölçer (TRIG tetikle, ECHO oku)</li>
+          <li>NewPing kütüphanesi ile tek satırda mesafe alınır</li>
+          <li>Nesne oluşturma: <code>NewPing sonar(TRIG, ECHO, MAX);</code></li>
+          <li>Sonuç <code>0</code> ise engel yok ya da çok uzak demektir</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 14: QTR-8A ─── -->
+    <section id="s14">
+      <div class="section-header">
+        <span class="section-num">14</span>
+        <h2>QTR-8A Analog Çizgi Sensörü</h2>
+      </div>
+
+      <p>QTR-8A, 8 adet analog IR sensörü olan gelişmiş bir çizgi sensörü kartıdır. 4'lü dijital modülden farkı: her sensör <strong>0–1023 arasında sürekli değer</strong> verir. Bu sayede robotun çizgiden ne kadar saptığını daha hassas anlayabilirsin.</p>
+
+      <div class="box box-tip">
+        <div class="box-label">💡 Neden QTR-8A Daha Hassas?</div>
+        <p>Dijital modül "var/yok" der. QTR-8A "tam üstündeyim / biraz saptım / çok saptım" diyebilir. Bu fark, özellikle virajlarda düzgün gitmek için büyük avantaj sağlar.</p>
+      </div>
+
+      <h3>QTRSensors Kütüphanesi ile Kullanım</h3>
+      <p>Pololu'nun resmi kütüphanesi kurulunca kullanımı kolaylaşır: Arduino IDE → Kütüphane Yöneticisi → "<strong>QTRSensors</strong>" ara → Yükle.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++ — QTR-8A Temel Kullanım</span>
+        </div>
+        <pre><span class="mc">#include</span> &lt;<span class="st">QTRSensors.h</span>&gt;
+
+<span class="cm">// QTRSensors sınıfından nesne oluştur</span>
+<span class="tp">QTRSensors</span> qtr;
+
+<span class="mc">#define</span> SENSOR_SAYISI  <span class="nm">8</span>
+<span class="tp">uint16_t</span> sensorDegerleri[SENSOR_SAYISI];  <span class="cm">// 8 sensör verisi</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="cm">// Sensörlerin bağlı olduğu analog pinleri tanımla</span>
+  qtr.<span class="fn">setTypeAnalog</span>();
+  qtr.<span class="fn">setSensorPins</span>((<span class="tp">const uint8_t</span>[]){<span class="kw">A0</span>,<span class="kw">A1</span>,<span class="kw">A2</span>,<span class="kw">A3</span>,<span class="kw">A4</span>,<span class="kw">A5</span>,<span class="nm">A6</span>,<span class="nm">A7</span>}, SENSOR_SAYISI);
+
+  <span class="fn">Serial</span>.<span class="fn">begin</span>(<span class="nm">9600</span>);
+
+  <span class="cm">// Kalibrasyon: robotu çizginin üzerinde ileri geri sürükle</span>
+  <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="st">"Kalibrasyon başlıyor..."</span>);
+  <span class="kw">for</span> (<span class="tp">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">200</span>; i++) {
+    qtr.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="nm">20</span>);
+  }
+  <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="st">"Kalibrasyon tamamlandı!"</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// Kalibre edilmiş pozisyonu oku (0 = en sol, 7000 = en sağ)</span>
+  <span class="tp">uint16_t</span> pozisyon = qtr.<span class="fn">readLineBlack</span>(sensorDegerleri);
+
+  <span class="cm">// Merkez 3500 → hatayı hesapla</span>
+  <span class="tp">int</span> hata = pozisyon - <span class="nm">3500</span>;
+
+  <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="st">"Pozisyon: "</span>); <span class="fn">Serial</span>.<span class="fn">print</span>(pozisyon);
+  <span class="fn">Serial</span>.<span class="fn">print</span>(<span class="st">"  Hata: "</span>);   <span class="fn">Serial</span>.<span class="fn">println</span>(hata);
+
+  <span class="cm">// Basit düzeltme: hata büyükse daha sert dön</span>
+  <span class="kw">if</span> (hata &lt; -<span class="nm">1000</span>) {
+    <span class="fn">solaDon</span>(DONUS_HIZ);
+  } <span class="kw">else if</span> (hata &gt; <span class="nm">1000</span>) {
+    <span class="fn">sagaDon</span>(DONUS_HIZ);
+  } <span class="kw">else</span> {
+    <span class="fn">ileriGit</span>(NORMAL_HIZ);
+  }
+}</pre>
+      </div>
+
+      <div class="box box-why">
+        <div class="box-label">🧠 Kalibrasyon Neden Gerekli?</div>
+        <p>Her zemin farklıdır — açık renk tahta mı, beyaz kağıt mı, mat yüzey mi? Kalibrasyon sırasında sensörler "bu zemin için en koyu değer nedir, en açık nedir?" diye öğrenir. Kalibrasyon sonrası değerler 0–1000 arasına normalize edilir. <strong>Her yarışma öncesi kalibrasyon yapılmalıdır!</strong></p>
+      </div>
+
+      <div class="box box-summary">
+        <div class="box-label">✅ Ne Öğrendik?</div>
+        <ul>
+          <li>QTR-8A, 8 analog sensör ile çizgi konumunu hassas ölçer</li>
+          <li>Kütüphane ile kalibrasyon yapılır, <code>readLineBlack()</code> pozisyon verir</li>
+          <li>Pozisyon 0–7000: 3500 merkez, altı sola sapma, üstü sağa sapma</li>
+          <li>PID yerine basit hata kontrolü ile de çalışabilir</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ─── BÖLÜM 15: MİNİ PROJE ─── -->
+    <section id="s15">
+      <div class="section-header">
+        <span class="section-num">15</span>
+        <h2>Mini Proje: Engelden Kaçan Çizgi İzleyen Robot</h2>
+      </div>
+
+      <p>Şimdiye kadar öğrendiklerinin hepsini birleştirelim. Bu kod, 4'lü çizgi modülü ile çizgiyi izleyen, HY-SRF05 ile önünde engel varsa duran, L298N ile iki DC motoru süren bir robot için yazılmıştır.</p>
+
+      <div class="mini-project">
+        <div class="code-wrap" style="margin:0">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">Arduino C++ — Tam Robot Kodu</span>
+          </div>
+          <pre><span class="cm">// ═══════════════════════════════════════════
+//  MEB Robot Tasarla Çalıştır — Temel Kod
+//  Çizgi İzleme + Engel Algılama
+// ═══════════════════════════════════════════</span>
+
+<span class="mc">#include</span> &lt;<span class="st">NewPing.h</span>&gt;
+
+<span class="cm">// ─── Motor Pinleri ───</span>
+<span class="mc">#define</span> IN1  <span class="nm">6</span>
+<span class="mc">#define</span> IN2  <span class="nm">7</span>
+<span class="mc">#define</span> IN3  <span class="nm">8</span>
+<span class="mc">#define</span> IN4  <span class="nm">9</span>
+<span class="mc">#define</span> ENA  <span class="nm">5</span>
+<span class="mc">#define</span> ENB  <span class="nm">10</span>
+
+<span class="cm">// ─── Çizgi Sensörü Pinleri ───</span>
+<span class="mc">#define</span> CIZGI_SOL_DIS  <span class="nm">2</span>
+<span class="mc">#define</span> CIZGI_SOL_IC   <span class="nm">3</span>
+<span class="mc">#define</span> CIZGI_SAG_IC   <span class="nm">4</span>
+<span class="mc">#define</span> CIZGI_SAG_DIS  <span class="nm">A3</span>
+
+<span class="cm">// ─── Mesafe Sensörü Pinleri ───</span>
+<span class="mc">#define</span> TRIG_PIN   <span class="nm">11</span>
+<span class="mc">#define</span> ECHO_PIN   <span class="nm">12</span>
+<span class="mc">#define</span> MAX_MESAFE <span class="nm">200</span>
+
+<span class="cm">// ─── Hız Sabitleri ───</span>
+<span class="mc">#define</span> NORMAL_HIZ     <span class="nm">200</span>
+<span class="mc">#define</span> DONUS_HIZ      <span class="nm">160</span>
+<span class="mc">#define</span> SERT_DONUS     <span class="nm">200</span>
+
+<span class="cm">// ─── Engel Eşiği ───</span>
+<span class="mc">#define</span> ENGEL_MESAFE   <span class="nm">15</span>   <span class="cm">// cm</span>
+
+<span class="cm">// ─── Hangi değer çizgi anlamına geliyor? ───</span>
+<span class="mc">#define</span> CIZGI_VAR  <span class="kw">HIGH</span>    <span class="cm">// modülüne göre değiştir</span>
+
+<span class="cm">// ─── Nesne Oluşturma ───</span>
+<span class="tp">NewPing</span> sonar(TRIG_PIN, ECHO_PIN, MAX_MESAFE);
+
+<span class="cm">// ════════════════════════════════════════════
+//  SETUP
+// ════════════════════════════════════════════</span>
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="cm">// Motor pinleri çıkış</span>
+  <span class="fn">pinMode</span>(IN1, <span class="kw">OUTPUT</span>); <span class="fn">pinMode</span>(IN2, <span class="kw">OUTPUT</span>);
+  <span class="fn">pinMode</span>(IN3, <span class="kw">OUTPUT</span>); <span class="fn">pinMode</span>(IN4, <span class="kw">OUTPUT</span>);
+  <span class="fn">pinMode</span>(ENA, <span class="kw">OUTPUT</span>); <span class="fn">pinMode</span>(ENB, <span class="kw">OUTPUT</span>);
+
+  <span class="cm">// Çizgi sensörü pinleri giriş</span>
+  <span class="fn">pinMode</span>(CIZGI_SOL_DIS, <span class="kw">INPUT</span>);
+  <span class="fn">pinMode</span>(CIZGI_SOL_IC,  <span class="kw">INPUT</span>);
+  <span class="fn">pinMode</span>(CIZGI_SAG_IC,  <span class="kw">INPUT</span>);
+  <span class="fn">pinMode</span>(CIZGI_SAG_DIS, <span class="kw">INPUT</span>);
+
+  <span class="fn">Serial</span>.<span class="fn">begin</span>(<span class="nm">9600</span>);
+  <span class="fn">Serial</span>.<span class="fn">println</span>(<span class="st">"Robot hazır!"</span>);
+}
+
+<span class="cm">// ════════════════════════════════════════════
+//  LOOP — Ana Döngü
+// ════════════════════════════════════════════</span>
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="tp">float</span> mesafe = sonar.<span class="fn">ping_cm</span>();
+
+  <span class="cm">// Mesafe 0 ise engel yok (çok uzak)</span>
+  <span class="kw">if</span> (mesafe == <span class="nm">0</span>) mesafe = <span class="nm">999</span>;
+
+  <span class="kw">if</span> (mesafe &lt; ENGEL_MESAFE) {
+    <span class="cm">// ── Engel var: dur ve geri git ──</span>
+    <span class="fn">motorlariDurdur</span>();
+    <span class="fn">delay</span>(<span class="nm">500</span>);
+    <span class="fn">geriGit</span>(DONUS_HIZ);
+    <span class="fn">delay</span>(<span class="nm">600</span>);
+    <span class="fn">sagaDon</span>(SERT_DONUS);
+    <span class="fn">delay</span>(<span class="nm">400</span>);
+  } <span class="kw">else</span> {
+    <span class="cm">// ── Engel yok: çizgiyi izle ──</span>
+    <span class="fn">cizgiIzle</span>();
+  }
+}
+
+<span class="cm">// ════════════════════════════════════════════
+//  FONKSİYONLAR
+// ════════════════════════════════════════════</span>
+
+<span class="cm">// Çizgi sensörünü oku ve motoru yönlendir</span>
+<span class="kw">void</span> <span class="fn">cizgiIzle</span>() {
+  <span class="tp">bool</span> solDis = <span class="fn">digitalRead</span>(CIZGI_SOL_DIS) == CIZGI_VAR;
+  <span class="tp">bool</span> solIc  = <span class="fn">digitalRead</span>(CIZGI_SOL_IC)  == CIZGI_VAR;
+  <span class="tp">bool</span> sagIc  = <span class="fn">digitalRead</span>(CIZGI_SAG_IC)  == CIZGI_VAR;
+  <span class="tp">bool</span> sagDis = <span class="fn">digitalRead</span>(CIZGI_SAG_DIS) == CIZGI_VAR;
+
+  <span class="kw">if</span> (solIc &amp;&amp; sagIc) {
+    <span class="fn">ileriGit</span>(NORMAL_HIZ);
+  } <span class="kw">else if</span> (solIc &amp;&amp; !sagIc) {
+    <span class="fn">solaDon</span>(DONUS_HIZ);
+  } <span class="kw">else if</span> (!solIc &amp;&amp; sagIc) {
+    <span class="fn">sagaDon</span>(DONUS_HIZ);
+  } <span class="kw">else if</span> (solDis) {
+    <span class="fn">solaDon</span>(SERT_DONUS);
+  } <span class="kw">else if</span> (sagDis) {
+    <span class="fn">sagaDon</span>(SERT_DONUS);
+  } <span class="kw">else</span> {
+    <span class="fn">ileriGit</span>(DONUS_HIZ);  <span class="cm">// çizgi kayboldu, yavaş ilerle</span>
+  }
+}
+
+<span class="kw">void</span> <span class="fn">ileriGit</span>(<span class="tp">uint8_t</span> hiz) {
+  <span class="fn">analogWrite</span>(ENA, hiz); <span class="fn">analogWrite</span>(ENB, hiz);
+  <span class="fn">digitalWrite</span>(IN1, <span class="kw">HIGH</span>); <span class="fn">digitalWrite</span>(IN2, <span class="kw">LOW</span>);
+  <span class="fn">digitalWrite</span>(IN3, <span class="kw">HIGH</span>); <span class="fn">digitalWrite</span>(IN4, <span class="kw">LOW</span>);
+}
+
+<span class="kw">void</span> <span class="fn">geriGit</span>(<span class="tp">uint8_t</span> hiz) {
+  <span class="fn">analogWrite</span>(ENA, hiz); <span class="fn">analogWrite</span>(ENB, hiz);
+  <span class="fn">digitalWrite</span>(IN1, <span class="kw">LOW</span>); <span class="fn">digitalWrite</span>(IN2, <span class="kw">HIGH</span>);
+  <span class="fn">digitalWrite</span>(IN3, <span class="kw">LOW</span>); <span class="fn">digitalWrite</span>(IN4, <span class="kw">HIGH</span>);
+}
+
+<span class="kw">void</span> <span class="fn">solaDon</span>(<span class="tp">uint8_t</span> hiz) {
+  <span class="fn">analogWrite</span>(ENA, <span class="nm">0</span>);  <span class="fn">analogWrite</span>(ENB, hiz);
+  <span class="fn">digitalWrite</span>(IN1, <span class="kw">LOW</span>);  <span class="fn">digitalWrite</span>(IN2, <span class="kw">LOW</span>);
+  <span class="fn">digitalWrite</span>(IN3, <span class="kw">HIGH</span>); <span class="fn">digitalWrite</span>(IN4, <span class="kw">LOW</span>);
+}
+
+<span class="kw">void</span> <span class="fn">sagaDon</span>(<span class="tp">uint8_t</span> hiz) {
+  <span class="fn">analogWrite</span>(ENA, hiz); <span class="fn">analogWrite</span>(ENB, <span class="nm">0</span>);
+  <span class="fn">digitalWrite</span>(IN1, <span class="kw">HIGH</span>); <span class="fn">digitalWrite</span>(IN2, <span class="kw">LOW</span>);
+  <span class="fn">digitalWrite</span>(IN3, <span class="kw">LOW</span>);  <span class="fn">digitalWrite</span>(IN4, <span class="kw">LOW</span>);
+}
+
+<span class="kw">void</span> <span class="fn">motorlariDurdur</span>() {
+  <span class="fn">analogWrite</span>(ENA, <span class="nm">0</span>); <span class="fn">analogWrite</span>(ENB, <span class="nm">0</span>);
+  <span class="fn">digitalWrite</span>(IN1, <span class="kw">LOW</span>); <span class="fn">digitalWrite</span>(IN2, <span class="kw">LOW</span>);
+  <span class="fn">digitalWrite</span>(IN3, <span class="kw">LOW</span>); <span class="fn">digitalWrite</span>(IN4, <span class="kw">LOW</span>);
+}</pre>
+        </div>
+      </div>
+
+      <div class="box box-tip">
+        <div class="box-label">💡 Bu Kodda Neler Kullanıldı?</div>
+        <ul>
+          <li><code>#define</code> ile tüm sabitler başta tanımlandı</li>
+          <li><code>NewPing</code> kütüphanesinden <code>sonar</code> nesnesi oluşturuldu</li>
+          <li><code>setup()</code>'ta pinler hazırlandı</li>
+          <li><code>loop()</code>'ta önce engel kontrolü, sonra çizgi izleme yapıldı</li>
+          <li>Her davranış ayrı fonksiyona ayrıldı — <code>loop()</code> temiz kaldı</li>
+          <li><code>if / else if / else</code> zinciriyle karar verildi</li>
+          <li><code>uint8_t</code> hız parametreleri için kullanıldı</li>
+        </ul>
+      </div>
+
+      <div class="box box-summary">
+        <div class="box-label">🏁 Son Söz</div>
+        <p>Bu kodu kendi robotuna adapte ederken <strong>pin numaralarını</strong> ve <strong>CIZGI_VAR</strong> değerini mutlaka güncelle. Her değişiklikten sonra <code>Serial.println()</code> ile test et. Sabırla dene, boz, düzelt — gerçek mühendislik böyle yapılır. <strong>Başarılar! 🚀</strong></p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <strong>Turan Katırcıoğlu</strong> &nbsp;|&nbsp; Ödemiş Bilim ve Sanat Merkezi
+</footer>
+
+<script>
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const total = document.body.scrollHeight - window.innerHeight;
+    const pct = (window.scrollY / total) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+  });
+
+  // Sidebar active link
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.sidebar-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-link[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
