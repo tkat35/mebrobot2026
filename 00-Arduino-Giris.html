@@ -715,12 +715,54 @@
         <p><code>#define</code> ile tanımlanan sabitin değeri program çalışırken <strong>değiştirilemez</strong>. Eğer sonradan değişmesi gerekiyorsa <code>const int</code> veya normal değişken kullan.</p>
       </div>
 
+      <h3>Diziler (Arrays)</h3>
+
+      <p>Aynı tipten birden fazla değeri tek bir isim altında saklamak istersen <strong>dizi</strong> kullanırsın. Örneğin 4 çizgi sensörünün pin numaralarını ayrı ayrı 4 değişkende tutmak yerine tek bir dizide toplayabilirsin.</p>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Söz Dizimi</span>
+        </div>
+        <pre><span class="tp">tip</span> diziAdi[eleman_sayisi] = {deger1, deger2, deger3};</pre>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">Arduino C++ — Dizi Örnekleri</span>
+        </div>
+        <pre><span class="cm">// 4 çizgi sensörünün pin numaraları</span>
+<span class="tp">uint8_t</span> cizgiPinleri[<span class="nm">4</span>] = {<span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>};
+
+<span class="cm">// Dizideki elemanlara indeks numarasıyla erişilir (0'dan başlar!)</span>
+<span class="fn">pinMode</span>(cizgiPinleri[<span class="nm">0</span>], <span class="kw">INPUT</span>);  <span class="cm">// cizgiPinleri[0] = 2</span>
+<span class="fn">pinMode</span>(cizgiPinleri[<span class="nm">1</span>], <span class="kw">INPUT</span>);  <span class="cm">// cizgiPinleri[1] = 3</span>
+
+<span class="cm">// for döngüsüyle tüm pinleri tek seferde ayarla</span>
+<span class="kw">for</span> (<span class="tp">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">4</span>; i++) {
+  <span class="fn">pinMode</span>(cizgiPinleri[i], <span class="kw">INPUT</span>);
+}
+
+<span class="cm">// Sensör okumalarını saklamak için dizi</span>
+<span class="tp">int</span> okumalar[<span class="nm">4</span>];
+<span class="kw">for</span> (<span class="tp">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">4</span>; i++) {
+  okumalar[i] = <span class="fn">digitalRead</span>(cizgiPinleri[i]);
+}</pre>
+      </div>
+
+      <div class="box box-warn">
+        <div class="box-label">⚠️ İndeks 0'dan Başlar!</div>
+        <p>4 elemanlı bir dizinin indeksleri <strong>0, 1, 2, 3</strong>'tür — 1, 2, 3, 4 değil. <code>dizi[4]</code> diye bir yere erişmeye çalışmak hata üretir. Bu, programlamada en sık yapılan hatalardan biridir.</p>
+      </div>
+
       <div class="box box-summary">
         <div class="box-label">✅ Ne Öğrendik?</div>
         <ul>
           <li>Değişken = bilgi saklayan kutucuk, mutlaka tipi olmalı</li>
           <li><code>uint8_t</code> = 0–255 arası sayı, pin ve hız değerleri için idealdir</li>
           <li><code>#define</code> = sabit değer için, bellek kullanmaz, kodu açık eder</li>
+          <li>Dizi = aynı tipten birden fazla değeri tek isim altında saklar; indeks 0'dan başlar</li>
         </ul>
       </div>
     </section>
