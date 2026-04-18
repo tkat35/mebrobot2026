@@ -625,6 +625,7 @@
   <a class="nav-link" href="#bolum3">P Kontrol</a>
   <a class="nav-link" href="#bolum4">PD Kontrol</a>
   <a class="nav-link" href="#bolum5">Karşılaştırma</a>
+  <a class="nav-link" href="#qtr">QTR-8A</a>
 </nav>
 
 <div class="page">
@@ -634,12 +635,13 @@
     <div style="font-size: 56px; margin-bottom: 1rem;">🤖</div>
     <span class="hero-badge">Arduino Çizgi Takip Robotu</span>
     <h1>Robotum nasıl düşünür?</h1>
-    <p>Sensörlerden motora giden yolculuk — üç farklı zeka seviyesiyle, ortaokul öğrencisinin anlayacağı şekilde anlatılıyor.</p>
+    <p>Sensörlerden motora giden yolculuk — üç farklı zeka seviyesiyle.</p>
     <div class="hero-cards">
       <div class="hero-card"><div class="dot" style="background:#D3D1C7"></div>Temel Kod</div>
       <div class="hero-card"><div class="dot" style="background:#D3D1C7"></div>Mantıksal Kontrol</div>
       <div class="hero-card"><div class="dot" style="background:#1D9E75"></div>P Algoritması</div>
       <div class="hero-card"><div class="dot" style="background:#185FA5"></div>PD Algoritması</div>
+      <div class="hero-card"><div class="dot" style="background:#7B4DB5"></div>QTR-8A</div>
     </div>
   </div>
 
@@ -1134,7 +1136,7 @@
 
     <div class="pd-formula">
       <div class="f-label">Hata hesaplama</div>
-      <div class="f-main">hata = (s2 × 1) + (s1 × 2) − (s3 × 1) − (s4 × 2)</div>
+      <div class="f-main">hata = (s1 × 2) + (s2 × 1) − (s3 × 1) − (s4 × 2)</div>
       <div class="f-sub">Sol sensörler pozitif (+), sağ sensörler negatif (−) → sıfır = tam ortada</div>
     </div>
 
@@ -1201,7 +1203,7 @@
   // Sol sensörler + (sağa kaydık demek → sola dön)
   // Sağ sensörler - (sola kaydık demek → sağa dön)
   // İç sensörler 1 ağırlık, dış sensörler 2 ağırlık</span>
-  <span class="kw">int</span> <span class="vc">hata</span> = (<span class="vc">s2</span>*<span class="numc">1</span>) + (<span class="vc">s1</span>*<span class="numc">2</span>) - (<span class="vc">s3</span>*<span class="numc">1</span>) - (<span class="vc">s4</span>*<span class="numc">2</span>);
+  <span class="kw">int</span> <span class="vc">hata</span> = (<span class="vc">s1</span>*<span class="numc">2</span>) + (<span class="vc">s2</span>*<span class="numc">1</span>) - (<span class="vc">s3</span>*<span class="numc">1</span>) - (<span class="vc">s4</span>*<span class="numc">2</span>);
 
   <span class="cm">// ADIM 3: P düzeltmesini hesapla
   // hata büyükse düzeltme büyük, hata küçükse düzeltme küçük</span>
@@ -1397,7 +1399,7 @@
   <span class="kw">int</span> <span class="vc">s3</span>=<span class="fn">digitalRead</span>(<span class="vc">S3</span>), <span class="vc">s4</span>=<span class="fn">digitalRead</span>(<span class="vc">S4</span>);
 
   <span class="cm">// ADIM 2: Şimdiki hatayı hesapla (aynı)</span>
-  <span class="kw">int</span> <span class="vc">hata</span> = (<span class="vc">s2</span>*<span class="numc">1</span>) + (<span class="vc">s1</span>*<span class="numc">2</span>) - (<span class="vc">s3</span>*<span class="numc">1</span>) - (<span class="vc">s4</span>*<span class="numc">2</span>);
+  <span class="kw">int</span> <span class="vc">hata</span> = (<span class="vc">s1</span>*<span class="numc">2</span>) + (<span class="vc">s2</span>*<span class="numc">1</span>) - (<span class="vc">s3</span>*<span class="numc">1</span>) - (<span class="vc">s4</span>*<span class="numc">2</span>);
 
   <span class="cm">// ADIM 3: PD düzeltmesini hesapla
   // DEĞİŞİKLİK 3: Formüle Kd*(hata-oncekiHata) eklendi
@@ -1498,10 +1500,404 @@
     </div>
   </div>
 
+
+  <!-- ════════════════════════════════════════════════════
+       BÖLÜM 6: QTR-8A İLE ÇİZGİ TAKİP
+       ════════════════════════════════════════════════════ -->
+  <div class="section" id="qtr">
+    <div class="section-header">
+      <div class="section-num" style="background:#D8C8F0;color:#3A1E6E">6</div>
+      <h2>QTR-8A ile Çizgi Takip</h2>
+      <span class="algo-tag" style="background:#EDE8FC;color:#4A2E99">QTR-8A</span>
+    </div>
+
+    <!-- ── Sensör Tanıtımı ── -->
+    <div class="explain-box">
+      <p><strong>QTR-8A nedir?</strong> Pololu firmasının ürettiği, üzerinde <strong>8 adet kızılötesi sensör</strong> bulunan bir şerittir. Her sensör hem kızılötesi ışık gönderir hem de yansıyan ışığı ölçer ve bir <strong>analog değer (0–1023)</strong> üretir. Sayı büyükse koyu zemin, küçükse açık zemin demektir.</p>
+      <p>4'lü dijital sensörden farkı: her sensör sadece "var / yok" değil, <strong>ne kadar var</strong> bilgisini verir. Pololu'nun kütüphanesi bu değerleri okuyup robot çizginin tam olarak nerede olduğunu gösteren tek bir <strong>konum değerine</strong> (0–5000) dönüştürür — hem kalibrasyon hem hesap otomatik!</p>
+    </div>
+
+    <div class="analogy">
+      💡 <strong>Analojiyle düşün:</strong> Dijital sensör parmağınla siyahı hissedip "evet/hayır" demek gibi. QTR-8A ise göz kapağını kısmen açıp "az mı var, çok mu var?" diye bakmak gibi — çok daha fazla bilgi! Kütüphane de bu bilgiyi "robot çizginin kaç mm sağındasın?" sorusuna çeviriyor.
+    </div>
+
+    <!-- ── 8 Sensör → 6 Sensör ── -->
+    <div class="explain-box">
+      <p><strong>Neden 6 sensör?</strong> QTR-8A'nın 8 sensörü var ama Arduino UNO'da sadece 6 analog pin (A0–A5) bulunuyor. Bu nedenle <strong>en soldaki (S0) ve en sağdaki (S7) sensörleri devre dışı bırakıp</strong> ortadaki 6 sensörü (S1–S6) kullanıyoruz. Kütüphaneye de kaç sensör kullandığımızı söylüyoruz.</p>
+    </div>
+
+    <!-- ── Sensör Görsel ── -->
+    <div style="margin:1.5rem 0">
+      <svg viewBox="0 0 640 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:620px;display:block;margin:0 auto">
+        <rect x="10" y="30" width="630" height="50" rx="8" fill="#2C2C2A"/>
+        <text x="310" y="18" text-anchor="middle" font-family="Nunito,sans-serif" font-size="11" font-weight="800" fill="#5F5E5A">QTR-8A — En uçtaki 2 sensör devre dışı, ortadaki 6 kullanılıyor</text>
+        <!-- S0 iptal -->
+        <circle cx="50"  cy="55" r="16" fill="#3C3C38" stroke="#555" stroke-width="1.5"/>
+        <text x="50"  y="59" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="#666">S0</text>
+        <text x="50"  y="88" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" font-weight="800" fill="#666">İPTAL</text>
+        <!-- S1→A0 -->
+        <circle cx="130" cy="55" r="16" fill="#1D9E75" stroke="#0F6E56" stroke-width="1.5"/>
+        <text x="130" y="59" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="white">S1</text>
+        <text x="130" y="88" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" font-weight="800" fill="#0F6E56">A0</text>
+        <line x1="130" y1="71" x2="130" y2="82" stroke="#0F6E56" stroke-width="1.5"/>
+        <!-- S2→A1 -->
+        <circle cx="210" cy="55" r="16" fill="#1D9E75" stroke="#0F6E56" stroke-width="1.5"/>
+        <text x="210" y="59" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="white">S2</text>
+        <text x="210" y="88" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" font-weight="800" fill="#0F6E56">A1</text>
+        <line x1="210" y1="71" x2="210" y2="82" stroke="#0F6E56" stroke-width="1.5"/>
+        <!-- S3→A2 -->
+        <circle cx="290" cy="55" r="16" fill="#1D9E75" stroke="#0F6E56" stroke-width="1.5"/>
+        <text x="290" y="59" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="white">S3</text>
+        <text x="290" y="88" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" font-weight="800" fill="#0F6E56">A2</text>
+        <line x1="290" y1="71" x2="290" y2="82" stroke="#0F6E56" stroke-width="1.5"/>
+        <!-- S4→A3 -->
+        <circle cx="370" cy="55" r="16" fill="#1D9E75" stroke="#0F6E56" stroke-width="1.5"/>
+        <text x="370" y="59" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="white">S4</text>
+        <text x="370" y="88" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" font-weight="800" fill="#0F6E56">A3</text>
+        <line x1="370" y1="71" x2="370" y2="82" stroke="#0F6E56" stroke-width="1.5"/>
+        <!-- S5→A4 -->
+        <circle cx="450" cy="55" r="16" fill="#1D9E75" stroke="#0F6E56" stroke-width="1.5"/>
+        <text x="450" y="59" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="white">S5</text>
+        <text x="450" y="88" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" font-weight="800" fill="#0F6E56">A4</text>
+        <line x1="450" y1="71" x2="450" y2="82" stroke="#0F6E56" stroke-width="1.5"/>
+        <!-- S6→A5 -->
+        <circle cx="530" cy="55" r="16" fill="#1D9E75" stroke="#0F6E56" stroke-width="1.5"/>
+        <text x="530" y="59" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="white">S6</text>
+        <text x="530" y="88" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" font-weight="800" fill="#0F6E56">A5</text>
+        <line x1="530" y1="71" x2="530" y2="82" stroke="#0F6E56" stroke-width="1.5"/>
+        <!-- S7 iptal -->
+        <circle cx="595" cy="55" r="16" fill="#3C3C38" stroke="#555" stroke-width="1.5"/>
+        <text x="595" y="59" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="#666">S7</text>
+        <text x="595" y="88" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" font-weight="800" fill="#666">İPTAL</text>
+        <text x="310" y="110" text-anchor="middle" font-family="Nunito,sans-serif" font-size="10" fill="#888780">← Kullanılan 6 sensör (S1–S6 → A0–A5) →</text>
+      </svg>
+    </div>
+
+    <!-- ── Kütüphane Kurulumu ── -->
+    <div class="explain-box">
+      <p><strong>Kütüphane kurulumu:</strong> Arduino IDE'de <strong>Sketch → Include Library → Manage Libraries</strong> menüsüne gir, arama kutusuna <strong>"QTRSensors"</strong> yaz ve Pololu'nun kütüphanesini yükle. Bu kütüphane üç kritik işlemi otomatik yapar:</p>
+      <p>① <strong>Kalibrasyon:</strong> Robotu çizginin üzerinde ileri-geri hareket ettirirken kütüphane her sensörün minimum ve maksimum değerlerini öğrenir.<br>
+      ② <strong>Normalize okuma:</strong> Ham analog değer yerine 0–1000 arası normalize değer üretir — zemin renginden bağımsız.<br>
+      ③ <strong>Konum hesabı:</strong> 6 sensörü birleştirip robotun çizgiye göre konumunu <strong>0–5000</strong> arasında tek bir sayıyla verir. 2500 = tam orta, 0 = en solda, 5000 = en sağda.</p>
+    </div>
+
+    <div class="note-box">
+      <strong>Konum değerini (position) anlamak:</strong> 6 sensör için kütüphane 0–5000 arası değer üretir. Orta = 2500. Bu değerden 2500 çıkarırsak hata −2500 ile +2500 arasında olur: negatif = sola kaymış, pozitif = sağa kaymış. Algoritmalar bu hatayı kullanır — tıpkı 4'lü sensördeki gibi!
+    </div>
+
+    <!-- ── Kalibrasyon Açıklaması ── -->
+    <div class="analogy">
+      ⚙️ <strong>Kalibrasyon neden şart?</strong> Her ortamda ışık farklıdır. Kütüphane kalibrasyon sırasında "bu sensörün gördüğü en koyu değer neydi, en açık değer neydi?" diye kaydeder. Sonra her okumayı bu aralığa göre normalize eder. Böylece güneşli pistte de, kapalı spor salonunda da aynı kod çalışır.
+    </div>
+
+    <!-- ════════ 6.1 MANTIKSAL KONTROL ════════ -->
+    <div style="margin-top:2.5rem">
+      <div class="section-header" style="margin-top:0">
+        <div class="section-num num-gray" style="font-size:13px;width:44px;height:44px">6.1</div>
+        <h2 style="font-size:1.1rem">Mantıksal Kontrol — QTR-8A</h2>
+        <span class="algo-tag tag-gray">Mantıksal</span>
+      </div>
+
+      <div class="explain-box">
+        <p>Kütüphanenin <code>readLineBlack()</code> fonksiyonu bize 0–5000 arası bir konum değeri verir. Biz bu değeri 2500'den çıkararak −2500 ile +2500 arası bir <strong>hata</strong> elde ederiz. Sonra bu hatayı basamaklara bölerek if/else kurallar yazarız — tıpkı 4'lü sensördeki mantık gibi ama çok daha hassas!</p>
+      </div>
+
+      <div class="code-block">
+        <pre><span class="cm">// ──────────────────────────────────────────────────────────
+// QTR-8A ile Mantıksal Kontrol
+// Kütüphane: QTRSensors (Pololu) — Library Manager'dan yükle
+// Arduino UNO + L298N Motor Sürücü
+// ──────────────────────────────────────────────────────────</span>
+
+<span class="kw">#include</span> &lt;QTRSensors.h&gt;
+
+<span class="cm">// ── Kütüphane nesnesi ──</span>
+QTRSensors <span class="vc">qtr</span>;
+
+<span class="cm">// ── Motor pinleri (L298N) ──</span>
+<span class="kw">const int</span> <span class="vc">ENA</span> = <span class="numc">10</span>, <span class="vc">IN1</span> = <span class="numc">7</span>, <span class="vc">IN2</span> = <span class="numc">8</span>;   <span class="cm">// Sol motor</span>
+<span class="kw">const int</span> <span class="vc">ENB</span> = <span class="numc">11</span>, <span class="vc">IN3</span> = <span class="numc">9</span>, <span class="vc">IN4</span> = <span class="numc">12</span>;  <span class="cm">// Sağ motor</span>
+
+<span class="kw">const int</span> <span class="vc">HIZ_ILERI</span> = <span class="numc">170</span>;
+<span class="kw">const int</span> <span class="vc">HIZ_YAVS</span>  = <span class="numc">110</span>;
+<span class="kw">const int</span> <span class="vc">HIZ_SERT</span>  = <span class="numc">200</span>;
+
+<span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> <span class="vc">sol</span>, <span class="kw">int</span> <span class="vc">sag</span>) {
+  <span class="fn">analogWrite</span>(<span class="vc">ENA</span>, <span class="fn">constrain</span>(<span class="vc">sol</span>, <span class="numc">0</span>, <span class="numc">255</span>));
+  <span class="fn">digitalWrite</span>(<span class="vc">IN1</span>, HIGH); <span class="fn">digitalWrite</span>(<span class="vc">IN2</span>, LOW);
+  <span class="fn">analogWrite</span>(<span class="vc">ENB</span>, <span class="fn">constrain</span>(<span class="vc">sag</span>, <span class="numc">0</span>, <span class="numc">255</span>));
+  <span class="fn">digitalWrite</span>(<span class="vc">IN3</span>, HIGH); <span class="fn">digitalWrite</span>(<span class="vc">IN4</span>, LOW);
+}
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="vc">ENA</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN1</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN2</span>,OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">ENB</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN3</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN4</span>,OUTPUT);
+
+  <span class="cm">// ── Kütüphane ayarı ──
+  // 6 sensör, analog tip, S1–S6 → A0–A5 pinleri</span>
+  <span class="vc">qtr</span>.<span class="fn">setTypeAnalog</span>();
+  <span class="vc">qtr</span>.<span class="fn">setSensorPins</span>((uint8_t[]){A0, A1, A2, A3, A4, A5}, <span class="numc">6</span>);
+
+  <span class="cm">// ── Kalibrasyon ──
+  // Robotu 3–4 saniye çizginin üzerinde ileri-geri salla
+  // (veya robotu el ile döndür, tüm sensörler çizgiyi görsün)
+  // Bu sürede kütüphane her sensörün min/max değerini öğrenir</span>
+  <span class="kw">for</span> (<span class="kw">int</span> <span class="vc">i</span> = <span class="numc">0</span>; <span class="vc">i</span> &lt; <span class="numc">200</span>; <span class="vc">i</span>++) {
+    <span class="vc">qtr</span>.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="numc">20</span>);  <span class="cm">// 200 × 20ms = 4 saniye kalibrasyon</span>
+  }
+  <span class="cm">// Kalibrasyon bitti — robot artık hazır!</span>
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// ADIM 1: Konum oku (0 = en sol, 5000 = en sağ, 2500 = tam orta)
+  // readLineBlack → siyah çizgi için kullan</span>
+  <span class="kw">uint16_t</span> <span class="vc">konum</span> = <span class="vc">qtr</span>.<span class="fn">readLineBlack</span>(nullptr);
+
+  <span class="cm">// ADIM 2: Hatayı hesapla (2500'den sapma)
+  // negatif hata = robot sola kaymış, pozitif = sağa kaymış</span>
+  <span class="kw">int</span> <span class="vc">hata</span> = (<span class="kw">int</span>)<span class="vc">konum</span> - <span class="numc">2500</span>;
+
+  <span class="cm">// ADIM 3: Hatanın büyüklüğüne göre mantıksal karar ver
+  // Aralıklar 0–2500 ölçeğine göre belirlenmiş:
+  //   ±200  → neredeyse ortada
+  //   ±800  → orta kayma
+  //   ±800+ → ciddi kayma</span>
+
+  <span class="kw">if</span> (<span class="vc">hata</span> &gt; -<span class="numc">200</span> &amp;&amp; <span class="vc">hata</span> &lt; <span class="numc">200</span>) {
+    <span class="cm">// Ortada → düz git</span>
+    <span class="fn">motorSur</span>(<span class="vc">HIZ_ILERI</span>, <span class="vc">HIZ_ILERI</span>);
+
+  } <span class="kw">else if</span> (<span class="vc">hata</span> &lt; <span class="numc">0</span> &amp;&amp; <span class="vc">hata</span> &gt;= -<span class="numc">800</span>) {
+    <span class="cm">// Hafif sola kaymış → yavaşça sola dön</span>
+    <span class="fn">motorSur</span>(<span class="vc">HIZ_YAVS</span>, <span class="vc">HIZ_ILERI</span>);
+
+  } <span class="kw">else if</span> (<span class="vc">hata</span> &gt; <span class="numc">0</span> &amp;&amp; <span class="vc">hata</span> &lt;= <span class="numc">800</span>) {
+    <span class="cm">// Hafif sağa kaymış → yavaşça sağa dön</span>
+    <span class="fn">motorSur</span>(<span class="vc">HIZ_ILERI</span>, <span class="vc">HIZ_YAVS</span>);
+
+  } <span class="kw">else if</span> (<span class="vc">hata</span> &lt; -<span class="numc">800</span>) {
+    <span class="cm">// Ciddi sola kayma → sert sola dön</span>
+    <span class="fn">motorSur</span>(<span class="numc">0</span>, <span class="vc">HIZ_SERT</span>);
+
+  } <span class="kw">else</span> {
+    <span class="cm">// Ciddi sağa kayma → sert sağa dön</span>
+    <span class="fn">motorSur</span>(<span class="vc">HIZ_SERT</span>, <span class="numc">0</span>);
+  }
+}</pre>
+      </div>
+
+      <div class="note-box">
+        <strong>Kalibrasyon nasıl yapılır?</strong> <code>setup()</code> içindeki döngü 4 saniye çalışır. Bu 4 saniye boyunca robotu elinle çizginin üzerinde ileri-geri veya sağa-sola döndür; tüm sensörler hem siyahı hem beyazı görsün. Süre bitince robot otomatik çalışmaya başlar.
+      </div>
+    </div>
+
+    <!-- ════════ 6.2 P KONTROL ════════ -->
+    <div style="margin-top:2.5rem">
+      <div class="section-header" style="margin-top:0">
+        <div class="section-num num-teal" style="font-size:13px;width:44px;height:44px">6.2</div>
+        <h2 style="font-size:1.1rem">P Kontrolcü — QTR-8A</h2>
+        <span class="algo-tag tag-teal">P Kontrol</span>
+      </div>
+
+      <div class="explain-box">
+        <p>Kütüphanenin verdiği 0–5000 konum değerinden ürettiğimiz hata artık −2500 ile +2500 arasında. P kontrolcü bu hatayı <code>Kp</code> ile çarparak motor farkını bulur. Hata büyükse büyük düzeltme, hata küçükse küçük düzeltme — otomatik ve sürekli!</p>
+        <p>4'lü sensörde hata −2 ile +2 arasındaydı; burada −2500 ile +2500 arasında. Bu yüzden <strong>Kp değeri çok küçük seçilmeli</strong> — 0.05–0.15 gibi ondalık bir sayı kullanırız.</p>
+      </div>
+
+      <div class="pd-formula">
+        <div class="f-label">P Kontrolcü — QTR-8A ile</div>
+        <div class="f-main">
+          konum = qtr.readLineBlack()   <span style="color:#5F5E5A">← 0–5000 arası</span><br>
+          hata = konum − 2500           <span style="color:#5F5E5A">← −2500 ile +2500 arası</span><br>
+          düzeltme = Kp × hata<br>
+          solMotor = temelHız − düzeltme<br>
+          sağMotor = temelHız + düzeltme
+        </div>
+        <div class="f-sub">Kp başlangıç değeri: 0.08 — robotu piste koy ve yavaşça artır</div>
+      </div>
+
+      <div class="code-block">
+        <pre><span class="cm">// ──────────────────────────────────────────────────────────
+// QTR-8A ile P Kontrolcü
+// Kütüphane: QTRSensors (Pololu)
+// ──────────────────────────────────────────────────────────</span>
+
+<span class="kw">#include</span> &lt;QTRSensors.h&gt;
+
+QTRSensors <span class="vc">qtr</span>;
+
+<span class="kw">const int</span> <span class="vc">ENA</span> = <span class="numc">10</span>, <span class="vc">IN1</span> = <span class="numc">7</span>, <span class="vc">IN2</span> = <span class="numc">8</span>;
+<span class="kw">const int</span> <span class="vc">ENB</span> = <span class="numc">11</span>, <span class="vc">IN3</span> = <span class="numc">9</span>, <span class="vc">IN4</span> = <span class="numc">12</span>;
+
+<span class="cm">// P kontrolcü parametreleri
+// Hata aralığı −2500…+2500 olduğundan Kp çok küçük seçilir!</span>
+<span class="kw">float</span> <span class="vc">Kp</span>        = <span class="numc">0.08</span>;  <span class="cm">// Başlangıç — piste göre ayarla</span>
+<span class="kw">int</span>   <span class="vc">temelHiz</span>  = <span class="numc">160</span>;
+
+<span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> <span class="vc">sol</span>, <span class="kw">int</span> <span class="vc">sag</span>) {
+  <span class="fn">analogWrite</span>(<span class="vc">ENA</span>, <span class="fn">constrain</span>(<span class="vc">sol</span>, <span class="numc">0</span>, <span class="numc">255</span>));
+  <span class="fn">digitalWrite</span>(<span class="vc">IN1</span>, HIGH); <span class="fn">digitalWrite</span>(<span class="vc">IN2</span>, LOW);
+  <span class="fn">analogWrite</span>(<span class="vc">ENB</span>, <span class="fn">constrain</span>(<span class="vc">sag</span>, <span class="numc">0</span>, <span class="numc">255</span>));
+  <span class="fn">digitalWrite</span>(<span class="vc">IN3</span>, HIGH); <span class="fn">digitalWrite</span>(<span class="vc">IN4</span>, LOW);
+}
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="vc">ENA</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN1</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN2</span>,OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">ENB</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN3</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN4</span>,OUTPUT);
+
+  <span class="vc">qtr</span>.<span class="fn">setTypeAnalog</span>();
+  <span class="vc">qtr</span>.<span class="fn">setSensorPins</span>((uint8_t[]){A0, A1, A2, A3, A4, A5}, <span class="numc">6</span>);
+
+  <span class="cm">// Kalibrasyon — 4 saniye robotu çizgi üzerinde gezdir</span>
+  <span class="kw">for</span> (<span class="kw">int</span> <span class="vc">i</span> = <span class="numc">0</span>; <span class="vc">i</span> &lt; <span class="numc">200</span>; <span class="vc">i</span>++) {
+    <span class="vc">qtr</span>.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="numc">20</span>);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// ADIM 1: Konum oku — kütüphane her şeyi halleder</span>
+  <span class="kw">uint16_t</span> <span class="vc">konum</span> = <span class="vc">qtr</span>.<span class="fn">readLineBlack</span>(nullptr);
+
+  <span class="cm">// ADIM 2: Hatayı hesapla</span>
+  <span class="kw">int</span> <span class="vc">hata</span> = (<span class="kw">int</span>)<span class="vc">konum</span> - <span class="numc">2500</span>;
+
+  <span class="cm">// ADIM 3: P düzeltmesi</span>
+  <span class="kw">int</span> <span class="vc">duzeltme</span> = (<span class="kw">int</span>)(<span class="vc">Kp</span> * <span class="vc">hata</span>);
+
+  <span class="cm">// ADIM 4: Motorları ayarla</span>
+  <span class="kw">int</span> <span class="vc">solHiz</span> = <span class="fn">constrain</span>(<span class="vc">temelHiz</span> - <span class="vc">duzeltme</span>, <span class="numc">0</span>, <span class="numc">255</span>);
+  <span class="kw">int</span> <span class="vc">sagHiz</span> = <span class="fn">constrain</span>(<span class="vc">temelHiz</span> + <span class="vc">duzeltme</span>, <span class="numc">0</span>, <span class="numc">255</span>);
+
+  <span class="fn">motorSur</span>(<span class="vc">solHiz</span>, <span class="vc">sagHiz</span>);
+}</pre>
+      </div>
+
+      <div class="table-wrap">
+        <table class="tuning-table">
+          <thead><tr><th>Durum</th><th>Belirti</th><th>Çözüm</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Kp çok küçük</strong></td><td>Çizgiden çok az saparken bile düzeltemez, kayar</td><td>Kp artır: 0.08 → 0.12</td></tr>
+            <tr><td><strong>Kp çok büyük</strong></td><td>Sağa-sola sallantılı, zigzag gidiş</td><td>Kp azalt: 0.08 → 0.05</td></tr>
+            <tr><td><strong>Kp doğru</strong></td><td>Düzgün gidiyor ama virajlarda biraz sallanıyor</td><td>PD'ye geç!</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════ 6.3 PD KONTROL ════════ -->
+    <div style="margin-top:2.5rem">
+      <div class="section-header" style="margin-top:0">
+        <div class="section-num num-blue" style="font-size:13px;width:44px;height:44px">6.3</div>
+        <h2 style="font-size:1.1rem">PD Kontrolcü — QTR-8A</h2>
+        <span class="algo-tag tag-blue">PD Kontrol</span>
+      </div>
+
+      <div class="explain-box">
+        <p>P kontrolcüye sadece 3 satır ekliyoruz: Kd değişkeni, öncekiHata değişkeni ve formülde türev terimi. Hata hızla büyüyorsa D terimi "dur, çok sert dönüyorsun" diye frenleme yapar. Hata azalıyorsa "iyi gidiyorsun, çok düzeltme yapma" der. Sonuç: titremesiz, akıcı gidiş.</p>
+      </div>
+
+      <div class="pd-formula">
+        <div class="f-label">PD Kontrolcü Formülü</div>
+        <div class="f-main">
+          hata = konum − 2500<br>
+          düzeltme = (Kp × hata) + (Kd × (hata − öncekiHata))<br>
+          öncekiHata = hata  <span style="color:#5F5E5A">← bir sonraki döngü için sakla</span>
+        </div>
+        <div class="f-sub">Kp başlangıç: 0.08 — Kd başlangıç: 0.5 — ikisini birlikte ayarla</div>
+      </div>
+
+      <div class="code-block">
+        <pre><span class="cm">// ──────────────────────────────────────────────────────────
+// QTR-8A ile PD Kontrolcü
+// P koduna göre sadece 3 satır eklendi — farklı yerler işaretli
+// ──────────────────────────────────────────────────────────</span>
+
+<span class="kw">#include</span> &lt;QTRSensors.h&gt;
+
+QTRSensors <span class="vc">qtr</span>;
+
+<span class="kw">const int</span> <span class="vc">ENA</span> = <span class="numc">10</span>, <span class="vc">IN1</span> = <span class="numc">7</span>, <span class="vc">IN2</span> = <span class="numc">8</span>;
+<span class="kw">const int</span> <span class="vc">ENB</span> = <span class="numc">11</span>, <span class="vc">IN3</span> = <span class="numc">9</span>, <span class="vc">IN4</span> = <span class="numc">12</span>;
+
+<span class="kw">float</span> <span class="vc">Kp</span>          = <span class="numc">0.08</span>;  <span class="cm">// Orantı katsayısı (P'deki ile aynı)</span>
+<span class="kw">float</span> <span class="vc">Kd</span>          = <span class="numc">0.5</span>;   <span class="cm">// DEĞİŞİKLİK 1: Türev katsayısı eklendi</span>
+<span class="kw">int</span>   <span class="vc">temelHiz</span>    = <span class="numc">160</span>;
+<span class="kw">int</span>   <span class="vc">oncekiHata</span>  = <span class="numc">0</span>;    <span class="cm">// DEĞİŞİKLİK 2: Önceki hata hafızası eklendi</span>
+
+<span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> <span class="vc">sol</span>, <span class="kw">int</span> <span class="vc">sag</span>) {
+  <span class="fn">analogWrite</span>(<span class="vc">ENA</span>, <span class="fn">constrain</span>(<span class="vc">sol</span>, <span class="numc">0</span>, <span class="numc">255</span>));
+  <span class="fn">digitalWrite</span>(<span class="vc">IN1</span>, HIGH); <span class="fn">digitalWrite</span>(<span class="vc">IN2</span>, LOW);
+  <span class="fn">analogWrite</span>(<span class="vc">ENB</span>, <span class="fn">constrain</span>(<span class="vc">sag</span>, <span class="numc">0</span>, <span class="numc">255</span>));
+  <span class="fn">digitalWrite</span>(<span class="vc">IN3</span>, HIGH); <span class="fn">digitalWrite</span>(<span class="vc">IN4</span>, LOW);
+}
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="vc">ENA</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN1</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN2</span>,OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">ENB</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN3</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN4</span>,OUTPUT);
+
+  <span class="vc">qtr</span>.<span class="fn">setTypeAnalog</span>();
+  <span class="vc">qtr</span>.<span class="fn">setSensorPins</span>((uint8_t[]){A0, A1, A2, A3, A4, A5}, <span class="numc">6</span>);
+
+  <span class="cm">// Kalibrasyon — 4 saniye robotu çizgi üzerinde gezdir</span>
+  <span class="kw">for</span> (<span class="kw">int</span> <span class="vc">i</span> = <span class="numc">0</span>; <span class="vc">i</span> &lt; <span class="numc">200</span>; <span class="vc">i</span>++) {
+    <span class="vc">qtr</span>.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="numc">20</span>);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// ADIM 1: Konum oku (aynı)</span>
+  <span class="kw">uint16_t</span> <span class="vc">konum</span> = <span class="vc">qtr</span>.<span class="fn">readLineBlack</span>(nullptr);
+
+  <span class="cm">// ADIM 2: Hatayı hesapla (aynı)</span>
+  <span class="kw">int</span> <span class="vc">hata</span> = (<span class="kw">int</span>)<span class="vc">konum</span> - <span class="numc">2500</span>;
+
+  <span class="cm">// ADIM 3: PD düzeltmesi
+  // DEĞİŞİKLİK 3: Formüle Kd × (hata − öncekiHata) eklendi</span>
+  <span class="kw">int</span> <span class="vc">duzeltme</span> = (<span class="kw">int</span>)((<span class="vc">Kp</span> * <span class="vc">hata</span>) + (<span class="vc">Kd</span> * (<span class="vc">hata</span> - <span class="vc">oncekiHata</span>)));
+
+  <span class="cm">// ADIM 4: Önceki hatayı güncelle — bu satır olmadan D terimi çalışmaz!</span>
+  <span class="vc">oncekiHata</span> = <span class="vc">hata</span>;
+
+  <span class="cm">// ADIM 5: Motorları ayarla (aynı)</span>
+  <span class="kw">int</span> <span class="vc">solHiz</span> = <span class="fn">constrain</span>(<span class="vc">temelHiz</span> - <span class="vc">duzeltme</span>, <span class="numc">0</span>, <span class="numc">255</span>);
+  <span class="kw">int</span> <span class="vc">sagHiz</span> = <span class="fn">constrain</span>(<span class="vc">temelHiz</span> + <span class="vc">duzeltme</span>, <span class="numc">0</span>, <span class="numc">255</span>);
+
+  <span class="fn">motorSur</span>(<span class="vc">solHiz</span>, <span class="vc">sagHiz</span>);
+}</pre>
+      </div>
+
+      <div class="note-box">
+        <strong>P'den PD'ye geçişte ne değişti?</strong> Sadece 3 şey: (1) <code>float Kd = 0.5;</code> eklendi, (2) <code>int oncekiHata = 0;</code> eklendi, (3) formülde <code>+ Kd * (hata - oncekiHata)</code> eklendi. Gerisi birebir aynı!
+      </div>
+
+      <div class="table-wrap">
+        <table class="tuning-table">
+          <thead><tr><th>Durum</th><th>Belirti</th><th>Çözüm</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Kd çok küçük</strong></td><td>P ile aynı sorun — virajlarda sallanıyor</td><td>Kd artır: 0.5 → 1.0</td></tr>
+            <tr><td><strong>Kd çok büyük</strong></td><td>Küçük bozukluğa aşırı tepki, titriyor</td><td>Kd azalt: 0.5 → 0.2</td></tr>
+            <tr><td><strong>Kp ve Kd doğru</strong></td><td>Hızlı virajlarda bile kararlı, akıcı gidiş</td><td>Yarışa hazır! 🏁</td></tr>
+            <tr><td><strong>Kalibrasyon yetersiz</strong></td><td>Sensörler tutarsız, robot rastgele davranıyor</td><td>Kalibrasyonu tekrarla — tüm sensörler siyah ve beyazı görmeli</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="analogy">
+        💡 <strong>Kp ve Kd nasıl ayarlanır?</strong> Önce Kd = 0 yap, sadece Kp ile çalış — robot düzgün gitsin. Sonra Kp'yi biraz azalt ve Kd'yi artırmaya başla. Her değişiklikten sonra robotu piste koy ve sonucu gözlemle. Sabır ve deney, teoriden çok daha öğreticidir!
+      </div>
+    </div>
+
+  </div><!-- /section qtr -->
+
+
+
 </div><!-- /page -->
 
 <footer>
-  Çizgi Takip Robotu Eğitim Sayfası &nbsp;·&nbsp; Mantıksal → P → PD Algoritmaları &nbsp;·&nbsp; Arduino ile Robotik
+  Çizgi Takip Robotu &nbsp;·&nbsp; Mantıksal → P → PD Algoritmaları &nbsp;·&nbsp; QTR-8A &nbsp;·&nbsp; Arduino ile Robotik
 </footer>
 
 <script>
