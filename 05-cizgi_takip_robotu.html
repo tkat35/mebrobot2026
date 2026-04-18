@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Çizgi Takip Robotu — Algoritmalar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F7F6F2;
+      --surface:   #FFFFFF;
+      --surface2:  #F1EFE8;
+      --border:    rgba(0,0,0,0.10);
+      --border2:   rgba(0,0,0,0.18);
+      --text:      #1A1A18;
+      --text2:     #5F5E5A;
+      --text3:     #888780;
+      --teal:      #1D9E75;
+      --teal-bg:   #E1F5EE;
+      --teal-dark: #085041;
+      --blue:      #185FA5;
+      --blue-bg:   #E6F1FB;
+      --blue-dark: #042C53;
+      --amber-bg:  #FAEEDA;
+      --amber:     #BA7517;
+      --amber-dark:#412402;
+      --red:       #A32D2D;
+      --red-bg:    #FCEBEB;
+      --code-bg:   #1E1E1C;
+      --radius:    10px;
+      --radius-lg: 14px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(247,246,242,0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 0.5px solid var(--border2);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      height: 52px;
+      overflow-x: auto;
+    }
+
+    nav .nav-brand {
+      font-weight: 900;
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+      margin-right: 1.5rem;
+      text-decoration: none;
+    }
+
+    nav a.nav-link {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text2);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    nav a.nav-link:hover { background: var(--surface2); color: var(--text); }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 900px; margin: 0 auto; padding: 0 1.5rem 5rem; }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 4rem 1rem 3rem;
+      border-bottom: 0.5px solid var(--border);
+      margin-bottom: 3rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--teal-bg);
+      color: var(--teal-dark);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--text2);
+      max-width: 560px;
+      margin: 0 auto 2rem;
+    }
+
+    .hero-cards {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hero-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 0.75rem 1.25rem;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-card .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      margin-bottom: 4rem;
+      scroll-margin-top: 64px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .section-num {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .num-gray   { background: #D3D1C7; color: #2C2C2A; }
+    .num-teal   { background: #9FE1CB; color: #04342C; }
+    .num-blue   { background: #B5D4F4; color: #042C53; }
+    .num-purple { background: #CECBF6; color: #26215C; }
+
+    .section-header h2 {
+      font-size: 1.25rem;
+      font-weight: 900;
+      flex: 1;
+    }
+
+    .algo-tag {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 11px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+    }
+
+    .tag-gray   { background: #F1EFE8; color: #5F5E5A; }
+    .tag-teal   { background: var(--teal-bg); color: #0F6E56; }
+    .tag-blue   { background: var(--blue-bg); color: var(--blue); }
+    .tag-purple { background: #EEEDFE; color: #3C3489; }
+
+    /* ── EXPLAIN BOX ── */
+    .explain-box {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      line-height: 1.8;
+    }
+
+    .explain-box p { margin-bottom: 0.75rem; font-size: 0.95rem; }
+    .explain-box p:last-child { margin-bottom: 0; }
+    .explain-box strong { font-weight: 800; }
+    .explain-box code {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      background: var(--surface2);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    /* ── ANALOGY ── */
+    .analogy {
+      background: var(--amber-bg);
+      border-left: 3px solid #EF9F27;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 0.9rem;
+      color: var(--amber-dark);
+      line-height: 1.7;
+    }
+
+    .note-box {
+      background: var(--blue-bg);
+      border-left: 3px solid #378ADD;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 0.9rem;
+      color: var(--blue-dark);
+      line-height: 1.7;
+    }
+
+    .warn-box {
+      background: var(--red-bg);
+      border-left: 3px solid #E24B4A;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      font-size: 0.9rem;
+      color: #501313;
+      line-height: 1.7;
+    }
+
+    /* ── SENSOR CARDS ── */
+    .sensor-visual {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 1.25rem 0;
+    }
+
+    .sensor-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .s-name { font-size: 11px; font-weight: 800; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .s-pin  { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--blue); background: var(--blue-bg); padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; display: inline-block; }
+    .s-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+
+    /* ── TRUTH TABLE ── */
+    .table-wrap { overflow-x: auto; margin: 1.25rem 0; }
+
+    .truth-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .truth-table th {
+      background: var(--surface2);
+      padding: 9px 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 11px;
+      border: 0.5px solid var(--border);
+      color: var(--text2);
+    }
+
+    .truth-table td {
+      padding: 8px 12px;
+      border: 0.5px solid var(--border);
+      text-align: center;
+    }
+
+    .truth-table tr:hover td { background: var(--surface2); }
+    .truth-table td:last-child, .truth-table td:nth-last-child(2) { font-family: 'Nunito', sans-serif; font-size: 12px; }
+
+    .val-on  { color: #0F6E56; font-weight: 800; }
+    .val-off { color: #B4B2A9; }
+
+    .act-forward { color: #0F6E56; font-weight: 800; }
+    .act-left    { color: var(--blue); font-weight: 800; }
+    .act-right   { color: #993C1D; font-weight: 800; }
+    .act-stop    { color: var(--red); font-weight: 800; }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: var(--code-bg);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 1.75rem;
+      margin: 1.25rem 0;
+      overflow-x: auto;
+    }
+
+    .code-block pre {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      line-height: 1.9;
+      color: #D3D1C7;
+      white-space: pre;
+    }
+
+    .kw   { color: #9FE1CB; }
+    .fn   { color: #FAC775; }
+    .cm   { color: #5F5E5A; font-style: italic; }
+    .numc { color: #F5C4B3; }
+    .vc   { color: #EAF3DE; }
+
+    /* ── MOTOR GRID ── */
+    .motor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 1.25rem 0;
+    }
+
+    .motor-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+    }
+
+    .motor-card h4 { font-size: 11px; font-weight: 800; color: var(--text2); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .motor-pair { display: flex; gap: 12px; align-items: flex-end; }
+
+    .motor-item { flex: 1; }
+    .motor-item .m-label { font-size: 10px; color: var(--text2); margin-bottom: 4px; font-weight: 700; }
+    .motor-item .m-speed { font-size: 22px; font-weight: 900; }
+    .motor-item .m-sub { font-size: 10px; color: var(--text3); }
+
+    .speed-bar { height: 5px; border-radius: 3px; background: var(--surface2); margin-top: 6px; overflow: hidden; }
+    .speed-fill { height: 100%; border-radius: 3px; }
+
+    .motor-note { margin-top: 10px; font-size: 11px; color: var(--text2); line-height: 1.5; }
+
+    /* ── INTERACTIVE DEMO ── */
+    .interactive-demo {
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin: 1.25rem 0;
+    }
+
+    .demo-header {
+      background: var(--surface2);
+      padding: 0.7rem 1.25rem;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .demo-body { padding: 1.25rem; background: var(--surface); }
+
+    .sensor-toggles { display: flex; gap: 10px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+
+    .sensor-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 12px 18px;
+      border: 1.5px solid var(--border2);
+      border-radius: var(--radius);
+      cursor: pointer;
+      background: var(--surface);
+      font-family: 'Nunito', sans-serif;
+      transition: all 0.15s;
+      min-width: 80px;
+    }
+
+    .sensor-btn .sb-label { font-size: 10px; color: var(--text2); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sensor-btn .sb-val   { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--text); }
+    .sensor-btn:hover     { background: var(--surface2); }
+    .sensor-btn.active    { background: var(--teal-bg); border-color: var(--teal); }
+    .sensor-btn.active .sb-val   { color: #0F6E56; }
+    .sensor-btn.active .sb-label { color: #0F6E56; }
+
+    .result-panel {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      display: flex; align-items: center; gap: 14px;
+    }
+
+    .result-icon { font-size: 28px; line-height: 1; }
+    .result-text { font-size: 1.1rem; font-weight: 900; }
+    .result-sub  { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+    /* ── PD EXPLAIN ── */
+    .pd-explain {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 1.25rem 0;
+    }
+
+    .pd-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+
+    .pd-card .big-letter { font-size: 36px; font-weight: 900; line-height: 1; margin-bottom: 8px; display: block; }
+    .pd-card h4 { font-size: 13px; font-weight: 800; margin-bottom: 6px; }
+    .pd-card p  { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+    /* ── FORMULA ── */
+    .pd-formula {
+      background: var(--code-bg);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      text-align: center;
+      margin: 1.25rem 0;
+    }
+
+    .pd-formula .f-label { font-size: 11px; color: #5F5E5A; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+    .pd-formula .f-main  { font-family: 'Space Mono', monospace; font-size: 14px; color: #9FE1CB; font-weight: 700; line-height: 1.8; }
+    .pd-formula .f-sub   { font-size: 11px; color: #5F5E5A; margin-top: 6px; }
+
+    /* ── SLIDERS ── */
+    .pd-interactive {
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin: 1.25rem 0;
+    }
+
+    .slider-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0.85rem 1.25rem;
+      border-bottom: 0.5px solid var(--border);
+      background: var(--surface);
+    }
+
+    .slider-row label { font-size: 13px; font-weight: 800; min-width: 130px; color: var(--text); }
+
+    .slider-row input[type=range] {
+      flex: 1;
+      height: 4px;
+      accent-color: var(--teal);
+      cursor: pointer;
+    }
+
+    .slider-val {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px; font-weight: 700;
+      min-width: 44px; text-align: right;
+      color: var(--text);
+    }
+
+    .pd-result {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      background: var(--surface);
+    }
+
+    .pd-result-4 { grid-template-columns: repeat(4, 1fr); }
+
+    .pd-metric {
+      text-align: center;
+      padding: 1rem 0.5rem;
+      border-right: 0.5px solid var(--border);
+      border-top: 0.5px solid var(--border);
+    }
+
+    .pd-metric:last-child { border-right: none; }
+
+    .pd-metric .m-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text2); font-weight: 800; margin-bottom: 4px; }
+    .pd-metric .m-val   { font-size: 22px; font-weight: 900; }
+
+    /* ── COMPARISON ── */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 1.25rem 0;
+    }
+
+    .comp-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+    }
+
+    .comp-card.highlight { border: 2px solid var(--teal); }
+    .comp-card h4 { font-size: 12px; font-weight: 900; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .comp-card p  { font-size: 12px; color: var(--text2); line-height: 1.6; }
+    .comp-pros, .comp-cons { margin-top: 10px; font-size: 11px; line-height: 1.7; }
+    .comp-pros { color: #0F6E56; }
+    .comp-cons { color: #A32D2D; }
+    .comp-best { font-size: 10px; background: var(--teal-bg); color: #0F6E56; padding: 3px 10px; border-radius: 10px; font-weight: 800; display: inline-block; margin-bottom: 8px; }
+
+    /* ── STEP VISUAL ── */
+    .steps {
+      display: flex; flex-direction: column; gap: 0;
+      margin: 1.25rem 0;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .step {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 1rem 1.25rem;
+      border-bottom: 0.5px solid var(--border);
+      background: var(--surface);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 900; color: var(--text2);
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    .step-content h4 { font-size: 13px; font-weight: 800; margin-bottom: 3px; }
+    .step-content p  { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+    /* ── ROBOT SVG DIAGRAM ── */
+    .diagram-wrap {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin: 1.25rem 0;
+      text-align: center;
+      overflow-x: auto;
+    }
+
+    /* ── TUNING TABLE ── */
+    .tuning-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 13px; margin: 1rem 0;
+    }
+
+    .tuning-table th {
+      background: var(--surface2);
+      padding: 9px 14px;
+      text-align: left;
+      font-weight: 800; font-size: 11px;
+      border: 0.5px solid var(--border);
+      color: var(--text2);
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    .tuning-table td {
+      padding: 9px 14px;
+      border: 0.5px solid var(--border);
+      vertical-align: top;
+      line-height: 1.5;
+      font-size: 12px;
+    }
+
+    .tuning-table tr:nth-child(even) td { background: var(--surface2); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-top: 0.5px solid var(--border);
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 2rem;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      nav { padding: 0 1rem; }
+      .page { padding: 0 1rem 4rem; }
+      .hero { padding: 2.5rem 0.5rem 2rem; }
+      .sensor-visual { grid-template-columns: repeat(2, 1fr); }
+      .motor-grid { grid-template-columns: 1fr; }
+      .pd-explain { grid-template-columns: 1fr; }
+      .comparison-grid { grid-template-columns: 1fr; }
+      .pd-result { grid-template-columns: repeat(3, 1fr); }
+      .pd-result-4 { grid-template-columns: repeat(2, 1fr); }
+      .sensor-toggles { gap: 8px; }
+      .sensor-btn { min-width: 68px; padding: 10px 12px; }
+      .code-block { padding: 1rem 1.1rem; }
+      .code-block pre { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">🤖 Çizgi Robotu</a>
+  <a class="nav-link" href="#bolum0">Temel</a>
+  <a class="nav-link" href="#bolum1">Pin & Hız</a>
+  <a class="nav-link" href="#bolum2">Mantıksal</a>
+  <a class="nav-link" href="#bolum3">P Kontrol</a>
+  <a class="nav-link" href="#bolum4">PD Kontrol</a>
+  <a class="nav-link" href="#bolum5">Karşılaştırma</a>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div style="font-size: 56px; margin-bottom: 1rem;">🤖</div>
+    <span class="hero-badge">Arduino Çizgi Takip Robotu</span>
+    <h1>Robotum nasıl düşünür?</h1>
+    <p>Sensörlerden motora giden yolculuk — üç farklı zeka seviyesiyle, ortaokul öğrencisinin anlayacağı şekilde anlatılıyor.</p>
+    <div class="hero-cards">
+      <div class="hero-card"><div class="dot" style="background:#D3D1C7"></div>Temel Kod</div>
+      <div class="hero-card"><div class="dot" style="background:#D3D1C7"></div>Mantıksal Kontrol</div>
+      <div class="hero-card"><div class="dot" style="background:#1D9E75"></div>P Algoritması</div>
+      <div class="hero-card"><div class="dot" style="background:#185FA5"></div>PD Algoritması</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       BÖLÜM 0: ROBOTU TANIYALIM
+       ════════════════════════════════════ -->
+  <div class="section" id="bolum0">
+    <div class="section-header">
+      <div class="section-num num-gray">0</div>
+      <h2>Robotu tanıyalım</h2>
+      <span class="algo-tag tag-gray">Giriş</span>
+    </div>
+
+    <div class="explain-box">
+      <p>Çizgi takip robotu, yere çizilmiş siyah bir çizgiyi takip etmek için programlanmış küçük bir araçtır. İki temel parçası vardır: <strong>sensörler</strong> (çizgiyi gören gözler) ve <strong>motorlar</strong> (hareketi sağlayan kaslar).</p>
+      <p>Robotumuzda <strong>4 adet infrared sensör</strong> var. Bu sensörler yere kızılötesi ışık gönderir. Yüzey beyazsa ışık geri yansır → sensör <strong>0</strong> der. Yüzey siyahsa ışık yutulur, geri gelmez → sensör <strong>1</strong> der.</p>
+      <p>Ayrıca iki motorumuz var: sol tekerlek ve sağ tekerlek. İkisi aynı hızda dönerse robot <strong>düz gider</strong>. Biri yavaşlarsa veya tersine dönerse robot <strong>o tarafa döner</strong>.</p>
+    </div>
+
+    <div class="analogy">
+      💡 <strong>Kolay anlamak için:</strong> Dört parmağını yere uzat ve gözlerini kapat. Hangisi siyah çizgiyi hissederse o taraf "1" diyor, hissetmeyenler "0" diyor. Robot da sensörleriyle tam böyle hissediyor!
+    </div>
+
+    <div class="sensor-visual">
+      <div class="sensor-card">
+        <div class="s-name">Sol Dış</div>
+        <div class="s-pin">Pin 2</div>
+        <div class="s-desc">En soldaki sensör. Burada çizgi görünürse robot çok sağa kaymıştır ve sola dönmesi gerekir.</div>
+      </div>
+      <div class="sensor-card">
+        <div class="s-name">Sol İç</div>
+        <div class="s-pin">Pin 3</div>
+        <div class="s-desc">Sol ortadaki sensör. Normal gidişte bu ve sağ iç birlikte çizgiyi görür — robot ortadadır.</div>
+      </div>
+      <div class="sensor-card">
+        <div class="s-name">Sağ İç</div>
+        <div class="s-pin">Pin 4</div>
+        <div class="s-desc">Sağ ortadaki sensör. Sol içle birlikte çalışarak düz ilerlemeyi sağlar.</div>
+      </div>
+      <div class="sensor-card">
+        <div class="s-name">Sağ Dış</div>
+        <div class="s-pin">Pin 5</div>
+        <div class="s-desc">En sağdaki sensör. Burada çizgi görünürse robot çok sola kaymıştır ve sağa dönmesi gerekir.</div>
+      </div>
+    </div>
+
+    <!-- Robot Diyagramı -->
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 500 220" xmlns="http://www.w3.org/2000/svg" style="max-width:480px;width:100%;">
+        <!-- Robot gövdesi -->
+        <rect x="150" y="40" width="200" height="130" rx="12" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1.5"/>
+        <!-- Sol tekerlek -->
+        <rect x="110" y="70" width="40" height="70" rx="8" fill="#444441" />
+        <text x="130" y="112" text-anchor="middle" font-family="Nunito,sans-serif" font-size="10" font-weight="800" fill="#D3D1C7">SOL</text>
+        <!-- Sağ tekerlek -->
+        <rect x="350" y="70" width="40" height="70" rx="8" fill="#444441"/>
+        <text x="370" y="112" text-anchor="middle" font-family="Nunito,sans-serif" font-size="10" font-weight="800" fill="#D3D1C7">SAĞ</text>
+        <!-- Arduino -->
+        <rect x="185" y="65" width="130" height="80" rx="8" fill="#5DCAA5" opacity="0.3" stroke="#1D9E75" stroke-width="1"/>
+        <text x="250" y="100" text-anchor="middle" font-family="Nunito,sans-serif" font-size="11" font-weight="800" fill="#085041">Arduino</text>
+        <text x="250" y="118" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="#0F6E56">UNO / NANO</text>
+        <!-- Sensör çubuğu -->
+        <rect x="165" y="178" width="170" height="22" rx="6" fill="#2C2C2A"/>
+        <text x="250" y="193" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" font-weight="800" fill="#9FE1CB">SENSÖR ÇUBUĞU</text>
+        <!-- Sensörler -->
+        <circle cx="185" cy="210" r="8" fill="#378ADD"/><text x="185" y="214" text-anchor="middle" font-size="8" font-family="Nunito" font-weight="800" fill="white">S1</text>
+        <circle cx="215" cy="210" r="8" fill="#378ADD"/><text x="215" y="214" text-anchor="middle" font-size="8" font-family="Nunito" font-weight="800" fill="white">S2</text>
+        <circle cx="285" cy="210" r="8" fill="#378ADD"/><text x="285" y="214" text-anchor="middle" font-size="8" font-family="Nunito" font-weight="800" fill="white">S3</text>
+        <circle cx="315" cy="210" r="8" fill="#378ADD"/><text x="315" y="214" text-anchor="middle" font-size="8" font-family="Nunito" font-weight="800" fill="white">S4</text>
+        <!-- Bağlantı çizgileri -->
+        <line x1="185" y1="178" x2="185" y2="155" stroke="#378ADD" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <line x1="215" y1="178" x2="215" y2="155" stroke="#378ADD" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <line x1="285" y1="178" x2="285" y2="155" stroke="#378ADD" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <line x1="315" y1="178" x2="315" y2="155" stroke="#378ADD" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <!-- Motor bağlantıları -->
+        <line x1="150" y1="100" x2="150" y2="105" stroke="#EF9F27" stroke-width="2"/>
+        <line x1="350" y1="100" x2="350" y2="105" stroke="#EF9F27" stroke-width="2"/>
+        <!-- Etiketler -->
+        <text x="185" y="8" text-anchor="middle" font-family="Nunito" font-size="9" font-weight="800" fill="#5F5E5A">Sol Dış</text>
+        <text x="215" y="8" text-anchor="middle" font-family="Nunito" font-size="9" font-weight="800" fill="#5F5E5A">Sol İç</text>
+        <text x="285" y="8" text-anchor="middle" font-family="Nunito" font-size="9" font-weight="800" fill="#5F5E5A">Sağ İç</text>
+        <text x="315" y="8" text-anchor="middle" font-family="Nunito" font-size="9" font-weight="800" fill="#5F5E5A">Sağ Dış</text>
+      </svg>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px;">Robotun üstten görünümü — mavi daireler sensörler, siyah dikdörtgenler tekerlekler</div>
+    </div>
+
+    <div class="note-box">
+      <strong>H-Bridge / Motor Sürücü:</strong> Arduino'nun pinlerinden çok az akım çıkar — bu bir LED'i yakabilir ama motoru döndüremez. Bu yüzden araya bir <strong>L298N motor sürücü</strong> kartı koyuyoruz. Bu kart Arduino'nun küçük sinyallerini alıp büyük motor akımına çeviriyor. IN1/IN2 yön, ENA hız kontrolü sağlıyor.
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       BÖLÜM 1: TEMEL KOD
+       ════════════════════════════════════ -->
+  <div class="section" id="bolum1">
+    <div class="section-header">
+      <div class="section-num num-gray">1</div>
+      <h2>Temel Kod — Pin ve Hız Tanımlamaları</h2>
+      <span class="algo-tag tag-gray">Yapı Taşı</span>
+    </div>
+
+    <div class="explain-box">
+      <p><strong>Bu kod doğrudan "zeka" değildir.</strong> Bu, robotun anayasasıdır. Hangi kablo hangi işi yapıyor, motorlar hangi hızda dönecek — bu temel kurallar burada yazılır. Tüm diğer algoritmalar bu yapının üzerine inşa edilir.</p>
+      <p><code>const int</code> dediğimizde "bu sayı hiç değişmeyecek, sabittir" diyoruz. <code>const</code> = sabit, <code>int</code> = tam sayı anlamına gelir.</p>
+      <p><code>setup()</code> fonksiyonu robot açılınca <strong>sadece bir kez</strong> çalışır. Pinlerin giriş mi çıkış mı olduğunu burada söylüyoruz.</p>
+      <p><code>loop()</code> ise robot çalıştığı sürece <strong>sürekli tekrar eder</strong> — saniyede yüzlerce kez! Robot bu fonksiyon içinde sensörleri okur ve motorlara emir verir.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Motor pinleri — Arduino'dan motora giden yol</h4>
+          <p>ENA ve ENB hız kontrolü yapar (0–255 arası değer alır). IN1/IN2 sol motorun yönünü, IN3/IN4 sağ motorun yönünü belirler. HIGH+LOW = ileri, LOW+HIGH = geri.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Sensör pinleri — motordan Arduino'ya gelen bilgi</h4>
+          <p>Her sensör bir pin'e bağlı. <code>digitalRead(pin)</code> ile o sensörün 0 mı 1 mi söylediğini öğreniyoruz. INPUT yani GİRİŞ: bilgi dışarıdan içeriye geliyor.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>PWM ile hız kontrolü</h4>
+          <p>analogWrite(ENA, 160) → sol motoru %63 hızda döndür. 0 = dur, 128 = yarı hız, 255 = tam hız. "Analog" gibi görünse de aslında çok hızlı açıp kapayarak hız simülasyonu yapar — buna PWM (Pulse Width Modulation) denir.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block"><pre><span class="cm">// ═══════════════════════════════════════════════
+// MOTOR PİN TANIMLAMALARI
+// L298N motor sürücüsüne bağlı pinler
+// ═══════════════════════════════════════════════</span>
+<span class="kw">const int</span> <span class="vc">ENA</span> = <span class="numc">6</span>;   <span class="cm">// Sol motorun hız pini  (PWM — tilde ~ olan pin)</span>
+<span class="kw">const int</span> <span class="vc">IN1</span> = <span class="numc">7</span>;   <span class="cm">// Sol motor yön pini 1</span>
+<span class="kw">const int</span> <span class="vc">IN2</span> = <span class="numc">8</span>;   <span class="cm">// Sol motor yön pini 2</span>
+<span class="kw">const int</span> <span class="vc">IN3</span> = <span class="numc">9</span>;   <span class="cm">// Sağ motor yön pini 1</span>
+<span class="kw">const int</span> <span class="vc">IN4</span> = <span class="numc">10</span>;  <span class="cm">// Sağ motor yön pini 2</span>
+<span class="kw">const int</span> <span class="vc">ENB</span> = <span class="numc">11</span>;  <span class="cm">// Sağ motorun hız pini  (PWM)</span>
+
+<span class="cm">// SENSÖR PİN TANIMLAMALARI</span>
+<span class="kw">const int</span> <span class="vc">S_SOL_DIS</span> = <span class="numc">2</span>; <span class="cm">// Sol Dış sensör</span>
+<span class="kw">const int</span> <span class="vc">S_SOL_IC</span>  = <span class="numc">3</span>; <span class="cm">// Sol İç sensör</span>
+<span class="kw">const int</span> <span class="vc">S_SAG_IC</span>  = <span class="numc">4</span>; <span class="cm">// Sağ İç sensör</span>
+<span class="kw">const int</span> <span class="vc">S_SAG_DIS</span> = <span class="numc">5</span>; <span class="cm">// Sağ Dış sensör</span>
+
+<span class="cm">// HIZ AYARLARI (0 = dur, 255 = tam gaz)
+// Bu değerleri robotuna göre değiştir!</span>
+<span class="kw">int</span> <span class="vc">temelHiz</span>  = <span class="numc">160</span>; <span class="cm">// Düz giderken hız (~%63)</span>
+<span class="kw">int</span> <span class="vc">donusHizi</span> = <span class="numc">120</span>; <span class="cm">// Dönüşlerde hız (~%47)</span>
+
+<span class="cm">// ═══════════════════════════════════════════════
+// SETUP — Sadece bir kez çalışır
+// ═══════════════════════════════════════════════</span>
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="cm">// Motorlar ÇIKIŞ — Arduino onlara emir veriyor</span>
+  <span class="fn">pinMode</span>(<span class="vc">ENA</span>, OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">IN1</span>, OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">IN2</span>, OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">IN3</span>, OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">IN4</span>, OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">ENB</span>, OUTPUT);
+
+  <span class="cm">// Sensörler GİRİŞ — bilgi dışarıdan içeriye geliyor</span>
+  <span class="fn">pinMode</span>(<span class="vc">S_SOL_DIS</span>, INPUT);
+  <span class="fn">pinMode</span>(<span class="vc">S_SOL_IC</span>,  INPUT);
+  <span class="fn">pinMode</span>(<span class="vc">S_SAG_IC</span>,  INPUT);
+  <span class="fn">pinMode</span>(<span class="vc">S_SAG_DIS</span>, INPUT);
+}
+
+<span class="cm">// ═══════════════════════════════════════════════
+// TEMEL MOTOR FONKSİYONLARI
+// Bu fonksiyonlar tüm algoritmalarda kullanılır
+// ═══════════════════════════════════════════════</span>
+<span class="kw">void</span> <span class="fn">ilerle</span>() {
+  <span class="fn">analogWrite</span> (<span class="vc">ENA</span>, <span class="vc">temelHiz</span>); <span class="cm">// Sol motor hızı</span>
+  <span class="fn">digitalWrite</span>(<span class="vc">IN1</span>, HIGH);      <span class="cm">// Sol motor ileri</span>
+  <span class="fn">digitalWrite</span>(<span class="vc">IN2</span>, LOW);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN3</span>, HIGH);      <span class="cm">// Sağ motor ileri</span>
+  <span class="fn">digitalWrite</span>(<span class="vc">IN4</span>, LOW);
+  <span class="fn">analogWrite</span> (<span class="vc">ENB</span>, <span class="vc">temelHiz</span>); <span class="cm">// Sağ motor hızı</span>
+}
+
+<span class="kw">void</span> <span class="fn">hafifSol</span>() {
+  <span class="fn">analogWrite</span> (<span class="vc">ENA</span>, <span class="vc">donusHizi</span> / <span class="numc">2</span>); <span class="cm">// Sol motor YAVAŞ</span>
+  <span class="fn">digitalWrite</span>(<span class="vc">IN1</span>, HIGH);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN2</span>, LOW);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN3</span>, HIGH);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN4</span>, LOW);
+  <span class="fn">analogWrite</span> (<span class="vc">ENB</span>, <span class="vc">temelHiz</span>);       <span class="cm">// Sağ motor NORMAL</span>
+}
+
+<span class="kw">void</span> <span class="fn">sertSol</span>() {
+  <span class="fn">analogWrite</span> (<span class="vc">ENA</span>, <span class="vc">donusHizi</span>);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN1</span>, LOW);            <span class="cm">// Sol motor GERİ!</span>
+  <span class="fn">digitalWrite</span>(<span class="vc">IN2</span>, HIGH);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN3</span>, HIGH);           <span class="cm">// Sağ motor ileri</span>
+  <span class="fn">digitalWrite</span>(<span class="vc">IN4</span>, LOW);
+  <span class="fn">analogWrite</span> (<span class="vc">ENB</span>, <span class="vc">donusHizi</span>);
+}
+
+<span class="kw">void</span> <span class="fn">hafifSag</span>() {
+  <span class="fn">analogWrite</span> (<span class="vc">ENA</span>, <span class="vc">temelHiz</span>);       <span class="cm">// Sol motor NORMAL</span>
+  <span class="fn">digitalWrite</span>(<span class="vc">IN1</span>, HIGH);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN2</span>, LOW);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN3</span>, HIGH);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN4</span>, LOW);
+  <span class="fn">analogWrite</span> (<span class="vc">ENB</span>, <span class="vc">donusHizi</span> / <span class="numc">2</span>); <span class="cm">// Sağ motor YAVAŞ</span>
+}
+
+<span class="kw">void</span> <span class="fn">sertSag</span>() {
+  <span class="fn">analogWrite</span> (<span class="vc">ENA</span>, <span class="vc">donusHizi</span>);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN1</span>, HIGH);           <span class="cm">// Sol motor ileri</span>
+  <span class="fn">digitalWrite</span>(<span class="vc">IN2</span>, LOW);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN3</span>, LOW);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN4</span>, HIGH);           <span class="cm">// Sağ motor GERİ!</span>
+  <span class="fn">analogWrite</span> (<span class="vc">ENB</span>, <span class="vc">donusHizi</span>);
+}
+
+<span class="kw">void</span> <span class="fn">dur</span>() {
+  <span class="fn">digitalWrite</span>(<span class="vc">IN1</span>, LOW); <span class="fn">digitalWrite</span>(<span class="vc">IN2</span>, LOW);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN3</span>, LOW); <span class="fn">digitalWrite</span>(<span class="vc">IN4</span>, LOW);
+  <span class="fn">analogWrite</span> (<span class="vc">ENA</span>, <span class="numc">0</span>);
+  <span class="fn">analogWrite</span> (<span class="vc">ENB</span>, <span class="numc">0</span>);
+}</pre></div>
+
+    <div class="motor-grid">
+      <div class="motor-card">
+        <h4>Hafif Sol Dönüşte motor hızları</h4>
+        <div class="motor-pair">
+          <div class="motor-item">
+            <div class="m-label">Sol Motor</div>
+            <div class="m-speed" style="color:var(--text2)">60</div>
+            <div class="m-sub">/ 255 hız</div>
+            <div class="speed-bar"><div class="speed-fill" style="width:24%;background:#9FE1CB"></div></div>
+          </div>
+          <div class="motor-item">
+            <div class="m-label">Sağ Motor</div>
+            <div class="m-speed" style="color:var(--blue)">160</div>
+            <div class="m-sub">/ 255 hız</div>
+            <div class="speed-bar"><div class="speed-fill" style="width:63%;background:#378ADD"></div></div>
+          </div>
+        </div>
+        <div class="motor-note">Sağ hızlı, sol yavaş → robot sola döner</div>
+      </div>
+      <div class="motor-card">
+        <h4>Sert Sol Dönüşte motor hızları</h4>
+        <div class="motor-pair">
+          <div class="motor-item">
+            <div class="m-label">Sol Motor</div>
+            <div class="m-speed" style="color:var(--red)">GERİ</div>
+            <div class="m-sub">120 ters</div>
+            <div class="speed-bar"><div class="speed-fill" style="width:47%;background:#F09595"></div></div>
+          </div>
+          <div class="motor-item">
+            <div class="m-label">Sağ Motor</div>
+            <div class="m-speed" style="color:var(--blue)">120</div>
+            <div class="m-sub">/ 255 hız</div>
+            <div class="speed-bar"><div class="speed-fill" style="width:47%;background:#378ADD"></div></div>
+          </div>
+        </div>
+        <div class="motor-note">Ters yönler → robot neredeyse yerinde döner</div>
+      </div>
+      <div class="motor-card">
+        <h4>Düz ilerlerken motor hızları</h4>
+        <div class="motor-pair">
+          <div class="motor-item">
+            <div class="m-label">Sol Motor</div>
+            <div class="m-speed" style="color:var(--teal)">160</div>
+            <div class="m-sub">/ 255 hız</div>
+            <div class="speed-bar"><div class="speed-fill" style="width:63%;background:#1D9E75"></div></div>
+          </div>
+          <div class="motor-item">
+            <div class="m-label">Sağ Motor</div>
+            <div class="m-speed" style="color:var(--teal)">160</div>
+            <div class="m-sub">/ 255 hız</div>
+            <div class="speed-bar"><div class="speed-fill" style="width:63%;background:#1D9E75"></div></div>
+          </div>
+        </div>
+        <div class="motor-note">İkisi eşit hız → robot düz gider</div>
+      </div>
+      <div class="motor-card">
+        <h4>Dur komutunda motor hızları</h4>
+        <div class="motor-pair">
+          <div class="motor-item">
+            <div class="m-label">Sol Motor</div>
+            <div class="m-speed" style="color:var(--text3)">0</div>
+            <div class="m-sub">/ 255 hız</div>
+            <div class="speed-bar"><div class="speed-fill" style="width:0%;background:#B4B2A9"></div></div>
+          </div>
+          <div class="motor-item">
+            <div class="m-label">Sağ Motor</div>
+            <div class="m-speed" style="color:var(--text3)">0</div>
+            <div class="m-sub">/ 255 hız</div>
+            <div class="speed-bar"><div class="speed-fill" style="width:0%;background:#B4B2A9"></div></div>
+          </div>
+        </div>
+        <div class="motor-note">İkisi de 0 → robot durur</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       BÖLÜM 2: MANTIKSAL KONTROL
+       ════════════════════════════════════ -->
+  <div class="section" id="bolum2">
+    <div class="section-header">
+      <div class="section-num num-gray">2</div>
+      <h2>Mantıksal Kontrol — "Eğer... ise yap" Robotu</h2>
+      <span class="algo-tag tag-gray">Temel Algoritma</span>
+    </div>
+
+    <div class="explain-box">
+      <p>Bu en basit yöntemdir. Robot sensörlere bakıp <strong>"eğer şuysa → şunu yap"</strong> der. Sanki bir trafik polisi gibi — sadece anlık duruma göre karar verir, geçmişe ya da geleceğe bakmaz.</p>
+      <p>4 sensörümüz var, her biri 0 veya 1 olabilir. Bu 2×2×2×2 = <strong>16 farklı durum</strong> demektir. Biz en önemli olanları seçip tanımladık, geri kalanlar için "yavaşça ilerle" dedik.</p>
+      <p><strong>Avantajı:</strong> Anlaması ve yazması çok kolay. <strong>Dezavantajı:</strong> Kaba tepkiler verir — hafif kaydıkta da sert döndüğü oluşuyor.</p>
+    </div>
+
+    <div class="analogy">
+      🎮 <strong>Oyun gibi düşün:</strong> Bu algoritma bir video oyunundaki en basit "yapay zeka" gibi çalışır. "Eğer düşman solda → sağa kaç, eğer düşman sağda → sola kaç." Basit ama hızlı çalışır. Karmaşık durumları iyi çözemez.
+    </div>
+
+    <div class="table-wrap">
+      <table class="truth-table">
+        <thead>
+          <tr>
+            <th>Sol Dış (s1)</th>
+            <th>Sol İç (s2)</th>
+            <th>Sağ İç (s3)</th>
+            <th>Sağ Dış (s4)</th>
+            <th>Hareket</th>
+            <th>Neden?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="val-off">0</td><td class="val-on">1</td><td class="val-on">1</td><td class="val-off">0</td>
+            <td class="act-forward">↑ İlerle</td>
+            <td style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text2)">İki iç sensör çizgide — mükemmel hizalama</td>
+          </tr>
+          <tr>
+            <td class="val-off">0</td><td class="val-on">1</td><td class="val-off">0</td><td class="val-off">0</td>
+            <td class="act-left">← Hafif Sol</td>
+            <td style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text2)">Sadece sol iç görüyor — robot biraz sağa kaydı</td>
+          </tr>
+          <tr>
+            <td class="val-on">1</td><td class="val-off">0</td><td class="val-off">0</td><td class="val-off">0</td>
+            <td class="act-left">⟵ Sert Sol</td>
+            <td style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text2)">Sadece dış sol görüyor — robot çok sağa kaydı!</td>
+          </tr>
+          <tr>
+            <td class="val-off">0</td><td class="val-off">0</td><td class="val-on">1</td><td class="val-off">0</td>
+            <td class="act-right">→ Hafif Sağ</td>
+            <td style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text2)">Sadece sağ iç görüyor — robot biraz sola kaydı</td>
+          </tr>
+          <tr>
+            <td class="val-off">0</td><td class="val-off">0</td><td class="val-off">0</td><td class="val-on">1</td>
+            <td class="act-right">⟶ Sert Sağ</td>
+            <td style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text2)">Sadece dış sağ görüyor — robot çok sola kaydı!</td>
+          </tr>
+          <tr>
+            <td class="val-off">0</td><td class="val-off">0</td><td class="val-off">0</td><td class="val-off">0</td>
+            <td class="act-stop">■ Dur</td>
+            <td style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text2)">Hiç sensör görmüyor — çizgi kaybolmuş</td>
+          </tr>
+          <tr>
+            <td class="val-on">1</td><td class="val-on">1</td><td class="val-on">1</td><td class="val-on">1</td>
+            <td class="act-stop">■ Dur</td>
+            <td style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text2)">Hepsi görüyor — bitiş çizgisine gelindi</td>
+          </tr>
+          <tr>
+            <td colspan="4" style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text2)">Diğer tüm durumlar</td>
+            <td class="act-forward">↑ İlerle</td>
+            <td style="font-family:'Nunito',sans-serif;font-size:11px;color:var(--text2)">Belirsiz durum — yavaşça devam et</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- İnteraktif Demo -->
+    <div class="interactive-demo">
+      <div class="demo-header">🎮 Dene! — Sensörlere tıkla, robotun ne yapacağını gör</div>
+      <div class="demo-body">
+        <div class="sensor-toggles" id="sensorToggles">
+          <button class="sensor-btn" onclick="toggleSensor(0)" id="btn0">
+            <span class="sb-label">Sol Dış</span>
+            <span class="sb-val" id="v0">0</span>
+          </button>
+          <button class="sensor-btn" onclick="toggleSensor(1)" id="btn1">
+            <span class="sb-label">Sol İç</span>
+            <span class="sb-val" id="v1">0</span>
+          </button>
+          <button class="sensor-btn" onclick="toggleSensor(2)" id="btn2">
+            <span class="sb-label">Sağ İç</span>
+            <span class="sb-val" id="v2">0</span>
+          </button>
+          <button class="sensor-btn" onclick="toggleSensor(3)" id="btn3">
+            <span class="sb-label">Sağ Dış</span>
+            <span class="sb-val" id="v3">0</span>
+          </button>
+        </div>
+        <div class="result-panel">
+          <span class="result-icon" id="resultIcon">⏸</span>
+          <div>
+            <div class="result-text" id="resultText">Dur</div>
+            <div class="result-sub" id="resultSub">Yukarıdaki sensörlerden birine tıkla!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block"><pre><span class="cm">// ═══════════════════════════════════════════════
+// MANTIKSAL KONTROL — Tam loop() fonksiyonu
+// setup() ve motor fonksiyonları Bölüm 1'deki ile aynı
+// ═══════════════════════════════════════════════</span>
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// Her döngüde sensörleri oku</span>
+  <span class="kw">int</span> <span class="vc">s1</span> = <span class="fn">digitalRead</span>(<span class="vc">S_SOL_DIS</span>);
+  <span class="kw">int</span> <span class="vc">s2</span> = <span class="fn">digitalRead</span>(<span class="vc">S_SOL_IC</span>);
+  <span class="kw">int</span> <span class="vc">s3</span> = <span class="fn">digitalRead</span>(<span class="vc">S_SAG_IC</span>);
+  <span class="kw">int</span> <span class="vc">s4</span> = <span class="fn">digitalRead</span>(<span class="vc">S_SAG_DIS</span>);
+
+  <span class="cm">// MANTIK TABLOSU — hangi durum → ne yap
+  // && = "ve" demek, her iki koşul da doğru olmalı</span>
+
+  <span class="kw">if</span> (<span class="vc">s1</span>==<span class="numc">0</span> && <span class="vc">s2</span>==<span class="numc">1</span> && <span class="vc">s3</span>==<span class="numc">1</span> && <span class="vc">s4</span>==<span class="numc">0</span>) {
+    <span class="fn">ilerle</span>();         <span class="cm">// Mükemmel — düz git</span>
+  }
+  <span class="kw">else if</span> (<span class="vc">s1</span>==<span class="numc">0</span> && <span class="vc">s2</span>==<span class="numc">1</span> && <span class="vc">s3</span>==<span class="numc">0</span> && <span class="vc">s4</span>==<span class="numc">0</span>) {
+    <span class="fn">hafifSol</span>();       <span class="cm">// Biraz sağa kaydık, hafifçe sola dön</span>
+  }
+  <span class="kw">else if</span> (<span class="vc">s1</span>==<span class="numc">1</span> && <span class="vc">s2</span>==<span class="numc">0</span> && <span class="vc">s3</span>==<span class="numc">0</span> && <span class="vc">s4</span>==<span class="numc">0</span>) {
+    <span class="fn">sertSol</span>();        <span class="cm">// Çok sağa kaydık, hızlıca sola dön!</span>
+  }
+  <span class="kw">else if</span> (<span class="vc">s1</span>==<span class="numc">0</span> && <span class="vc">s2</span>==<span class="numc">0</span> && <span class="vc">s3</span>==<span class="numc">1</span> && <span class="vc">s4</span>==<span class="numc">0</span>) {
+    <span class="fn">hafifSag</span>();       <span class="cm">// Biraz sola kaydık, hafifçe sağa dön</span>
+  }
+  <span class="kw">else if</span> (<span class="vc">s1</span>==<span class="numc">0</span> && <span class="vc">s2</span>==<span class="numc">0</span> && <span class="vc">s3</span>==<span class="numc">0</span> && <span class="vc">s4</span>==<span class="numc">1</span>) {
+    <span class="fn">sertSag</span>();        <span class="cm">// Çok sola kaydık, hızlıca sağa dön!</span>
+  }
+  <span class="kw">else if</span> (<span class="vc">s1</span>==<span class="numc">0</span> && <span class="vc">s2</span>==<span class="numc">0</span> && <span class="vc">s3</span>==<span class="numc">0</span> && <span class="vc">s4</span>==<span class="numc">0</span>) {
+    <span class="fn">dur</span>();            <span class="cm">// Hiçbir şey yok — dur</span>
+  }
+  <span class="kw">else if</span> (<span class="vc">s1</span>==<span class="numc">1</span> && <span class="vc">s2</span>==<span class="numc">1</span> && <span class="vc">s3</span>==<span class="numc">1</span> && <span class="vc">s4</span>==<span class="numc">1</span>) {
+    <span class="fn">dur</span>();            <span class="cm">// Hepsi görüyor — bitiş çizgisi, dur!</span>
+  }
+  <span class="kw">else</span> {
+    <span class="fn">ilerle</span>();         <span class="cm">// Bilinmeyen durum — yavaşça devam et</span>
+  }
+}</pre></div>
+
+    <div class="note-box">
+      <strong>Bu algoritmada ne eksik?</strong> Robot "hafif kayma" ile "çok kayma" arasındaki farkı bilmiyor. Hafif sol ve sert sol arasında sadece iki seçenek var. Gerçekte ise sonsuz sayıda ara değer olabilir — işte P algoritması bu sorunu çözüyor!
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       BÖLÜM 3: P KONTROLCÜ
+       ════════════════════════════════════ -->
+  <div class="section" id="bolum3">
+    <div class="section-header">
+      <div class="section-num num-teal">3</div>
+      <h2>P Kontrolcüsü — "Ne kadar kaymışım?"</h2>
+      <span class="algo-tag tag-teal">P Algoritması</span>
+    </div>
+
+    <div class="explain-box">
+      <p>Mantıksal kontrolde robot sadece "sola mı sağa mı?" diyordu. Ama <strong>ne kadar</strong> sola gittiğini bilmiyordu!</p>
+      <p><strong>P (Proportional = Orantılı)</strong> kontrolcüde robot şunu sorar: "Çizgiden ne kadar uzaklaştım?" Ve uzaklaştığı kadar düzeltme yapar. Az kaydıysa az, çok kaydıysa çok döner.</p>
+      <p>Bu yöntemde sayısal bir <strong>"hata"</strong> değeri hesaplıyoruz. Hata sıfır = robot tam ortada. Hata büyük = robot çok kaymış. Bu hatayı Kp ile çarpıp motor hızına ekliyoruz.</p>
+    </div>
+
+    <div class="analogy">
+      🚗 <strong>Araba direksiyonu gibi:</strong> Yolun ortasındayken direksiyonu az çevirirsin. Yolun kenarına gidince çok çevirirsin. P kontrolcü de tam böyle — hata ne kadar büyükse, düzeltme o kadar büyük olur!
+    </div>
+
+    <div class="pd-explain">
+      <div class="pd-card">
+        <span class="big-letter" style="color:var(--blue)">P</span>
+        <h4>Proportional (Orantılı)</h4>
+        <p>Hatanın büyüklüğüne göre düzeltme yapar. Hata 2 ise 2×Kp kadar, hata 5 ise 5×Kp kadar düzeltir. Kp katsayısını sen belirlersin.</p>
+      </div>
+      <div class="pd-card" style="background:var(--surface2)">
+        <span class="big-letter" style="color:var(--text3)">E</span>
+        <h4>Hata (Error) nedir?</h4>
+        <p>Sensörlerden hesaplanan "çizgiden ne kadar uzaklaştım" değeri. Sıfır = mükemmel, artı = sağa kaydım, eksi = sola kaydım.</p>
+      </div>
+    </div>
+
+    <div class="pd-formula">
+      <div class="f-label">Hata hesaplama</div>
+      <div class="f-main">hata = (s2 × 1) + (s1 × 2) − (s3 × 1) − (s4 × 2)</div>
+      <div class="f-sub">Sol sensörler pozitif (+), sağ sensörler negatif (−) → sıfır = tam ortada</div>
+    </div>
+
+    <div class="explain-box">
+      <p><strong>Hata formülü nasıl çalışır?</strong> İç sensörlere 1, dış sensörlere 2 ağırlık veriyoruz. Çünkü dış sensörlerin görmesi, daha şiddetli bir sapma demektir.</p>
+      <p>Örnek: <code>s2=1, s3=0</code> → hata = 1. Robot biraz sağa kaymış.<br>
+         Örnek: <code>s1=1</code> → hata = 2. Robot çok sağa kaymış.<br>
+         Örnek: <code>s4=1</code> → hata = −2. Robot çok sola kaymış.</p>
+    </div>
+
+    <!-- P Simülasyon -->
+    <div class="pd-interactive">
+      <div class="demo-header">🎛 P simülasyonu — katsayı ve hatayı ayarla, motor hızlarını gör</div>
+      <div class="slider-row">
+        <label>Kp katsayısı</label>
+        <input type="range" min="1" max="80" value="20" step="1" id="kpSlider" oninput="updateP()">
+        <span class="slider-val" id="kpVal">20</span>
+      </div>
+      <div class="slider-row" style="border-bottom:none">
+        <label>Hata değeri</label>
+        <input type="range" min="-4" max="4" value="2" step="1" id="errSlider" oninput="updateP()">
+        <span class="slider-val" id="errVal">+2</span>
+      </div>
+      <div class="pd-result" id="pResult">
+        <div class="pd-metric">
+          <div class="m-label">Düzeltme (Kp×hata)</div>
+          <div class="m-val" id="mDuzeltme" style="color:var(--blue)">40</div>
+        </div>
+        <div class="pd-metric">
+          <div class="m-label">Sol Motor</div>
+          <div class="m-val" id="mSol" style="color:var(--teal)">120</div>
+        </div>
+        <div class="pd-metric">
+          <div class="m-label">Sağ Motor</div>
+          <div class="m-val" id="mSag" style="color:#993C1D">200</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block"><pre><span class="cm">// ═══════════════════════════════════════════════
+// P KONTROLCÜSÜ — Tam Kod
+// Pin tanımlamaları ve motor fonksiyonları aynı
+// ═══════════════════════════════════════════════</span>
+<span class="kw">const int</span> <span class="vc">ENA</span>=<span class="numc">6</span>, <span class="vc">IN1</span>=<span class="numc">7</span>, <span class="vc">IN2</span>=<span class="numc">8</span>;
+<span class="kw">const int</span> <span class="vc">IN3</span>=<span class="numc">9</span>, <span class="vc">IN4</span>=<span class="numc">10</span>, <span class="vc">ENB</span>=<span class="numc">11</span>;
+<span class="kw">const int</span> <span class="vc">S1</span>=<span class="numc">2</span>, <span class="vc">S2</span>=<span class="numc">3</span>, <span class="vc">S3</span>=<span class="numc">4</span>, <span class="vc">S4</span>=<span class="numc">5</span>;
+
+<span class="kw">float</span> <span class="vc">Kp</span>       = <span class="numc">20.0</span>; <span class="cm">// P katsayısı — deneyerek bulursun!</span>
+<span class="kw">int</span>   <span class="vc">temelHiz</span> = <span class="numc">160</span>;  <span class="cm">// Ortalama ilerleme hızı</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="vc">ENA</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN1</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN2</span>,OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">IN3</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN4</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">ENB</span>,OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">S1</span>,INPUT); <span class="fn">pinMode</span>(<span class="vc">S2</span>,INPUT);
+  <span class="fn">pinMode</span>(<span class="vc">S3</span>,INPUT); <span class="fn">pinMode</span>(<span class="vc">S4</span>,INPUT);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// ADIM 1: Sensörleri oku</span>
+  <span class="kw">int</span> <span class="vc">s1</span>=<span class="fn">digitalRead</span>(<span class="vc">S1</span>), <span class="vc">s2</span>=<span class="fn">digitalRead</span>(<span class="vc">S2</span>);
+  <span class="kw">int</span> <span class="vc">s3</span>=<span class="fn">digitalRead</span>(<span class="vc">S3</span>), <span class="vc">s4</span>=<span class="fn">digitalRead</span>(<span class="vc">S4</span>);
+
+  <span class="cm">// ADIM 2: Hatayı hesapla
+  // Sol sensörler + (sağa kaydık demek → sola dön)
+  // Sağ sensörler - (sola kaydık demek → sağa dön)
+  // İç sensörler 1 ağırlık, dış sensörler 2 ağırlık</span>
+  <span class="kw">int</span> <span class="vc">hata</span> = (<span class="vc">s2</span>*<span class="numc">1</span>) + (<span class="vc">s1</span>*<span class="numc">2</span>) - (<span class="vc">s3</span>*<span class="numc">1</span>) - (<span class="vc">s4</span>*<span class="numc">2</span>);
+
+  <span class="cm">// ADIM 3: P düzeltmesini hesapla
+  // hata büyükse düzeltme büyük, hata küçükse düzeltme küçük</span>
+  <span class="kw">int</span> <span class="vc">duzeltme</span> = <span class="vc">Kp</span> * <span class="vc">hata</span>;
+
+  <span class="cm">// ADIM 4: Motor hızlarını ayarla
+  // Hata pozitif (sağa kaydık):
+  //   → sol motor hızlanır, sağ motor yavaşlar → robot sola döner
+  // Hata negatif (sola kaydık):
+  //   → sağ motor hızlanır, sol motor yavaşlar → robot sağa döner</span>
+  <span class="kw">int</span> <span class="vc">solHiz</span> = <span class="fn">constrain</span>(<span class="vc">temelHiz</span> - <span class="vc">duzeltme</span>, <span class="numc">0</span>, <span class="numc">255</span>);
+  <span class="kw">int</span> <span class="vc">sagHiz</span> = <span class="fn">constrain</span>(<span class="vc">temelHiz</span> + <span class="vc">duzeltme</span>, <span class="numc">0</span>, <span class="numc">255</span>);
+
+  <span class="cm">// ADIM 5: Motorlara hız ver</span>
+  <span class="fn">analogWrite</span> (<span class="vc">ENA</span>, <span class="vc">solHiz</span>);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN1</span>, HIGH); <span class="fn">digitalWrite</span>(<span class="vc">IN2</span>, LOW);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN3</span>, HIGH); <span class="fn">digitalWrite</span>(<span class="vc">IN4</span>, LOW);
+  <span class="fn">analogWrite</span> (<span class="vc">ENB</span>, <span class="vc">sagHiz</span>);
+}
+
+<span class="cm">// constrain(deger, min, max):
+// değeri sınırlar içinde tutar.
+// Örnek: constrain(300, 0, 255) → 255 döndürür
+// Örnek: constrain(-50, 0, 255) → 0 döndürür</span></pre></div>
+
+    <div class="note-box">
+      <strong>Kp'yi nasıl ayarlarım?</strong> Kp çok küçük olursa robot yavaş tepki verir ve çizgiden çıkabilir. Kp çok büyük olursa robot sağa-sola sallanır (titrer). Doğru değeri bulmak için robotunu gerçek pistte çalıştırıp deneyerek ayarlamalısın — bu işleme <em>tuning</em> (ayarlama) denir!
+    </div>
+
+    <div class="table-wrap">
+      <table class="tuning-table">
+        <thead>
+          <tr><th>Durum</th><th>Belirtisi</th><th>Çözüm</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Kp çok küçük</strong></td>
+            <td>Robot çizgiden çıkıyor, tepkiler çok yavaş</td>
+            <td>Kp değerini artır (örn: 10 → 20)</td>
+          </tr>
+          <tr>
+            <td><strong>Kp çok büyük</strong></td>
+            <td>Robot sağa-sola titriyor, yılan gibi gidiyor</td>
+            <td>Kp değerini azalt (örn: 50 → 25)</td>
+          </tr>
+          <tr>
+            <td><strong>Kp doğru</strong></td>
+            <td>Robot akıcı ve kararlı şekilde çizgiyi takip ediyor</td>
+            <td>Tebrikler! Şimdi PD'yi dene</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       BÖLÜM 4: PD KONTROLCÜ
+       ════════════════════════════════════ -->
+  <div class="section" id="bolum4">
+    <div class="section-header">
+      <div class="section-num num-blue">4</div>
+      <h2>PD Kontrolcüsü — "Ne kadar hızlı kayıyorum?"</h2>
+      <span class="algo-tag tag-blue">PD Algoritması</span>
+    </div>
+
+    <div class="explain-box">
+      <p>P kontrolcü çok iyiydi ama bir sorunu vardı: sadece <em>şu anki</em> hataya bakıyor, hatanın <em>değişimine</em> bakmıyordu.</p>
+      <p><strong>D (Derivative = Türev)</strong> terimi "hata ne hızda değişiyor?" diye sorar. Hata hızla büyüyorsa, çok daha sert bir düzeltme gerekir. Hata zaten azalıyorsa, fazla müdahaleye gerek yok!</p>
+      <p>D terimi, bir önceki döngüdeki hatayı hatırlayarak şimdiki hatayla karşılaştırır. Aradaki fark ne kadar büyükse, D'nin katkısı o kadar büyük olur.</p>
+    </div>
+
+    <div class="analogy">
+      ⚽ <strong>Kaleci gibi düşün:</strong> Kaleci sadece topun <em>nerede</em> olduğuna değil, hangi <em>yöne gittiğine</em> de bakıyor. Top hızla köşeye gidiyorsa erken atlar. P sadece topu görür, D topun hızını ve yönünü de görür. İkisi birlikte çok daha iyi bir kaleci yapar!
+    </div>
+
+    <div class="pd-explain">
+      <div class="pd-card">
+        <span class="big-letter" style="color:var(--blue)">P</span>
+        <h4>Mevcut Hata</h4>
+        <p>Şu an çizgiden ne kadar uzaktayım? Büyük hata → büyük P düzeltmesi. Kp ile çarpılır.</p>
+      </div>
+      <div class="pd-card">
+        <span class="big-letter" style="color:#993C1D">D</span>
+        <h4>Hatanın Değişimi</h4>
+        <p>Hata önceki ölçüme göre ne kadar değişti? Hızla kötüleşiyorsa daha sert tepki ver! Kd ile çarpılır.</p>
+      </div>
+    </div>
+
+    <div class="pd-formula">
+      <div class="f-label">PD formülü</div>
+      <div class="f-main">düzeltme = (Kp × hata) + (Kd × (hata − öncekiHata))</div>
+      <div class="f-sub">(hata − öncekiHata) = türev terimi = hatanın değişme hızı</div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Sensörleri oku ve hatayı hesapla (P ile aynı)</h4>
+          <p>Sensörlerden değerleri al. Ağırlıklı hata formülüyle sayısal bir "hata" değeri üret.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>D terimini hesapla — önceki hatayla karşılaştır</h4>
+          <p><code>hata - oncekiHata</code> ifadesi, hatanın bu döngüde ne kadar değiştiğini verir. Bu farkı Kd ile çarp.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Şimdiki hatayı kaydet — bir sonraki döngü için!</h4>
+          <p><code>oncekiHata = hata;</code> satırı çok önemli! Olmasa bir sonraki döngüde önceki hatayı hatırlayamayız.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Motor hızlarını ayarla ve motorlara ver</h4>
+          <p>constrain() ile hızların 0–255 arasında kalmasını sağla. Motorlara yaz.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PD Simülasyon -->
+    <div class="pd-interactive">
+      <div class="demo-header">🎛 PD simülasyonu — 4 değeri ayarla, sonuçları gör</div>
+      <div class="slider-row">
+        <label>Kp katsayısı</label>
+        <input type="range" min="1" max="80" value="20" step="1" id="kpSlider2" oninput="updatePD()">
+        <span class="slider-val" id="kpVal2">20</span>
+      </div>
+      <div class="slider-row">
+        <label>Kd katsayısı</label>
+        <input type="range" min="0" max="80" value="10" step="1" id="kdSlider" oninput="updatePD()">
+        <span class="slider-val" id="kdVal">10</span>
+      </div>
+      <div class="slider-row">
+        <label>Şimdiki hata</label>
+        <input type="range" min="-4" max="4" value="3" step="1" id="errSlider2" oninput="updatePD()">
+        <span class="slider-val" id="errVal2">+3</span>
+      </div>
+      <div class="slider-row" style="border-bottom:none">
+        <label>Önceki hata</label>
+        <input type="range" min="-4" max="4" value="1" step="1" id="prevErrSlider" oninput="updatePD()">
+        <span class="slider-val" id="prevErrVal">+1</span>
+      </div>
+      <div class="pd-result pd-result-4">
+        <div class="pd-metric">
+          <div class="m-label">P terimi (Kp×hata)</div>
+          <div class="m-val" id="mP" style="color:var(--blue)">60</div>
+        </div>
+        <div class="pd-metric">
+          <div class="m-label">D terimi (Kd×Δhata)</div>
+          <div class="m-val" id="mD" style="color:#993C1D">20</div>
+        </div>
+        <div class="pd-metric">
+          <div class="m-label">Sol Motor</div>
+          <div class="m-val" id="mSol2" style="color:var(--teal)">80</div>
+        </div>
+        <div class="pd-metric" style="border-right:none">
+          <div class="m-label">Sağ Motor</div>
+          <div class="m-val" id="mSag2" style="color:#993C1D">240</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block"><pre><span class="cm">// ═══════════════════════════════════════════════
+// PD KONTROLCÜSÜ — Tam Kod
+// P'den sadece 3 küçük değişiklik var!
+// ═══════════════════════════════════════════════</span>
+<span class="kw">const int</span> <span class="vc">ENA</span>=<span class="numc">6</span>, <span class="vc">IN1</span>=<span class="numc">7</span>, <span class="vc">IN2</span>=<span class="numc">8</span>;
+<span class="kw">const int</span> <span class="vc">IN3</span>=<span class="numc">9</span>, <span class="vc">IN4</span>=<span class="numc">10</span>, <span class="vc">ENB</span>=<span class="numc">11</span>;
+<span class="kw">const int</span> <span class="vc">S1</span>=<span class="numc">2</span>, <span class="vc">S2</span>=<span class="numc">3</span>, <span class="vc">S3</span>=<span class="numc">4</span>, <span class="vc">S4</span>=<span class="numc">5</span>;
+
+<span class="kw">float</span> <span class="vc">Kp</span>       = <span class="numc">20.0</span>;  <span class="cm">// P katsayısı</span>
+<span class="kw">float</span> <span class="vc">Kd</span>       = <span class="numc">10.0</span>;  <span class="cm">// D katsayısı — DEĞİŞİKLİK 1: Kd eklendi</span>
+<span class="kw">int</span>   <span class="vc">temelHiz</span> = <span class="numc">160</span>;
+
+<span class="kw">int</span> <span class="vc">oncekiHata</span> = <span class="numc">0</span>;     <span class="cm">// DEĞİŞİKLİK 2: Önceki hata değişkeni eklendi</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="vc">ENA</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN1</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN2</span>,OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">IN3</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN4</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">ENB</span>,OUTPUT);
+  <span class="fn">pinMode</span>(<span class="vc">S1</span>,INPUT); <span class="fn">pinMode</span>(<span class="vc">S2</span>,INPUT);
+  <span class="fn">pinMode</span>(<span class="vc">S3</span>,INPUT); <span class="fn">pinMode</span>(<span class="vc">S4</span>,INPUT);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cm">// ADIM 1: Sensörleri oku (aynı)</span>
+  <span class="kw">int</span> <span class="vc">s1</span>=<span class="fn">digitalRead</span>(<span class="vc">S1</span>), <span class="vc">s2</span>=<span class="fn">digitalRead</span>(<span class="vc">S2</span>);
+  <span class="kw">int</span> <span class="vc">s3</span>=<span class="fn">digitalRead</span>(<span class="vc">S3</span>), <span class="vc">s4</span>=<span class="fn">digitalRead</span>(<span class="vc">S4</span>);
+
+  <span class="cm">// ADIM 2: Şimdiki hatayı hesapla (aynı)</span>
+  <span class="kw">int</span> <span class="vc">hata</span> = (<span class="vc">s2</span>*<span class="numc">1</span>) + (<span class="vc">s1</span>*<span class="numc">2</span>) - (<span class="vc">s3</span>*<span class="numc">1</span>) - (<span class="vc">s4</span>*<span class="numc">2</span>);
+
+  <span class="cm">// ADIM 3: PD düzeltmesini hesapla
+  // DEĞİŞİKLİK 3: Formüle Kd*(hata-oncekiHata) eklendi
+  // (hata - oncekiHata) = hatanın bu döngüde ne kadar değiştiği</span>
+  <span class="kw">int</span> <span class="vc">duzeltme</span> = (<span class="vc">Kp</span> * <span class="vc">hata</span>) + (<span class="vc">Kd</span> * (<span class="vc">hata</span> - <span class="vc">oncekiHata</span>));
+
+  <span class="cm">// ADIM 4: Bu hatayı bir sonraki döngü için sakla!
+  // Bu satır olmadan D terimi çalışmaz!</span>
+  <span class="vc">oncekiHata</span> = <span class="vc">hata</span>;
+
+  <span class="cm">// ADIM 5: Motor hızlarını ayarla (aynı)</span>
+  <span class="kw">int</span> <span class="vc">solHiz</span> = <span class="fn">constrain</span>(<span class="vc">temelHiz</span> - <span class="vc">duzeltme</span>, <span class="numc">0</span>, <span class="numc">255</span>);
+  <span class="kw">int</span> <span class="vc">sagHiz</span> = <span class="fn">constrain</span>(<span class="vc">temelHiz</span> + <span class="vc">duzeltme</span>, <span class="numc">0</span>, <span class="numc">255</span>);
+
+  <span class="cm">// ADIM 6: Motorlara hız ver (aynı)</span>
+  <span class="fn">analogWrite</span> (<span class="vc">ENA</span>, <span class="vc">solHiz</span>);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN1</span>, HIGH); <span class="fn">digitalWrite</span>(<span class="vc">IN2</span>, LOW);
+  <span class="fn">digitalWrite</span>(<span class="vc">IN3</span>, HIGH); <span class="fn">digitalWrite</span>(<span class="vc">IN4</span>, LOW);
+  <span class="fn">analogWrite</span> (<span class="vc">ENB</span>, <span class="vc">sagHiz</span>);
+}</pre></div>
+
+    <div class="note-box">
+      <strong>P'den PD'ye geçişte ne değişti?</strong> Sadece 3 şey: (1) <code>float Kd = 10.0;</code> eklendi, (2) <code>int oncekiHata = 0;</code> eklendi, (3) formülde <code>+ Kd * (hata - oncekiHata)</code> eklendi. Gerisi tamamen aynı! PD, P'nin üzerine kurulmuş geliştirilmiş bir versiyonudur.
+    </div>
+
+    <div class="table-wrap">
+      <table class="tuning-table">
+        <thead>
+          <tr><th>Durum</th><th>Belirtisi</th><th>Çözüm</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Kd çok küçük</strong></td>
+            <td>Robot hâlâ biraz sallantılı, P ile aynı sorun</td>
+            <td>Kd değerini artır (örn: 5 → 15)</td>
+          </tr>
+          <tr>
+            <td><strong>Kd çok büyük</strong></td>
+            <td>Robot aşırı hassas, küçük bozuklukta bile aşırı tepki veriyor</td>
+            <td>Kd değerini azalt (örn: 30 → 10)</td>
+          </tr>
+          <tr>
+            <td><strong>Kp ve Kd doğru</strong></td>
+            <td>Robot hızlı virajlarda bile kararlı, akıcı gidiş</td>
+            <td>Harika! Robot yarışa hazır 🏁</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       BÖLÜM 5: KARŞILAŞTIRMA
+       ════════════════════════════════════ -->
+  <div class="section" id="bolum5">
+    <div class="section-header">
+      <div class="section-num num-purple">5</div>
+      <h2>Hangisi ne zaman kullanılır?</h2>
+      <span class="algo-tag tag-purple">Karşılaştırma</span>
+    </div>
+
+    <div class="comparison-grid">
+      <div class="comp-card">
+        <h4>Mantıksal Kontrol</h4>
+        <p>En basit yöntem. Kuralları elle sen yazarsın. Yavaş pistte, geniş dönüşlerde iyi çalışır.</p>
+        <div class="comp-pros">✓ Anlaması kolay<br>✓ Hata ayıklaması kolay<br>✓ Her durumu kontrol edersin</div>
+        <div class="comp-cons">✗ Kaba tepkiler<br>✗ Hızda çizgiyi kaybeder<br>✗ Her durum için kod gerek</div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text3)">Zorluk: ⭐☆☆</div>
+      </div>
+      <div class="comp-card">
+        <h4>P Kontrolcü</h4>
+        <p>Hataya orantılı tepki. Mantıksaldan çok daha akıcı ama yüksek hızda sallanabilir.</p>
+        <div class="comp-pros">✓ Yumuşak, akıcı hareketler<br>✓ Orta pistte çok iyi<br>✓ Tek parametre (Kp)</div>
+        <div class="comp-cons">✗ Hızda sallanma<br>✗ Kp bulmak zaman alır<br>✗ Ani dönüşlerde zorlanır</div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text3)">Zorluk: ⭐⭐☆</div>
+      </div>
+      <div class="comp-card highlight">
+        <div class="comp-best">En iyi performans</div>
+        <h4>PD Kontrolcü</h4>
+        <p>Hem mevcut hem değişen hataya bakıyor. Hızlı virajlarda bile kararlı ve akıcı gidiş.</p>
+        <div class="comp-pros">✓ En akıcı hareket<br>✓ Hızlı pistte kararlı<br>✓ Titreme yok</div>
+        <div class="comp-cons">✗ İki parametre ayarlamak<br>✗ Gürültülü sensörlerde zor<br>✗ Biraz daha karmaşık</div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text3)">Zorluk: ⭐⭐⭐</div>
+      </div>
+    </div>
+
+    <div class="explain-box">
+      <p><strong>Sıralı öğrenme önerimiz:</strong> Önce temel kodu yükle ve motorların döndüğünü gör. Sonra mantıksal kontrolü yükle — robot çizgiyi takip etmeye başlayacak. Sonra P algoritmasına geç — çok daha akıcı olacak. Son olarak PD'yi dene — rakipsiz hale gelecek!</p>
+      <p>Her aşamada Kp ve Kd değerlerini pist üzerinde deneyerek bul. Teorik olarak hesaplamak yerine denemek, robotçulukta çok daha eğlencelidir ve öğreticidir.</p>
+    </div>
+
+    <div class="warn-box">
+      <strong>Dikkat:</strong> Eğer sensörlerin bazıları ters çalışıyorsa (siyahta 0, beyazda 1 gibi) tüm algoritmalar ters çalışır. Önce her sensörü ayrı ayrı test et: sensörü siyah zemine tut ve Arduino IDE Serial Monitor'da değerini gör. Gerekirse kod içinde 0 ve 1 değerlerini yer değiştir.
+    </div>
+
+    <div class="note-box">
+      <strong>Bir sonraki adım — PID:</strong> PD'nin üzerine bir de <strong>I (Integral)</strong> terimi eklenebilir. I terimi "uzun süredir birikmiş hatayı" düzeltir. Örneğin robot sürekli biraz sağa kayıyorsa, I terimi bunu fark edip kalıcı düzeltme yapar. Bu üç terimin birlikte kullanımına <strong>PID Kontrolcü</strong> denir ve endüstri robotlarından uçaklara kadar her yerde kullanılır!
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<footer>
+  Çizgi Takip Robotu Eğitim Sayfası &nbsp;·&nbsp; Mantıksal → P → PD Algoritmaları &nbsp;·&nbsp; Arduino ile Robotik
+</footer>
+
+<script>
+  // ── MANTIKSAL KONTROL SİMÜLASYONU ──
+  var sensors = [0, 0, 0, 0];
+
+  function toggleSensor(i) {
+    sensors[i] = sensors[i] === 0 ? 1 : 0;
+    document.getElementById('v' + i).textContent = sensors[i];
+    document.getElementById('btn' + i).classList.toggle('active', sensors[i] === 1);
+    computeAction();
+  }
+
+  function computeAction() {
+    var s = sensors;
+    var icon, text, sub;
+    if      (s[0]===0 && s[1]===1 && s[2]===1 && s[3]===0) { icon='↑';  text='İlerle!';          sub='İki iç sensör çizgide — mükemmel hizalama'; }
+    else if (s[0]===0 && s[1]===1 && s[2]===0 && s[3]===0) { icon='↖';  text='Hafif Sola Dön';   sub='Sadece sol iç görüyor — biraz sağa kaydık'; }
+    else if (s[0]===1 && s[1]===0 && s[2]===0 && s[3]===0) { icon='⬅';  text='Sert Sola Dön!';   sub='Sol dış görüyor — çok sağa kaydık'; }
+    else if (s[0]===0 && s[1]===0 && s[2]===1 && s[3]===0) { icon='↗';  text='Hafif Sağa Dön';   sub='Sadece sağ iç görüyor — biraz sola kaydık'; }
+    else if (s[0]===0 && s[1]===0 && s[2]===0 && s[3]===1) { icon='➡';  text='Sert Sağa Dön!';   sub='Sağ dış görüyor — çok sola kaydık'; }
+    else if (s[0]===0 && s[1]===0 && s[2]===0 && s[3]===0) { icon='⏸';  text='Dur';               sub='Hiç sensör görmüyor — çizgi kaybolmuş'; }
+    else if (s[0]===1 && s[1]===1 && s[2]===1 && s[3]===1) { icon='⏹';  text='Dur — Bitiş!';     sub='Hepsi görüyor — bitiş çizgisine gelindi'; }
+    else                                                     { icon='↑';  text='İlerle (belirsiz)'; sub='Tanımsız durum — yavaşça devam et'; }
+    document.getElementById('resultIcon').textContent = icon;
+    document.getElementById('resultText').textContent = text;
+    document.getElementById('resultSub').textContent  = sub;
+  }
+
+  // ── P SİMÜLASYONU ──
+  function updateP() {
+    var kp  = parseInt(document.getElementById('kpSlider').value);
+    var err = parseInt(document.getElementById('errSlider').value);
+    document.getElementById('kpVal').textContent  = kp;
+    document.getElementById('errVal').textContent = (err >= 0 ? '+' : '') + err;
+    var duzeltme = kp * err;
+    var sol = Math.min(255, Math.max(0, 160 - duzeltme));
+    var sag = Math.min(255, Math.max(0, 160 + duzeltme));
+    document.getElementById('mDuzeltme').textContent = duzeltme;
+    document.getElementById('mSol').textContent      = sol;
+    document.getElementById('mSag').textContent      = sag;
+    var mSolEl = document.getElementById('mSol');
+    var mSagEl = document.getElementById('mSag');
+    mSolEl.style.color = sol < 160 ? '#993C1D' : '#1D9E75';
+    mSagEl.style.color = sag > 160 ? '#993C1D' : '#1D9E75';
+  }
+
+  // ── PD SİMÜLASYONU ──
+  function updatePD() {
+    var kp   = parseInt(document.getElementById('kpSlider2').value);
+    var kd   = parseInt(document.getElementById('kdSlider').value);
+    var err  = parseInt(document.getElementById('errSlider2').value);
+    var prev = parseInt(document.getElementById('prevErrSlider').value);
+    document.getElementById('kpVal2').textContent    = kp;
+    document.getElementById('kdVal').textContent     = kd;
+    document.getElementById('errVal2').textContent   = (err  >= 0 ? '+' : '') + err;
+    document.getElementById('prevErrVal').textContent = (prev >= 0 ? '+' : '') + prev;
+    var pTerm    = kp * err;
+    var dTerm    = kd * (err - prev);
+    var duzeltme = pTerm + dTerm;
+    var sol = Math.min(255, Math.max(0, 160 - duzeltme));
+    var sag = Math.min(255, Math.max(0, 160 + duzeltme));
+    document.getElementById('mP').textContent    = pTerm;
+    document.getElementById('mD').textContent    = dTerm;
+    document.getElementById('mSol2').textContent = sol;
+    document.getElementById('mSag2').textContent = sag;
+    document.getElementById('mD').style.color    = dTerm > 0 ? '#993C1D' : dTerm < 0 ? '#1D9E75' : '#888780';
+  }
+
+  // Başlangıç değerlerini hesapla
+  updateP();
+  updatePD();
+</script>
+</body>
+</html>
