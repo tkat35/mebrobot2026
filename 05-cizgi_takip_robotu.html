@@ -1734,6 +1734,8 @@ QTRSensors <span class="vc">qtr</span>;
 // Hata aralığı −2500…+2500 olduğundan Kp çok küçük seçilir!</span>
 <span class="kw">float</span> <span class="vc">Kp</span>        = <span class="numc">0.08</span>;  <span class="cm">// Başlangıç — piste göre ayarla</span>
 <span class="kw">int</span>   <span class="vc">temelHiz</span>  = <span class="numc">160</span>;
+<span class="kw">int</span>   <span class="vc">sensorPinleri[6];</span>
+
 
 <span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> <span class="vc">sol</span>, <span class="kw">int</span> <span class="vc">sag</span>) {
   <span class="fn">analogWrite</span>(<span class="vc">ENA</span>, <span class="fn">constrain</span>(<span class="vc">sol</span>, <span class="numc">0</span>, <span class="numc">255</span>));
@@ -1758,13 +1760,13 @@ QTRSensors <span class="vc">qtr</span>;
 
 <span class="kw">void</span> <span class="fn">loop</span>() {
   <span class="cm">// ADIM 1: Konum oku — kütüphane her şeyi halleder</span>
-  <span class="kw">uint16_t</span> <span class="vc">konum</span> = <span class="vc">qtr</span>.<span class="fn">readLineBlack</span>(nullptr);
+  <span class="kw">uint16_t</span> <span class="vc">konum</span> = <span class="vc">qtr</span>.<span class="fn">readLineBlack</span>(sensorPinleri);
 
   <span class="cm">// ADIM 2: Hatayı hesapla</span>
-  <span class="kw">int</span> <span class="vc">hata</span> = (<span class="kw">int</span>)<span class="vc">konum</span> - <span class="numc">2500</span>;
+  <span class="kw">int</span> <span class="vc">hata</span> = <span class="vc">konum</span> - <span class="numc">2500</span>;
 
   <span class="cm">// ADIM 3: P düzeltmesi</span>
-  <span class="kw">int</span> <span class="vc">duzeltme</span> = (<span class="kw">int</span>)(<span class="vc">Kp</span> * <span class="vc">hata</span>);
+  <span class="kw">int</span> <span class="vc">duzeltme</span> = (<span class="vc">Kp</span> * <span class="vc">hata</span>);
 
   <span class="cm">// ADIM 4: Motorları ayarla</span>
   <span class="kw">int</span> <span class="vc">solHiz</span> = <span class="fn">constrain</span>(<span class="vc">temelHiz</span> - <span class="vc">duzeltme</span>, <span class="numc">0</span>, <span class="numc">255</span>);
@@ -1825,6 +1827,8 @@ QTRSensors <span class="vc">qtr</span>;
 <span class="kw">float</span> <span class="vc">Kd</span>          = <span class="numc">0.5</span>;   <span class="cm">// DEĞİŞİKLİK 1: Türev katsayısı eklendi</span>
 <span class="kw">int</span>   <span class="vc">temelHiz</span>    = <span class="numc">160</span>;
 <span class="kw">int</span>   <span class="vc">oncekiHata</span>  = <span class="numc">0</span>;    <span class="cm">// DEĞİŞİKLİK 2: Önceki hata hafızası eklendi</span>
+<span class="kw">int</span>   <span class="vc">sensorPinleri[]</span>;    
+
 
 <span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> <span class="vc">sol</span>, <span class="kw">int</span> <span class="vc">sag</span>) {
   <span class="fn">analogWrite</span>(<span class="vc">ENA</span>, <span class="fn">constrain</span>(<span class="vc">sol</span>, <span class="numc">0</span>, <span class="numc">255</span>));
@@ -1849,14 +1853,14 @@ QTRSensors <span class="vc">qtr</span>;
 
 <span class="kw">void</span> <span class="fn">loop</span>() {
   <span class="cm">// ADIM 1: Konum oku (aynı)</span>
-  <span class="kw">uint16_t</span> <span class="vc">konum</span> = <span class="vc">qtr</span>.<span class="fn">readLineBlack</span>(nullptr);
+  <span class="kw">uint16_t</span> <span class="vc">konum</span> = <span class="vc">qtr</span>.<span class="fn">readLineBlack</span>(sensorPinleri);
 
   <span class="cm">// ADIM 2: Hatayı hesapla (aynı)</span>
-  <span class="kw">int</span> <span class="vc">hata</span> = (<span class="kw">int</span>)<span class="vc">konum</span> - <span class="numc">2500</span>;
+  <span class="kw">int</span> <span class="vc">hata</span> = <span class="vc">konum</span> - <span class="numc">2500</span>;
 
   <span class="cm">// ADIM 3: PD düzeltmesi
   // DEĞİŞİKLİK 3: Formüle Kd × (hata − öncekiHata) eklendi</span>
-  <span class="kw">int</span> <span class="vc">duzeltme</span> = (<span class="kw">int</span>)((<span class="vc">Kp</span> * <span class="vc">hata</span>) + (<span class="vc">Kd</span> * (<span class="vc">hata</span> - <span class="vc">oncekiHata</span>)));
+  <span class="kw">int</span> <span class="vc">duzeltme</span> = ((<span class="vc">Kp</span> * <span class="vc">hata</span>) + (<span class="vc">Kd</span> * (<span class="vc">hata</span> - <span class="vc">oncekiHata</span>)));
 
   <span class="cm">// ADIM 4: Önceki hatayı güncelle — bu satır olmadan D terimi çalışmaz!</span>
   <span class="vc">oncekiHata</span> = <span class="vc">hata</span>;
