@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEB Robot Yarışması – Yeterlilik Deneme Sınavları</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f1ec;
+  --surface: #faf8f4;
+  --surface2: #edeae3;
+  --border: #d8d3c8;
+  --ink: #1a1714;
+  --ink2: #4a4540;
+  --ink3: #8a8178;
+  --accent: #c0392b;
+  --accent-soft: #fdf0ee;
+  --green: #1a6b3c;
+  --green-soft: #eaf5ee;
+  --blue: #1a4a8a;
+  --blue-soft: #eef3fb;
+  --gold: #b07d00;
+  --gold-soft: #fdf7e3;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Plus Jakarta Sans', sans-serif;
+  --radius: 10px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  background: var(--ink);
+  color: #f4f1ec;
+  padding: 2.2rem 2rem 1.8rem;
+}
+.header-inner {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.header-eyebrow {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #a09890;
+  margin-bottom: 0.7rem;
+}
+header h1 {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 0.7rem;
+}
+header h1 em {
+  font-style: normal;
+  color: #e8a090;
+}
+.header-sub {
+  font-size: 0.85rem;
+  color: #a09890;
+  line-height: 1.6;
+}
+.header-chips {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.hchip {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  padding: 0.22rem 0.7rem;
+  border: 1px solid #3a3530;
+  border-radius: 999px;
+  color: #a09890;
+}
+
+/* TAB NAV */
+.tab-nav-wrap {
+  background: var(--ink);
+  border-top: 1px solid #2a2520;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.tab-nav {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tnav-btn {
+  padding: 0.85rem 1.1rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #6a6258;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s;
+}
+.tnav-btn:hover { color: #c0a898; }
+.tnav-btn.active { color: #f4f1ec; border-bottom-color: #e8a090; }
+
+/* MAIN */
+main { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+/* PAGE */
+.page { display: none; animation: fadeUp 0.28s ease; }
+.page.active { display: block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
+
+/* DENEME HEADER */
+.deneme-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.8rem;
+  margin-bottom: 1.8rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.dh-left h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+.dh-left p {
+  font-size: 0.82rem;
+  color: var(--ink3);
+}
+.dh-score-box {
+  background: var(--ink);
+  color: #f4f1ec;
+  border-radius: 8px;
+  padding: 0.8rem 1.2rem;
+  text-align: center;
+  min-width: 110px;
+}
+.score-num {
+  font-family: var(--mono);
+  font-size: 1.8rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.score-label {
+  font-size: 0.68rem;
+  color: #a09890;
+  margin-top: 0.2rem;
+  font-family: var(--mono);
+}
+.dh-chips {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+.dchip {
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--ink3);
+  background: var(--surface2);
+}
+
+/* PROGRESS BAR */
+.progress-wrap {
+  background: var(--surface2);
+  border-radius: 999px;
+  height: 6px;
+  margin-bottom: 1.8rem;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+/* SECTION DIVIDER */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 1.8rem 0 1rem;
+}
+.sd-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  white-space: nowrap;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+.sd-line { flex:1; height:1px; background: var(--border); }
+
+/* QUESTION CARD */
+.q-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.9rem;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.q-card.answered-correct { border-color: var(--green); }
+.q-card.answered-wrong { border-color: var(--accent); }
+
+.q-header {
+  padding: 1rem 1.2rem 0.7rem;
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+}
+.q-num {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.2rem 0.55rem;
+  color: var(--ink3);
+  white-space: nowrap;
+  margin-top: 0.05rem;
+  flex-shrink: 0;
+}
+.q-konu {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--ink3);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.18rem 0.55rem;
+  margin-top: 0.05rem;
+  flex-shrink: 0;
+}
+.q-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.55;
+  padding: 0 1.2rem 0.9rem;
+}
+
+/* OPTIONS */
+.q-options {
+  padding: 0 1rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.q-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0.9rem;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--bg);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  text-align: left;
+  width: 100%;
+  color: var(--ink);
+  font-family: var(--sans);
+}
+.q-opt:not(.locked):hover {
+  border-color: var(--ink);
+  background: var(--surface2);
+}
+.opt-letter {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border);
+  display: flex;align-items:center;justify-content:center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  background: var(--surface);
+  color: var(--ink3);
+}
+.q-opt:not(.locked):hover .opt-letter {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #f4f1ec;
+}
+
+/* Answer states */
+.q-opt.correct {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+.q-opt.correct .opt-letter {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.q-opt.wrong {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.q-opt.wrong .opt-letter {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.q-opt.show-correct {
+  border-color: var(--green);
+  background: var(--green-soft);
+  opacity: 0.7;
+}
+.q-opt.show-correct .opt-letter {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.q-opt.locked { cursor: default; }
+
+/* FEEDBACK */
+.q-feedback {
+  margin: 0 1.2rem 1rem;
+  border-radius: 7px;
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  display: none;
+  border: 1px solid;
+}
+.q-feedback.show { display: block; animation: fadeUp 0.2s ease; }
+.q-feedback.fb-correct {
+  background: var(--green-soft);
+  border-color: #a8d5bc;
+  color: #145c32;
+}
+.q-feedback.fb-wrong {
+  background: var(--accent-soft);
+  border-color: #f0bcb4;
+  color: #9a2218;
+}
+.fb-icon {
+  font-size: 0.9rem;
+  margin-right: 0.3rem;
+}
+.fb-strong { font-weight: 700; }
+
+/* RESULT BANNER */
+.result-banner {
+  background: var(--ink);
+  color: #f4f1ec;
+  border-radius: var(--radius);
+  padding: 1.5rem 1.8rem;
+  margin-bottom: 2rem;
+  display: none;
+}
+.result-banner.show { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.rb-score {
+  font-family: var(--mono);
+  font-size: 2.2rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.rb-score span { font-size: 1rem; color: #a09890; }
+.rb-msg { font-size: 0.9rem; line-height: 1.6; }
+.rb-msg strong { color: #e8a090; }
+.rb-badge {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  border: 1px solid #3a3530;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: #6a6258;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: none;
+  white-space: nowrap;
+}
+.rb-badge:hover { background: #2a2520; color: #f4f1ec; border-color: #5a5248; }
+
+/* RESET BUTTON */
+.reset-btn {
+  display: none;
+  margin: 0 auto 1.5rem;
+  padding: 0.65rem 1.6rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  color: var(--ink);
+  transition: all 0.2s;
+}
+.reset-btn:hover { background: var(--ink); color: #f4f1ec; border-color: var(--ink); }
+
+/* OVERVIEW */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.8rem;
+}
+.ov-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.3rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ov-card:hover {
+  border-color: var(--ink);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.ov-num {
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  letter-spacing: 0.12em;
+  color: var(--ink3);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.ov-card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 0.4rem; }
+.ov-card p { font-size: 0.78rem; color: var(--ink3); line-height: 1.5; }
+.ov-meta {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  flex-wrap: wrap;
+}
+.ov-chip {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--ink3);
+}
+.info-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  padding: 1rem 1.3rem;
+  font-size: 0.84rem;
+  line-height: 1.7;
+  color: var(--ink2);
+  margin-bottom: 1.2rem;
+}
+.info-box strong { color: var(--ink); }
+.dist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin-top: 1rem;
+}
+.dist-table th {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.8rem;
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: var(--ink3);
+  text-transform: uppercase;
+}
+.dist-table td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.8rem;
+  color: var(--ink2);
+}
+.dist-table tr:hover td { background: var(--surface2); }
+
+@media(max-width:600px){
+  main { padding: 1.2rem 1rem 3rem; }
+  .deneme-header { flex-direction: column; }
+  .dh-score-box { align-self: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-eyebrow">MEB Robot Yarışması · Tasarla-Çalıştır Temel Seviye</div>
+    <h1>Yeterlilik Sınavı<br><em>Hazırlık Denemeleri 2</em></h1>
+    <p class="header-sub">Yeterlilik Sınavına Hazırlık · 5 Deneme · 100 Soru</p>
+    <div class="header-chips">
+      <span class="hchip">Elektrik-Elektronik</span>
+      <span class="hchip">Dijital Elektronik</span>
+      <span class="hchip">Arduino</span>
+      <span class="hchip">Robotik Uygulama</span>
+    </div>
+  </div>
+</header>
+
+<div class="tab-nav-wrap">
+  <div class="tab-nav">
+    <button class="tnav-btn active" onclick="showPage('overview',this)">📋 Genel</button>
+    <button class="tnav-btn" onclick="showPage('d1',this)">Deneme 1</button>
+    <button class="tnav-btn" onclick="showPage('d2',this)">Deneme 2</button>
+    <button class="tnav-btn" onclick="showPage('d3',this)">Deneme 3</button>
+    <button class="tnav-btn" onclick="showPage('d4',this)">Deneme 4</button>
+    <button class="tnav-btn" onclick="showPage('d5',this)">Deneme 5</button>
+  </div>
+</div>
+
+<main>
+
+<!-- OVERVIEW -->
+<div class="page active" id="overview">
+  <div class="info-box">
+    <strong>Kullanım Planı:</strong> Her denemede doğru cevap sayısından çok <strong>hangi hata türünün tekrar ettiğine</strong> bak. Hata yaptığın konuları gözden geçir ve çalış.
+  </div>
+  <div class="overview-grid">
+    <div class="ov-card" onclick="showPage('d1',document.querySelectorAll('.tnav-btn')[1])">
+      <div class="ov-num">Deneme 01</div>
+      <h3>Temel Kavramlar</h3>
+      <p>Elektrik devresi, mantık kapıları, setup/loop, otonom robot kavramları.</p>
+      <div class="ov-meta"><span class="ov-chip">Kolay–Orta</span><span class="ov-chip">20 soru</span><span class="ov-chip">100 puan</span></div>
+    </div>
+    <div class="ov-card" onclick="showPage('d2',document.querySelectorAll('.tnav-btn')[2])">
+      <div class="ov-num">Deneme 02</div>
+      <h3>Devre & Programlama</h3>
+      <p>Seri/paralel devre, XOR, ikilik sistem, if/for/delay, sensör-motor ilişkisi.</p>
+      <div class="ov-meta"><span class="ov-chip">Kolay–Orta</span><span class="ov-chip">20 soru</span><span class="ov-chip">100 puan</span></div>
+    </div>
+    <div class="ov-card" onclick="showPage('d3',document.querySelectorAll('.tnav-btn')[3])">
+      <div class="ov-num">Deneme 03</div>
+      <h3>Bileşenler & Kontrol</h3>
+      <p>Diyot, PWM, bool/int, fonksiyon tanımlama, PID temel kavramları.</p>
+      <div class="ov-meta"><span class="ov-chip">Orta</span><span class="ov-chip">20 soru</span><span class="ov-chip">100 puan</span></div>
+    </div>
+    <div class="ov-card" onclick="showPage('d4',document.querySelectorAll('.tnav-btn')[4])">
+      <div class="ov-num">Deneme 04</div>
+      <h3>Ohm Kanunu & PID</h3>
+      <p>Ohm kanunu, transistör, NAND, fonksiyon çağırma, sensör kalibrasyonu, PD kontrolü.</p>
+      <div class="ov-meta"><span class="ov-chip">Orta</span><span class="ov-chip">20 soru</span><span class="ov-chip">100 puan</span></div>
+    </div>
+    <div class="ov-card" onclick="showPage('d5',document.querySelectorAll('.tnav-btn')[5])">
+      <div class="ov-num">Deneme 05</div>
+      <h3>Kapsamlı Tekrar</h3>
+      <p>Direnç hesabı, kapasitör, 4-bit ikili sistem, dizi (array), if koşulu, PID ayarı.</p>
+      <div class="ov-meta"><span class="ov-chip">Orta–Üst</span><span class="ov-chip">20 soru</span><span class="ov-chip">100 puan</span></div>
+    </div>
+  </div>
+  <table class="dist-table">
+    <thead><tr><th>Konu</th><th>Soru/Deneme</th><th>Odak</th><th>Zorluk</th></tr></thead>
+    <tbody>
+      <tr><td>Temel Elektrik-Elektronik</td><td>5</td><td>Devre, direnç, pil, anahtar, güvenlik</td><td>Kolay–Orta</td></tr>
+      <tr><td>Temel Dijital Elektronik</td><td>5</td><td>Mantık kapıları, ikilik sistem, sinyal mantığı</td><td>Kolay–Orta</td></tr>
+      <tr><td>Arduino</td><td>5</td><td>setup, loop, pinMode, digitalWrite, analogRead</td><td>Kolay–Orta</td></tr>
+      <tr><td>Robotik Uygulama</td><td>5</td><td>Sensör, motor sürücü, çizgi izleme, kontrol mantığı</td><td>Orta</td></tr>
+    </tbody>
+  </table>
+  <div style="margin-top:1.2rem" class="info-box">
+    <strong>Değerlendirme ölçütü:</strong> 15+ doğru → Konu temeli oturuyor. 10–14 doğru → Yanlışların kümelendiği konuya dön. 9 ve altı → Kapsamlı konu tekrarı yap.
+  </div>
+</div>
+
+<!-- DENEME PAGES (d1–d5) dinamik olarak JS ile doldurulur -->
+<div class="page" id="d1"></div>
+<div class="page" id="d2"></div>
+<div class="page" id="d3"></div>
+<div class="page" id="d4"></div>
+<div class="page" id="d5"></div>
+
+</main>
+
+<script>
+// ============================================================
+// VERİ: 5 deneme, her birinde 20 soru
+// Her soru: { konu, soru, secenekler:[A,B,C,D], dogru:'A'/'B'/'C'/'D', aciklama_dogru, aciklama_yanlis }
+// ============================================================
+
+const DENEMELER = [
+
+// ==================== DENEME 1 ====================
+{
+  baslik: "Deneme 1",
+  sure: "20–25 dakika",
+  sorular: [
+    {
+      konu:"Temel Elektrik",
+      soru:"Basit bir elektrik devresinde akımı sağlayan temel enerji kaynağı aşağıdakilerden hangisidir?",
+      secenekler:["Pil","Ampul","Anahtar","Direnç"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Pil (veya genel anlamda güç kaynağı), elektrik devresinde elektron akışını sağlayan enerji kaynağıdır. Diğer elemanlar (ampul, anahtar, direnç) devreyi tamamlar veya kontrol eder ama enerjinin kaynağı değildir.",
+      fb_yanlis:"Doğru yanıt: A) Pil. Ampul yük (enerji tüketir), anahtar devre kontrolü sağlar, direnç akımı sınırlar. Enerjiyi üreten yalnızca pildir."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Bir anahtarın açık konumda olması ne anlama gelir?",
+      secenekler:["Devre tamamlanmıştır","Akım daha hızlı akar","Devrede akım geçmez","Pil bozulmuştur"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! Açık anahtar devre yolunu keser; akımın geçmesi için kapalı (tamamlanmış) bir yol gerekmez. Anahtarın 'açık' olması fiziksel olarak kontakların birbirinden ayrı olduğunu gösterir.",
+      fb_yanlis:"Doğru yanıt: C) Devrede akım geçmez. Açık anahtar = kopuk devre. Akım için sürekli bir iletken yol şarttır; açık anahtar bu yolu keser."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Kahverengi - Siyah - Kırmızı - Altın renklerine sahip bir direncin değeri aşağıdakilerden hangisidir?",
+      secenekler:["100 Ω","1 kΩ","10 kΩ","100 kΩ"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Renk kodu: Kahverengi=1, Siyah=0, Kırmızı=×100 (çarpan), Altın=±%5. 10×100 = 1000 Ω = 1 kΩ. Bu direnç renk kodu ezberleme pratiği için mükemmel bir örnektir.",
+      fb_yanlis:"Doğru yanıt: B) 1 kΩ. Renk kodu: Kahverengi(1), Siyah(0), Kırmızı(×100), Altın(±%5) → 10×100 = 1000 Ω = 1 kΩ. Her rengin sayısal karşılığını ve çarpan bandını ayrı ayrı çalışın."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Seri bağlı bir devrede aşağıdakilerden hangisi doğrudur?",
+      secenekler:["Akım her noktada aynıdır","Gerilim her elemanda aynıdır","Dirençler etkisizdir","Pil gereksizdir"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Seri devrede akım tüm elemanlarda aynıdır (tek yol). Gerilim ise elemanlara oransal olarak bölünür. Bu fark, seri ve paralel devre mantığının temelidir.",
+      fb_yanlis:"Doğru yanıt: A) Akım her noktada aynıdır. Seri devrede tek bir akım yolu vardır. Paralel devrede ise gerilim sabit, akım bölünür. Bu iki devre türünü karşılaştırarak çalışın."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Aşağıdakilerden hangisi iyi bir iletkendir?",
+      secenekler:["Plastik","Tahta","Bakır","Cam"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! Bakır, yüksek iletkenliği ve düşük maliyeti nedeniyle kablo ve elektronik devrelerde en yaygın kullanılan iletkendir. Plastik, tahta ve cam yalıtkan malzemelerdir.",
+      fb_yanlis:"Doğru yanıt: C) Bakır. Plastik, tahta ve cam yalıtkandır (elektriği iletmez). İletkenler arasında bakır, gümüş, alüminyum sayılabilir. Elektronik projelerinde kablolar çoğunlukla bakırdan yapılır."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"AND kapısında girişler 1 ve 1 ise çıkış kaç olur?",
+      secenekler:["0","1","2","Belirsiz"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! AND kapısı: tüm girişler 1 ise çıkış 1, herhangi biri 0 ise çıkış 0. Kural: 'hepsi doğruysa doğru'. 1 AND 1 = 1.",
+      fb_yanlis:"Doğru yanıt: B) 1. AND kapısı kuralı: çıkış 1 olması için TÜM girişlerin 1 olması gerekir. 1 AND 1 = 1. AND doğruluk tablosunu şematik olarak ezberleyin."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"OR kapısında girişler 0 ve 1 ise çıkış kaç olur?",
+      secenekler:["0","1","2","Belirsiz"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! OR kapısı: en az bir giriş 1 ise çıkış 1. 0 OR 1 = 1. Kural: 'en az biri doğruysa doğru'.",
+      fb_yanlis:"Doğru yanıt: B) 1. OR kapısı kuralı: en az bir giriş 1 ise çıkış 1'dir. Yalnızca her iki giriş de 0 olduğunda çıkış 0 olur. 0 OR 1 = 1."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"NOT kapısına 0 uygulanırsa çıkış ne olur?",
+      secenekler:["0","1","2","Değişmez"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! NOT kapısı tersleyicidir: giriş 0 → çıkış 1, giriş 1 → çıkış 0. Adından da anlaşıldığı gibi 'değil' işlemi yapar.",
+      fb_yanlis:"Doğru yanıt: B) 1. NOT kapısı girişini tersine çevirir. NOT(0) = 1, NOT(1) = 0. Çok sade ama temel bir kapıdır."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"Dijital sistemlerde en yaygın iki mantık seviyesi aşağıdakilerden hangisidir?",
+      secenekler:["1 ve 2","3 ve 5","0 ve 1","2 ve 4"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! Dijital sistemler ikilik (binary) mantık kullanır: 0 (LOW/yanlış/kapalı) ve 1 (HIGH/doğru/açık). Arduino'da 0V ≈ LOW, 5V ≈ HIGH.",
+      fb_yanlis:"Doğru yanıt: C) 0 ve 1. Dijital elektronik ikilik sistemle çalışır. Arduino'da LOW=0V, HIGH=5V. Tüm mantık kapıları, programlama ve sensör değerleri bu iki seviye üzerine kuruludur."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Bir LED'i doğrudan pile bağlamak yerine çoğu zaman seri direnç kullanılır. Bunun temel nedeni nedir?",
+      secenekler:["LED'in rengini değiştirmek","Akımı sınırlamak","Pilin gerilimini artırmak","Kablosuz iletişim sağlamak"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! LED'in çalışabileceği maksimum akım sınırlıdır (genellikle 20 mA). Seri direnç bu akımı sınırlayarak LED'i korur. R = (Vpil − VLED) / İmax formülüyle hesaplanır.",
+      fb_yanlis:"Doğru yanıt: B) Akımı sınırlamak. LED'ler çok düşük iç dirence sahiptir; dirençsiz bağlanırsa aşırı akım geçer ve LED yanar (bozulur). 220Ω veya 330Ω direnç tipik koruma değerleridir."
+    },
+    {
+      konu:"Arduino",
+      soru:"Arduino programlarında setup() fonksiyonu ne zaman çalışır?",
+      secenekler:["Sürekli tekrar eder","Kart her açıldığında bir kez","Sadece sensör algıladığında","Hiç çalışmaz"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! setup() fonksiyonu Arduino açıldığında veya reset tuşuna basıldığında yalnızca bir kez çalışır. pinMode gibi başlangıç ayarları buraya yazılır.",
+      fb_yanlis:"Doğru yanıt: B) Kart her açıldığında bir kez. setup() = başlangıç/hazırlık bloğu. Bir kez çalışır. Sürekli tekrarlayan işlemler loop() içine yazılır. Bu ayrımı kesinlikle öğrenin."
+    },
+    {
+      konu:"Arduino",
+      soru:"Arduino programlarında loop() fonksiyonunun görevi nedir?",
+      secenekler:["Bir kez çalışıp durmak","Kartı kapatmak","Komutları sürekli tekrar etmek","Sadece hata vermek"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! loop() Arduino'nun ana döngüsüdür. Güç kesilene kadar içindeki komutlar sürekli tekrar eder. Robot mantığı (sensör oku → karar ver → motoru sürdür) bu döngü içinde işler.",
+      fb_yanlis:"Doğru yanıt: C) Komutları sürekli tekrar etmek. loop() = sonsuz döngü. Pil bitene kadar durmadan çalışır. setup() ile loop() arasındaki fark Arduino programlamanın temelidir."
+    },
+    {
+      konu:"Arduino",
+      soru:"Bir pini çıkış olarak ayarlamak için hangi komut kullanılır?",
+      secenekler:["digitalWrite(pin, OUTPUT);","pinMode(pin, OUTPUT);","analogRead(pin);","Serial.begin(pin);"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! pinMode(pin, OUTPUT) komutu bir pini çıkış moduna alır. Bu komut genellikle setup() içine yazılır ve o pinden sinyal göndermeden önce mutlaka kullanılmalıdır.",
+      fb_yanlis:"Doğru yanıt: B) pinMode(pin, OUTPUT). digitalWrite() pinin değerini ayarlar (ama önce mod belirlenmeli). analogRead() ise analog değer okur. Komut isimlerini ve görevlerini ezberlemeye çalışın."
+    },
+    {
+      konu:"Arduino",
+      soru:"digitalWrite(3, HIGH); komutu ne yapar?",
+      secenekler:["3 numaralı pini giriş yapar","3 numaralı pine lojik 1 verir","3 numaralı pinden analog veri okur","3 numaralı pini kapatır"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! digitalWrite(pin, HIGH) komutu ilgili pine 5V (lojik 1) verir. LED yakma, motor enable gibi işlemlerde kullanılır. LOW verilirse 0V (lojik 0) çıkar.",
+      fb_yanlis:"Doğru yanıt: B) 3 numaralı pine lojik 1 verir. HIGH = 5V = lojik 1. LOW = 0V = lojik 0. Pin modunu belirlemek için digitalWrite değil, pinMode kullanılır."
+    },
+    {
+      konu:"Arduino",
+      soru:"analogRead(A0) komutu aşağıdakilerden hangisini yapar?",
+      secenekler:["Motora hız verir","A0 pininden analog değer okur","Ekrana yazı yazar","Pil voltajını artırır"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! analogRead(A0) komutu A0 analog pininden 0–1023 arasında bir değer okur. Bu değer sensörden gelen gerilimi temsil eder. Çizgi sensörü, potansiyometre gibi elemanlarla kullanılır.",
+      fb_yanlis:"Doğru yanıt: B) A0 pininden analog değer okur. analogRead() = 0 ile 1023 arasında değer döner (10-bit ADC). A0–A5 pinleri analog giriş için ayrılmıştır."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Ultrasonik mesafe sensörünün temel görevi nedir?",
+      secenekler:["Işık üretmek","Sıcaklık ölçmek","Uzaklığı ölçmek","Renk ayırt etmek"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! Ultrasonik sensörler (HC-SR04, HY-SRF05) ses dalgası göndererek yansıma süresini ölçer ve mesafeyi hesaplar. Robot yarışmalarında engel tespiti için kritiktir.",
+      fb_yanlis:"Doğru yanıt: C) Uzaklığı ölçmek. Ultrasonik sensör; ses dalgası gönderir (TRIG), yansımayı bekler (ECHO). Mesafe = süre / 58 cm. Işık, sıcaklık veya renk ölçmek için farklı sensörler kullanılır."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Çizgi sensörleri en çok hangi amaçla kullanılır?",
+      secenekler:["Kablosuz haberleşme","Çizgi takibi","Pil şarj etme","Ses üretme"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Çizgi sensörleri IR LED ve fotoreseptör çiftiyle yüzeyden yansıyan ışık miktarını ölçerek siyah/beyaz zemini ayırt eder. Yarışmada parkur çizgisini izlemek için kullanılır.",
+      fb_yanlis:"Doğru yanıt: B) Çizgi takibi. Çizgi sensörü yansıyan IR ışık miktarına bakarak siyah çizgiyi (düşük yansıma) beyaz zeminden (yüksek yansıma) ayırt eder. Haberleşme için Bluetooth, ses için buzzer kullanılır."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Otonom çalışan bir robot için en uygun açıklama aşağıdakilerden hangisidir?",
+      secenekler:["Sadece kumandayla çalışan robot","Kendi programına göre çalışan robot","Sadece bilgisayara bağlı çalışan robot","Pil olmadan çalışan robot"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Otonom robot, dışarıdan bir kumanda veya bağlantı olmaksızın kendi yazılımıyla karar alır ve hareket eder. MEB yarışmasında robot tamamen otonom çalışmak zorundadır.",
+      fb_yanlis:"Doğru yanıt: B) Kendi programına göre çalışan robot. Otonom = bağımsız. Yarışmada kablosuz/Bluetooth modül kesinlikle yasaktır. Robot; sensörlerden bilgi alır, programında yazan kurallara göre hareket eder."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Jumper kabloların temel kullanım amacı nedir?",
+      secenekler:["Mekanik parçaları kesmek","Elektriksel bağlantı kurmak","Motoru yavaşlatmak","Pili büyütmek"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Jumper kablolar (erkek-erkek, dişi-erkek) devre kartları arasında hızlı ve güvenli elektriksel bağlantı kurmak için kullanılır. Breadboard projeleri için vazgeçilmezdir.",
+      fb_yanlis:"Doğru yanıt: B) Elektriksel bağlantı kurmak. Jumper kablo = bağlantı elemanı. Mekanik kesme için makas/pense, hız kontrolü için PWM, pil kapasitesi için farklı pil kullanılır."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Aşağıdakilerden hangisi güvenli çalışma alışkanlıklarından biridir?",
+      secenekler:["Kabloları rastgele bağlamak","Enerjiyi vermeden önce bağlantıları kontrol etmek","Pili ters bağlayıp denemek","Direnci devreden çıkarmak"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Enerji vermeden önce bağlantıları kontrol etmek hem bileşenleri yakmayı önler hem de güvenli çalışma alışkanlığı kazandırır. Her değişiklikten sonra devre kontrol edilmelidir.",
+      fb_yanlis:"Doğru yanıt: B) Enerjiyi vermeden önce bağlantıları kontrol etmek. Yanlış bağlantı Arduino kartını, sensörleri veya motor sürücüyü kalıcı olarak bozabilir. Kontrol etmek, yarışmada başarının ilk adımıdır."
+    }
+  ]
+},
+
+// ==================== DENEME 2 ====================
+{
+  baslik: "Deneme 2",
+  sure: "20–25 dakika",
+  sorular: [
+    {
+      konu:"Temel Elektrik",
+      soru:"Aynı pil ile çalışan özdeş iki ampul seri bağlanırsa, tek ampullü devreye göre genel olarak ne olur?",
+      secenekler:["Ampuller daha parlak yanar","Ampuller daha sönük yanar","Hiç fark olmaz","Pil şarj olur"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Seri bağlamada toplam direnç artar, akım azalır. Her ampule düşen gerilim de yarıya iner; bu yüzden ampuller daha sönük yanar. İki ampul voltajı paylaşır.",
+      fb_yanlis:"Doğru yanıt: B) Daha sönük yanar. Seri bağlamada her ampule düşen gerilim = Vtoplam / ampul sayısı. Akım da azalır. Parlaklık akım ve gerilimle doğru orantılı olduğundan ampuller sönükleşir."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Paralel bağlı iki ampulden biri bozulursa genellikle ne olur?",
+      secenekler:["Diğeri de söner","Diğeri yanmaya devam eder","Pil patlar","Anahtar çalışmaz"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Paralel devrede her eleman kendi bağımsız yoluna sahiptir. Bir kol kopsa bile diğer koldan akım geçmeye devam eder. Evinizin elektrik tesisatı da paralel bağlıdır!",
+      fb_yanlis:"Doğru yanıt: B) Diğeri yanmaya devam eder. Paralel devrenin en büyük avantajı budur: bir eleman arızalanırsa diğerleri etkilenmez. Seri devrede ise bir eleman bozulunca tüm devre kesilir."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Kısa devre durumunda en önemli tehlike aşağıdakilerden hangisidir?",
+      secenekler:["Akımın çok artması","Direncin sonsuza çıkması","Pilin renginin değişmesi","Anahtarın büyümesi"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Kısa devrede yol direnci sıfıra yaklaşır, dolayısıyla akım I=V/R formülüne göre çok yükselir. Bu aşırı akım ısınmaya, yangına veya bileşenlerin yanmasına yol açar.",
+      fb_yanlis:"Doğru yanıt: A) Akımın çok artması. Kısa devre = dirençsiz yol. Ohm kanununa göre R→0 iken I→∞. Gerçekte pil iç direnci sınırlasa da akım tehlikeli düzeye çıkar. Bu yüzden sigorta kullanılır."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Gerilimin birimi aşağıdakilerden hangisidir?",
+      secenekler:["Amper","Volt","Ohm","Watt"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Gerilim → Volt (V), Akım → Amper (A), Direnç → Ohm (Ω), Güç → Watt (W). Bu dört temel büyüklük ve birimleri Ohm kanununun temelidir.",
+      fb_yanlis:"Doğru yanıt: B) Volt. Temel elektrik büyüklükleri: Gerilim=Volt, Akım=Amper, Direnç=Ohm, Güç=Watt. Bunları karıştırmamak için her birini bir cümleyle tanımlayarak ezberleyin."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Bir multimetre ile pilin gerilimi ölçülecekse hangi büyüklük incelenir?",
+      secenekler:["Akım","Direnç","Gerilim","Frekans"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! Pilin voltajını (kaç volt olduğunu) öğrenmek için multimetreyi gerilim (V) moduna alıp pil uçlarına bağlarız. Akım ölçmek için devre seri kesilmeli, direnç için eleman devreden çıkarılmalıdır.",
+      fb_yanlis:"Doğru yanıt: C) Gerilim. Pil = gerilim kaynağı. Gerilim ölçümü basittir: multimetreyi V moduna al, kırmızı ucu + kutbuna, siyah ucu – kutbuna daya. Akım ölçümü çok daha zahmetlidir."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"AND kapısında girişlerden biri 0 ise çıkış genellikle kaç olur?",
+      secenekler:["0","1","Girişe bağlı değildir","2"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! AND kuralı: çıkış 1 olabilmesi için TÜM girişlerin 1 olması şarttır. Herhangi bir giriş 0 ise çıkış mutlaka 0 olur. 0 AND herhangi = 0.",
+      fb_yanlis:"Doğru yanıt: A) 0. AND kapısı kuralı: çıkış = giriş1 VE giriş2. Bir giriş bile 0 ise sonuç 0'dır. Doğruluk tablosunu kağıda yazarak pekiştirin."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"XOR kapısında girişler farklı olduğunda çıkış ne olur?",
+      secenekler:["0","1","2","Belirsiz"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! XOR (Exclusive OR) kapısı: girişler farklıysa (0-1 veya 1-0) çıkış 1, aynıysa (0-0 veya 1-1) çıkış 0. Kural: 'farklıysa doğru'.",
+      fb_yanlis:"Doğru yanıt: B) 1. XOR kapısı: girişler farklı → çıkış 1. Girişler aynı → çıkış 0. AND ve OR'dan farkı budur. 1 XOR 0 = 1, 0 XOR 1 = 1, 1 XOR 1 = 0, 0 XOR 0 = 0."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"İkilik sayı sisteminde 1010 sayısının onluk karşılığı kaçtır?",
+      secenekler:["8","9","10","12"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! 1010₂ = 1×2³ + 0×2² + 1×2¹ + 0×2⁰ = 8 + 0 + 2 + 0 = 10. Sağdan sola 1,2,4,8,… şeklinde basamak değerleri artarak gider.",
+      fb_yanlis:"Doğru yanıt: C) 10. İkilik→Onluk: sağdan sola 2⁰,2¹,2²,2³ … Bitleri bu kuvvetlerle çarp ve topla. 1010₂: en sağ=0×1, sonra=1×2, sonra=0×4, en sol=1×8 → 10."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"Aşağıdakilerden hangisi analog sinyale örnek olabilir?",
+      secenekler:["Sadece 0 veya 1 olan sinyal","0 ile 1023 arasında değişebilen sensör değeri","Sabit bir dijital pin durumu","Sadece HIGH seviyesi"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Analog sinyal kesintisiz bir aralıkta değer alabilir. Arduino'nun analogRead() fonksiyonu 0–1023 arasında değer döndürür; bu voltaj değerini temsil eden analog bir okumadır.",
+      fb_yanlis:"Doğru yanıt: B) 0–1023 arasında değişebilen sensör değeri. Analog = sürekli değişen. Dijital = yalnızca 0 veya 1. Arduino'nun A0–A5 pinleri analog giriş okur; dijital pinler sadece HIGH/LOW okur."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"LED'in uzun bacağı genellikle hangi uca karşılık gelir?",
+      secenekler:["Katot (-)","Anot (+)","Toprak","Direnç ucu"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! LED'in uzun bacağı Anot (+), kısa bacağı Katot (−)'dur. Anot (+) tarafa pozitif gerilim, katot (−) tarafa negatif (toprak) bağlanır. Ters bağlanırsa LED yanmaz.",
+      fb_yanlis:"Doğru yanıt: B) Anot (+). Kolay hatırlamak için: Uzun = Artı (+) = Anot. Kısa = Eksi (−) = Katot. LED'in düz yüzü (kesilmiş taraf) da katot tarafını gösterir."
+    },
+    {
+      konu:"Arduino",
+      soru:"Arduino kodunda açıklama satırı başlatmak için en yaygın ifade hangisidir?",
+      secenekler:["##","//","**","&&"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! // ile başlayan satır Arduino'da tek satır açıklama (yorum) olarak kabul edilir; derlenmez. Uzun açıklamalar için /* ... */ kullanılır. Açıklamalar kodun anlaşılmasını kolaylaştırır.",
+      fb_yanlis:"Doğru yanıt: B) //. Açıklama satırı derlenmez, sadece okunabilirlik için vardır. // = tek satır yorum, /* */ = çok satır yorum. Kod yazarken açıklama eklemek iyi bir alışkanlıktır."
+    },
+    {
+      konu:"Arduino",
+      soru:"for döngüsü en çok hangi amaçla kullanılır?",
+      secenekler:["Tekrarlı işlemleri belirli sayıda yapmak","Kartı kapatmak","Pili şarj etmek","Sadece hata üretmek"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! for döngüsü belirli sayıda tekrar gerektiren işlemler için kullanılır. Örneğin: 8 sensörü sırayla okumak için for(int i=0; i<8; i++) şeklinde kullanılır.",
+      fb_yanlis:"Doğru yanıt: A) Tekrarlı işlemleri belirli sayıda yapmak. for döngüsü: başlangıç, koşul, artış. Örnek: for(int i=3; i<10; i++) → 3'ten 9'a kadar her pini işler. Yarışmada sık kullanılır."
+    },
+    {
+      konu:"Arduino",
+      soru:"if komutu aşağıdakilerden hangisi için kullanılır?",
+      secenekler:["Her komutu zorla çalıştırmak","Koşula göre karar vermek","Ekranı temizlemek","Kablosuz bağlantı kurmak"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! if(koşul){ ... } koşul doğruysa bloğu çalıştırır. Sensör değerine göre motor hızı ayarlamak, engel algılandığında durmak gibi kararlar if ile yazılır.",
+      fb_yanlis:"Doğru yanıt: B) Koşula göre karar vermek. if = eğer. if(mesafe < 20){ dur(); } → 'mesafe 20 cm'den küçükse dur.' Bu yapı robot programlamanın kalbidir."
+    },
+    {
+      konu:"Arduino",
+      soru:"delay(1000); komutu yaklaşık ne kadar bekler?",
+      secenekler:["0,1 saniye","1 saniye","10 saniye","100 saniye"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! delay() milisaniye alır. 1000 ms = 1 saniye. delay(500) = yarım saniye. Çok fazla delay kullanmak programı yavaşlatır; gerçek zamanlı tepki gerektiren projelerde dikkatli kullanılmalıdır.",
+      fb_yanlis:"Doğru yanıt: B) 1 saniye. delay(ms): 1000ms = 1sn, 500ms = 0,5sn, 100ms = 0,1sn. delay(1000) komutu tam 1 saniye bekletir. Birimi milisaniye (ms) olduğunu unutmayın."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Bir çizgi sensörü siyah çizgi ile beyaz zemini nasıl ayırt eder?",
+      secenekler:["Manyetik alanla","Yansıyan ışık miktarıyla","Ses dalgasıyla","Sıcaklıkla"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Çizgi sensörü IR LED ile zemine ışık yollar; fotoreseptör yansımayı ölçer. Siyah yüzey ışığı emer (düşük yansıma), beyaz yüzey yansıtır (yüksek yansıma). Bu farka göre çizgi/zemin ayırt edilir.",
+      fb_yanlis:"Doğru yanıt: B) Yansıyan ışık miktarıyla. Çizgi sensörü = IR tabanlı yansıma sensörü. Siyah → az yansıma → düşük değer. Beyaz → çok yansıma → yüksek değer. Ses, manyetizma veya ısı kullanılmaz."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Motor sürücü kartı neden kullanılır?",
+      secenekler:["Motorun çektiği akımı doğrudan karttan geçirmemek için","Pili küçültmek için","Sensörü soğutmak için","Kablosuz bağlantı için"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! DC motorlar çok fazla akım çeker (1A ve üzeri). Arduino pinleri yalnızca 40mA verebilir. Motor sürücü (L298N gibi) aradaki güç köprüsünü kurar ve Arduino'yu korur.",
+      fb_yanlis:"Doğru yanıt: A) Motorun çektiği akımı doğrudan Arduino'dan geçirmemek için. Motor sürücü = güç tampon kartı. Arduino pini motor sürücüyü kontrol eder, motor sürücü de pil akımını motora verir."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Otonom bir çizgi izleyen robotta sensör bilgisi en çok ne için kullanılır?",
+      secenekler:["Rastgele dönmek için","Çizgiye göre yön düzeltmek için","Pili boşaltmak için","Sadece ekrana yazı yazmak için"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Çizgi sensörü robota sürekli 'çizgiye göre neredesin?' sorusunu yanıtlar. Bu bilgiye göre sol/sağ motor hızları düzenlenerek çizgi takip edilir.",
+      fb_yanlis:"Doğru yanıt: B) Çizgiye göre yön düzeltmek için. Sensör → Pozisyon bilgisi → Motor hızı ayarı. Bu geri besleme döngüsü (feedback loop) çizgi izlemenin temelidir."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Bir robot beklenmedik davranıyorsa en doğru ilk adımlardan biri hangisidir?",
+      secenekler:["Her şeyi aynı anda değiştirmek","Sensör ve motorları tek tek test etmek","Pili ters çevirmek","Kodu silmek"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Hata ayıklamada altın kural: tek tek izole et. Sensörleri Serial.println() ile izleyin, motorları manuel test edin. Her şeyi aynı anda değiştirmek hangi adımın sorunu çözdüğünü gizler.",
+      fb_yanlis:"Doğru yanıt: B) Sensör ve motorları tek tek test etmek. Mühendislik yaklaşımı: problemi izole et, tek değişken değiştir, sonucu gözlemle. Serial Monitor sensör değerlerini izlemek için çok değerlidir."
+    },
+    {
+      konu:"Arduino",
+      soru:"Aşağıdakilerden hangisi giriş birimidir?",
+      secenekler:["LED","Buzzer","Buton","Motor"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! Buton kullanıcıdan giriş alır (INPUT). LED ışık üretir, buzzer ses üretir, motor hareket üretir → bunlar çıkış (OUTPUT) elemanlarıdır.",
+      fb_yanlis:"Doğru yanıt: C) Buton. Giriş birimleri sisteme bilgi gönderir (buton, sensör). Çıkış birimleri sistemden tepki üretir (LED, buzzer, motor). Bu ayrımı bilmek devre tasarımının temelidir."
+    },
+    {
+      konu:"Arduino",
+      soru:"Arduino IDE'de kodu karta yüklemeden önce aşağıdakilerden hangisini yapmak yararlıdır?",
+      secenekler:["Kodu doğrulamak/derlemek","Pili çıkarmak","Kabloyu kesmek","Motoru sökmek"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! 'Doğrula' (Verify/Compile) butonu kodu Arduino'ya yüklemeden syntax hatalarını bulur. Yükleme öncesi derleme yapmak zaman kazandırır ve karta gereksiz yüklemelerden korur.",
+      fb_yanlis:"Doğru yanıt: A) Kodu doğrulamak/derlemek. Arduino IDE'deki onay işareti (✓) butonu derleme yapar. Yükle butonuna basmadan önce doğrulama yapın; böylece sözdizim hatalarını önceden görürsünüz."
+    }
+  ]
+},
+
+// ==================== DENEME 3 ====================
+{
+  baslik: "Deneme 3",
+  sure: "20–25 dakika",
+  sorular: [
+    {
+      konu:"Temel Elektrik",
+      soru:"100 Ω ve 220 Ω direnç seri bağlanırsa toplam direnç kaç olur?",
+      secenekler:["120 Ω","220 Ω","320 Ω","440 Ω"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! Seri bağlamada toplam direnç: Rtoplam = R1 + R2 = 100 + 220 = 320 Ω. Seri bağlamada dirençler doğrudan toplanır.",
+      fb_yanlis:"Doğru yanıt: C) 320 Ω. Seri bağlamada: Rtoplam = R1 + R2 = 100 + 220 = 320 Ω. Paralelde ise 1/Rtoplam = 1/R1 + 1/R2 formülü kullanılır ve sonuç her zaman en küçük dirençten küçük çıkar."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Paralel bağlı dirençlerle ilgili aşağıdakilerden hangisi doğrudur?",
+      secenekler:["Eşdeğer direnç en büyük dirençten büyüktür","Eşdeğer direnç, en küçük dirençten küçüktür","Her zaman sıfırdır","Dirençler etkisizdir"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Paralel bağlamada eşdeğer direnç, devredeki en küçük dirençten bile daha küçük olur. Her yeni kol paralel yol ekler, toplam iletkenlik artar (toplam direnç azalır).",
+      fb_yanlis:"Doğru yanıt: B) Eşdeğer direnç, en küçük dirençten küçüktür. Paralel bağlamada her kol akım için yeni bir yol açar. Bu yüzden toplam direnç tek başına en küçük dirençten dahi az olur."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Diyotun temel özelliği aşağıdakilerden hangisidir?",
+      secenekler:["Akımı her yönde eşit geçirir","Akımı tek yönde iletmeye yardımcı olur","Işık sensörü olarak çalışır","Gerilim üretir"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Diyot tek yönlü akım iletir: Anot (+) → Katot (−) yönünde iletir, ters yönde iletmez. LED de bir diyot çeşididir. Motor koruma devrelerinde ve doğrultucularda kullanılır.",
+      fb_yanlis:"Doğru yanıt: B) Akımı tek yönde iletmeye yardımcı olur. Diyot = tek yönlü vana gibidir. İleri yönde (anot+, katot−) iletir. Ters yönde iletmez. LED de özel amaçlı bir diyottur."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Bir LED yanlış polarite ile bağlanırsa en olası sonuç nedir?",
+      secenekler:["Her zaman daha parlak yanar","Genellikle yanmaz","Motor olur","Pilin voltajını artırır"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! LED ters bağlandığında ters yönde akım geçirmez, yanmaz. Kısa süre düşük gerilim ters uygulanmak genellikle LED'e zarar vermez ama bu bir alışkanlık edinilmemelidir.",
+      fb_yanlis:"Doğru yanıt: B) Genellikle yanmaz. LED ters bağlandığında akım geçemez → ışık çıkmaz. Uzun bacak=Anot(+), kısa bacak=Katot(−) bağlantısını her seferinde kontrol edin."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Bir devrede anahtar kapatıldığında ne olur?",
+      secenekler:["Devre yolu tamamlanır","Pil devreden çıkar","Direnç yok olur","Akım kesinlikle durur"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Anahtar kapatıldığında (kontaklar birleşince) devre yolu tamamlanır ve akım akabilir. Açık anahtar devre yolunu keser.",
+      fb_yanlis:"Doğru yanıt: A) Devre yolu tamamlanır. Kapalı anahtar = tamamlanmış yol = akım akar. Açık anahtar = kopuk yol = akım akmaz. Basit ama temel devre mantığıdır."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"NOR kapısında hangi durumda çıkış 1 olur?",
+      secenekler:["En az bir giriş 1 iken","Sadece iki giriş de 0 iken","Girişler farklı iken","Her durumda"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! NOR = NOT(OR). OR kapısında yalnızca her iki giriş de 0 olduğunda çıkış 0'dır. NOR bunun tersini alır: yalnızca her iki giriş de 0 olduğunda çıkış 1 olur.",
+      fb_yanlis:"Doğru yanıt: B) Sadece iki giriş de 0 iken. NOR kapısı OR kapısının terslenmiş halidir. NOR(0,0)=1, NOR(0,1)=0, NOR(1,0)=0, NOR(1,1)=0. Doğruluk tablosunu çizin."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"İkilik sayı sisteminde 111 sayısının onluk karşılığı kaçtır?",
+      secenekler:["5","6","7","8"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! 111₂ = 1×2² + 1×2¹ + 1×2⁰ = 4 + 2 + 1 = 7. Üç bit ile yazılabilecek en büyük sayı 7'dir (111).",
+      fb_yanlis:"Doğru yanıt: C) 7. 111₂: sağdan sola 1×1 + 1×2 + 1×4 = 1+2+4 = 7. Basamak değerleri: 1, 2, 4, 8, 16 … şeklinde ikiyle çarpılarak artar."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"Onluk sistemde 5 sayısının ikilik karşılığı hangisidir?",
+      secenekler:["100","101","110","111"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! 5'i ikiliye çevirme: 5 ÷ 2 = 2 kalan 1 | 2 ÷ 2 = 1 kalan 0 | 1 ÷ 2 = 0 kalan 1. Kalanları tersten oku: 101. Kontrol: 1×4 + 0×2 + 1×1 = 5 ✓",
+      fb_yanlis:"Doğru yanıt: B) 101. 5 = 4+0+1 = 1×2² + 0×2¹ + 1×2⁰ = 101₂. Dönüştürme: 2'ye böl, kalanı yaz; tersten oku yöntemi pratik bir tekniktir."
+    },
+    {
+      konu:"Arduino",
+      soru:"PWM kullanılan bir çıkışın yaygın amacı aşağıdakilerden hangisidir?",
+      secenekler:["Yaklaşık analog çıkış etkisi oluşturmak","Sadece giriş okumak","Direnç ölçmek","Pil şarj etmek"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! PWM (Pulse Width Modulation), dijital bir pini çok hızlı açıp kapatarak analog benzeri bir etki yaratır. analogWrite(pin, 0–255) ile motor hızı veya LED parlaklığı ayarlanabilir.",
+      fb_yanlis:"Doğru yanıt: A) Yaklaşık analog çıkış etkisi oluşturmak. PWM = hızlı açma-kapama. analogWrite(pin, 127) ≈ yarı güç (2,5V etkisi). Motor hız kontrolü için mutlaka anlaşılması gereken kavramdır."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"Dijital bir pinin iki temel durumu aşağıdakilerden hangisidir?",
+      secenekler:["Açık ve koyu","HIGH ve LOW","Artı ve eksi","Büyük ve küçük"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Dijital pin: HIGH (5V, lojik 1) veya LOW (0V, lojik 0). Arduino'da tüm dijital read/write işlemleri bu iki değer üzerine kuruludur.",
+      fb_yanlis:"Doğru yanıt: B) HIGH ve LOW. Dijital = iki durum. HIGH=5V=1, LOW=0V=0. Bu iki seviye bütün dijital elektroniğin dilidir."
+    },
+    {
+      konu:"Arduino",
+      soru:"Arduino'da tam sayı saklamak için en yaygın türlerden biri hangisidir?",
+      secenekler:["int","float[]","void","setup"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! int (integer), Arduino'da en sık kullanılan tam sayı veri tipidir. −32768 ile 32767 arasında değer saklar. Sensör değerleri, sayaçlar, pin numaraları için uygundur.",
+      fb_yanlis:"Doğru yanıt: A) int. Veri tipleri: int=tam sayı, float=ondalıklı, bool=true/false, void=değer döndürmeyen fonksiyon. setup bir fonksiyon adıdır, veri tipi değildir."
+    },
+    {
+      konu:"Arduino",
+      soru:"true ve false değerleri en çok hangi türle ilişkilidir?",
+      secenekler:["char","bool","long","String"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! bool (boolean) veri tipi yalnızca true (1) veya false (0) değer alır. Bayraklar, durum takibi (engel var mı? çizgi bulundu mu?) gibi ikili kararlar için idealdir.",
+      fb_yanlis:"Doğru yanıt: B) bool. bool = boolean = iki değerli. true veya false. 'Engel algılandı mı?' gibi evet/hayır sorularını saklamak için kullanılır. char=karakter, long=büyük tam sayı, String=metin."
+    },
+    {
+      konu:"Arduino",
+      soru:"Bir koşulun eşit olup olmadığını sınamak için aşağıdakilerden hangisi kullanılır?",
+      secenekler:["=","==","++","//"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! == karşılaştırma operatörüdür (eşit mi?). = ise atama operatörüdür (değer ver). if(x == 5) ile 'x 5'e eşit mi?' sorulur. Bu iki simgeyi karıştırmak yaygın bir hatadır.",
+      fb_yanlis:"Doğru yanıt: B) ==. = ise atamadır (x=5 → x'e 5 değerini ata). == karşılaştırmadır (x==5 → x 5'e eşit mi?). Bu farkı karıştırmak çok yaygın ve sinsi bir hata kaynağıdır."
+    },
+    {
+      konu:"Arduino",
+      soru:"Aşağıdakilerden hangisi kullanıcı tanımlı bir fonksiyon örneğidir?",
+      secenekler:["void ileriGit()","delay(ileriGit)","pinMode = ileriGit","Serial == ileriGit"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! void ileriGit() { ... } kendi yazdığımız bir fonksiyondur. void = değer döndürmez, ileriGit = fonksiyon adı, () = parametre yok. Tekrar eden motor komutları bu şekilde fonksiyona dönüştürülür.",
+      fb_yanlis:"Doğru yanıt: A) void ileriGit(). Kullanıcı tanımlı fonksiyon: dönüş_tipi isim(parametreler){ komutlar }. void ileri Git() gibi fonksiyonlar kodunuzu hem kısaltır hem okunabilir kılar."
+    },
+    {
+      konu:"Arduino",
+      soru:"Serial Monitor en çok hangi amaçla kullanılır?",
+      secenekler:["Robotun tekerini değiştirmek","Program içindeki değerleri görmek","Pili büyütmek","Kablo kesmek"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Serial Monitor (Araçlar → Seri Port İzleyici) Arduino'nun bilgisayara veri gönderip göndermesini sağlar. Serial.print() ile sensör değerlerini, değişkenleri gerçek zamanlı izleyebilirsiniz.",
+      fb_yanlis:"Doğru yanıt: B) Program içindeki değerleri görmek. Serial.begin(9600) ve Serial.println(değer) ile sensör okumalarını, hata mesajlarını ekranda görebilirsiniz. Hata ayıklamanın en güçlü aracıdır."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"QTR-8A sensörüyle ilgili aşağıdakilerden hangisi doğrudur?",
+      secenekler:["Genellikle birden fazla analog sensör okuması verir","Sadece ses üretir","Kablosuz haberleşme sağlar","Yalnızca sıcaklık ölçer"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! QTR-8A 8 adet IR sensörden oluşan bir dizi sensördür; her biri ayrı analog değer verir. Bu verilerle çizginin konumu (ağırlıklı ortalama) hesaplanarak PID kontrolü yapılır.",
+      fb_yanlis:"Doğru yanıt: A) Birden fazla analog sensör okuması verir. QTR-8A = 8 adet IR sensör dizisi. Herbiri A0–A7 gibi ayrı pinlerden okunur. Bu çok noktalı okuma PID ile hassas çizgi izlemeye olanak sağlar."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"4'lü çizgi izleyen sensörde orta iki sensör çizgi üzerinde dengeli değer veriyorsa robot için en olası yorum nedir?",
+      secenekler:["Çizgi ortalanmıştır","Robot ters gitmektedir","Pil bitmiştir","Motor bozulmuştur"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Orta iki sensörün (S2 ve S3) eşit değer vermesi robotun çizginin tam ortasında olduğunu gösterir. Bu durumda düzeltme gerekmez; robot düz ilerlemeye devam eder.",
+      fb_yanlis:"Doğru yanıt: A) Çizgi ortalanmıştır. Çizgi izlemede amaç çizgiyi sensörlerin tam ortasında tutmaktır. S2 ve S3 eşit → düzeltme yok → ileri git. Bu temel kontrol mantığını iyi anlayın."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"P kontrolünde hata büyüdükçe ne olur?",
+      secenekler:["Düzeltme küçülür","Düzeltme büyür","Sensör kapanır","Pil dolar"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! P (Proportional / Oransal) kontrolde düzeltme = Kp × hata. Hata büyüdükçe düzeltme de o oranda büyür. Bu 'ne kadar kaymışsa o kadar çek' mantığıdır.",
+      fb_yanlis:"Doğru yanıt: B) Düzeltme büyür. P kontrol: düzeltme = Kp × hata. Hata arttıkça motor farkı artar. Kp çok büyük seçilirse aşırı sallanma olur; çok küçük seçilirse tepki yavaş kalır."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"PD kontrolünde D teriminin temel katkısı nedir?",
+      secenekler:["Hatanın değişim hızına tepki vermek","Sadece sabit hız vermek","Pil gerilimini artırmak","Kablosuz iletişim sağlamak"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! D (Derivative / Türevsel) terimi hatanın ne kadar hızlı değiştiğine tepki verir. Hata hızla azalıyorsa düzeltmeyi frenler ve aşırı taşmayı önler. PD birlikte kullanıldığında daha kararlı hareket elde edilir.",
+      fb_yanlis:"Doğru yanıt: A) Hatanın değişim hızına tepki vermek. D terimi = fren gibi çalışır. Robot hızla doğruluyor ama aşıyor mu? D terimi bunu fark edip fazla düzeltmeyi önler. Sallanmayı azaltır."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Çizgi izleyen bir robotta taban hız çok yüksek seçilirse ne olabilir?",
+      secenekler:["Virajlarda çizgiyi kaçırma olasılığı artar","Robot daha az enerji harcar","Sensör okumaları yok olur","Kod gereksiz olur"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Taban hız yükseldikçe robot virajlara daha az tepki süresiyle girer. Düzeltme yetişemeden çizgiden çıkılabilir. Hız–kararlılık dengesi hem mekanik hem yazılım ayarını etkiler.",
+      fb_yanlis:"Doğru yanıt: A) Virajlarda çizgiyi kaçırma olasılığı artar. Hız arttıkça tepki süresi azalır. PID düzeltmesi yetişemeyebilir. İyi bir strateji: düzlükte yüksek hız, virajda düşür. Veya Kd'yi artır."
+    }
+  ]
+},
+
+// ==================== DENEME 4 ====================
+{
+  baslik: "Deneme 4",
+  sure: "20–25 dakika",
+  sorular: [
+    {
+      konu:"Temel Elektrik",
+      soru:"Gerilim ile akım arasındaki ilişki için en uygun ifade aşağıdakilerden hangisidir?",
+      secenekler:["Gerilim, akımı iten etki; akım ise yük akışıdır","İkisi tamamen aynıdır","Akım volt ile ölçülür","Gerilim sadece kabloda oluşur"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Gerilim (V) elektronları itmek için gereken 'baskı' gibidir; akım (I) ise gerçekte akan elektron miktarıdır. Su analojisinde: gerilim = su basıncı, akım = akan su miktarı.",
+      fb_yanlis:"Doğru yanıt: A) Gerilim akımı iten etki, akım yük akışıdır. Su analojisi: boru basıncı = gerilim, akan su = akım. Volt = gerilim birimi, Amper = akım birimi. İkisini karıştırmayın."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Ohm kanununa göre 10 V gerilim uygulanan 100 Ω dirençten geçen akım yaklaşık kaç amperdir?",
+      secenekler:["0,01 A","0,1 A","1 A","10 A"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Ohm Kanunu: I = V / R = 10 / 100 = 0,1 A. Bu formül devredeki herhangi bir değişkeni bulmak için temel araçtır: V=I×R, I=V/R, R=V/I.",
+      fb_yanlis:"Doğru yanıt: B) 0,1 A. Ohm Kanunu: I = V/R = 10V / 100Ω = 0,1A. Formülü üçgen yöntemiyle ezberleyin: üstte V, altta I×R. Birini kapatınca diğer ikisiyle bulursunuz."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Direnç değeri artarsa, aynı gerilim altında akım için genel eğilim nedir?",
+      secenekler:["Artar","Azalır","Önce artar sonra azalır","Değişmez"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! I = V/R formülüne göre, V sabit tutulurken R artarsa I = V/R oranı azalır. Direnç artışı akımı engeller. Bu Ohm kanununun doğrudan sonucudur.",
+      fb_yanlis:"Doğru yanıt: B) Azalır. I = V/R: V sabit, R artar → I küçülür. Tersine, direnç azalırsa akım artar. Bu yüzden LED'e seri direnç koymak akımı sınırlar ve LED'i korur."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Sigortanın temel görevi nedir?",
+      secenekler:["Devreyi süslemek","Aşırı akıma karşı koruma sağlamak","Gerilimi üretmek","LED rengini değiştirmek"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Sigorta belirli bir akım değerini geçince erir ve devreyi keser; böylece bileşenler ve kablo zarar görmez. Bir nevi 'fedakar' koruma elemanıdır.",
+      fb_yanlis:"Doğru yanıt: B) Aşırı akıma karşı koruma sağlamak. Sigorta: belirlenen akım aşılınca erir, devre kesilir. Kısa devre ve yanlış bağlantı durumlarında sistemi korur. LI-PO pil devrelerinde önemlidir."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Bir transistör basit projelerde en çok hangi amaçla kullanılabilir?",
+      secenekler:["Anahtarlama yapmak","Pil üretmek","Kablo yerine geçmek","Direnci ölçmek"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Transistörün en yaygın kullanımı elektronik anahtarlamadır: küçük bir sinyal büyük bir akımı kontrol eder. Motor sürücü kartlarının içinde transistörler (veya MOSFET'ler) bulunur.",
+      fb_yanlis:"Doğru yanıt: A) Anahtarlama yapmak. Transistör = elektronik anahtar veya yükselteç. Motor sürücüler içinde transistörler vardır. Küçük base akımıyla büyük kolektör akımını kontrol eder."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"AND kapısında girişler 1 ve 0 ise çıkış kaç olur?",
+      secenekler:["0","1","10","Belirsiz"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! AND: çıkış 1 için TÜM girişler 1 olmalı. 1 AND 0 = 0. Girişlerden herhangi biri 0 ise çıkış her zaman 0'dır.",
+      fb_yanlis:"Doğru yanıt: A) 0. AND kapısı: çıkış = giriş1 × giriş2. Bir giriş bile 0 ise sonuç 0. 1 AND 0 = 0, 0 AND 1 = 0, 0 AND 0 = 0. Yalnızca 1 AND 1 = 1 verir."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"XOR kapısında girişler 1 ve 0 ise çıkış kaç olur?",
+      secenekler:["0","1","2","Belirsiz"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! XOR: girişler farklıysa çıkış 1, aynıysa çıkış 0. 1 ve 0 → farklı → çıkış 1.",
+      fb_yanlis:"Doğru yanıt: B) 1. XOR kuralı: girişler farklı → 1, aynı → 0. 1 XOR 0 = 1 (farklı). 1 XOR 1 = 0 (aynı). 0 XOR 0 = 0 (aynı). 0 XOR 1 = 1 (farklı)."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"Hangi kapının çıkışı yalnızca girişler 1 ve 1 olduğunda 0 olur?",
+      secenekler:["AND","OR","NAND","NOT"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! NAND = NOT(AND). AND(1,1)=1 → NAND(1,1)=0. Diğer tüm kombinasyonlarda NAND çıkışı 1'dir. NAND kapısı evrensel kapı olarak bilinir (sadece NAND ile tüm kapılar üretilebilir).",
+      fb_yanlis:"Doğru yanıt: C) NAND. NAND = AND'in tersi. Tablo: NAND(0,0)=1, NAND(0,1)=1, NAND(1,0)=1, NAND(1,1)=0. Yalnızca her iki giriş 1 olduğunda çıkış 0 olur."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"Analog sinyaller için aşağıdakilerden hangisi doğrudur?",
+      secenekler:["Sadece iki değer alır","Sürekli aralıkta değişebilir","Hiç ölçülemez","Daima 5 V'tur"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Analog sinyal süreklidir ve herhangi bir değer alabilir (0,0V, 1,27V, 3,54V gibi). Dijital sinyal ise yalnızca 0 veya 1'dir. Arduino analogRead() ile 0–5V arasını 0–1023'e dönüştürür.",
+      fb_yanlis:"Doğru yanıt: B) Sürekli aralıkta değişebilir. Analog = kesintisiz spektrum. Dijital = ayrık iki değer. Gerçek dünya analog, bilgisayarlar dijital. Arduino bu ikisi arasında köprü kurar."
+    },
+    {
+      konu:"Arduino",
+      soru:"Aşağıdaki kodlardan hangisi Arduino'nun 3 ile 9 arasındaki pinlerini çıkış olarak ayarlamak için doğrudur?",
+      secenekler:["for(int i=3;i<10;i++) pinMode(i,OUTPUT);","for(int i=0;i<10;i++) pinMode(i,OUTPUT);","for(int i=3;i<9;i++) digitalWrite(i,OUTPUT);","for(int i=10;i>3;i--) analogRead(i);"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! i=3 ile başlamak 3'ü dahil eder. i<10 koşulu 9'u dahil eder (10 hariç). pinMode(i, OUTPUT) doğru komuttur. Klasik bir yarışma sorusudur!",
+      fb_yanlis:"Doğru yanıt: A) for(int i=3;i<10;i++) pinMode(i,OUTPUT). i=0 ile 3 dahil olur, i<9 ile 9 hariç kalır. Sadece A seçeneği hem 3'ü başlangıç alır hem 9'u dahil eder (i<10 → 9'da son)."
+    },
+    {
+      konu:"Arduino",
+      soru:"Bir fonksiyon tanımlandıktan sonra çalıştırılması için ne yapılmalıdır?",
+      secenekler:["Yalnızca yazılmış olması yeterlidir","Çağrılması gerekir","Pilin çıkarılması gerekir","Kablosuz bağlanması gerekir"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Fonksiyon tanımlamak onu çalıştırmaz; setup() veya loop() içinde adıyla çağırılması gerekir. Örneğin: void ileri(){ ... } tanımlanır; loop() içinde ileri(); yazılarak çağrılır.",
+      fb_yanlis:"Doğru yanıt: B) Çağrılması gerekir. Fonksiyon sadece 'tarif'tir; çağrılmadan çalışmaz. void ileri(){...} → tanım. loop(){ ileri(); } → çağrı. İkisi ayrı ayrı yazılır."
+    },
+    {
+      konu:"Arduino",
+      soru:"delay() komutunun çok fazla kullanılması için en uygun uyarı hangisidir?",
+      secenekler:["Programın tepkisini yavaşlatabilir","Motoru büyütür","Kodu otomatik düzeltir","Sensörü analog yapar"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! delay() süresince Arduino hiçbir şey yapamaz (sensör okuyamaz, butona tepki veremez). Çok delay kullanmak robotu 'sağır' yapar. Gerçek zamanlı projeler için millis() fonksiyonu öğrenilmelidir.",
+      fb_yanlis:"Doğru yanıt: A) Programın tepkisini yavaşlatabilir. delay(1000) boyunca Arduino bloke olur; sensör okuyamaz. Yarışmada bu kör kalmak demektir. Mümkün olduğunca kısa delay kullanın."
+    },
+    {
+      konu:"Arduino",
+      soru:"if(sensorDegeri < 500) ifadesi aşağıdakilerden hangisini belirtir?",
+      secenekler:["sensorDegeri 500'e eşittir","sensorDegeri 500'den küçüktür","sensorDegeri 500'den büyüktür","500 sayısı sensördür"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! < (küçüktür) operatörü: soldaki sağdakinden küçükse koşul doğru. sensorDegeri < 500 → 499 ve altı için true. > büyüktür, == eşittir, != eşit değildir.",
+      fb_yanlis:"Doğru yanıt: B) sensorDegeri 500'den küçüktür. < = küçüktür. Karşılaştırma operatörleri: < (küçük), > (büyük), <= (küçük eşit), >= (büyük eşit), == (eşit), != (eşit değil)."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"İki DC motorun yön ve hızını güvenli şekilde kontrol etmek için en uygun bileşen aşağıdakilerden hangisidir?",
+      secenekler:["Motor sürücü kartı","Sadece jumper kablo","Sadece LED","Sadece buton"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! L298N gibi motor sürücü kartları: hem yön (IN1/IN2), hem hız (PWM/ENA) kontrolü sağlar; hem de Arduino'yu motorların yüksek akımından korur. Yarışmada zorunlu bileşendir.",
+      fb_yanlis:"Doğru yanıt: A) Motor sürücü kartı. Jumper kablo sadece bağlantı elemanıdır. Motor kontrolü için yön ve hız sinyalleri + yüksek akım gereklidir; motor sürücü bu ikisini bir arada sunar."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Ultrasonik sensörde yankı dönmezse en güvenli yazılım yaklaşımı hangisidir?",
+      secenekler:["Sonsuza kadar beklemek","Zaman aşımı kontrolü düşünmek","Motoru sürekli hızlandırmak","Sensörü sökmek"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! pulseIn(ECHO, HIGH, 30000) gibi bir zaman aşımı parametresi tanımlanabilir. Yankı dönmezse (timeout) büyük bir mesafe (999 cm gibi) atanır ve program takılmaz.",
+      fb_yanlis:"Doğru yanıt: B) Zaman aşımı kontrolü düşünmek. pulseIn() sınırsız beklerse program donar. Çözüm: pulseIn(ECHO, HIGH, 25000) → 25ms sonra 0 döner → yol açık say. Gerçek dünya kodlamasında her zaman timeout düşünün."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Çizgi izleyen robotta bütün sensörler beyaz zemin görüyorsa en olası durum hangisidir?",
+      secenekler:["Robot çizgiyi kaybetmiş olabilir","Pil tam doludur","Motor daha güçlü olur","Kod kendini siler"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Tüm sensörler beyaz okuyorsa çizgi sensör altında değildir → robot çizgiden çıkmış olabilir. Bu durumda 'son bilinen yön' mantığıyla veya yerine dönme manevrasıyla çizgi aranmalıdır.",
+      fb_yanlis:"Doğru yanıt: A) Robot çizgiyi kaybetmiş olabilir. Tüm sensörler beyaz = çizgi yok. Kod buna tepki vermeli: son kaydolan yöne dön veya çizgiyi ara. Bu köşe ve geçici bant senaryolarında kritiktir."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"P değeri gereğinden çok yüksek seçilirse robotta ne görülebilir?",
+      secenekler:["Aşırı sallanma/yalpalama","Hiç tepki vermeme","Pilin şarj olması","Sensör sayısının artması"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Kp çok yüksekse küçük bir hata bile büyük bir düzeltmeye neden olur. Robot çizginin etrafında aşırı sallanarak ilerlemeye çalışır (osilaston). Kp'yi yavaş yavaş artırın.",
+      fb_yanlis:"Doğru yanıt: A) Aşırı sallanma/yalpalama. Kp yüksek → büyük düzeltme → aşıyor → karşı yöne düzeltiyor → tekrar aşıyor… Bu zikzak harekete 'osilaston' denir. Kp'yi sahada dikkatli artırın."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"PD kontrolünde D terimi iyi ayarlanırsa neye yardımcı olabilir?",
+      secenekler:["Aşırı taşmayı azaltmaya","Pili büyütmeye","Kod satırlarını silmeye","Bluetooth eklemeye"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! D terimi hatanın değişim hızına tepki verir. Hata hızla azalıyorsa D düzeltmeyi frenler ve aşırı taşmayı önler. Sonuç: daha yumuşak, daha kararlı çizgi izleme.",
+      fb_yanlis:"Doğru yanıt: A) Aşırı taşmayı azaltmaya. D terimi = fren etkisi. Araba analojisi: frensiz araba rampalarda aşırı hızlanır. D terimi de robotun 'aşırı tepki'sini frenler."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Sensör kalibrasyonunun temel amacı nedir?",
+      secenekler:["Her sensör için uygun siyah-beyaz aralığını tanımak","Motor sayısını artırmak","Pil voltajını yükseltmek","Kodu kısaltmak"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Kalibrasyon, sensörün min (beyaz) ve max (siyah) değerlerini öğrenir. Farklı parkur renkleri, ışık koşulları veya sensör tipine göre değerler değişebilir; kalibrasyon bunu telafi eder.",
+      fb_yanlis:"Doğru yanıt: A) Her sensör için uygun siyah-beyaz aralığını tanımak. Kalibre edilmemiş sensör yanlış karar verebilir. Yarışma alanına girince hemen kalibrasyon yapılmalıdır; parkur rengi, ışık farklı olabilir."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Yarışma hazırlığında en verimli çalışma yaklaşımı aşağıdakilerden hangisidir?",
+      secenekler:["Önce mekanik, sonra sensör testi, sonra kontrol ayarı","Önce sadece süsleme yapmak","Kodu hiç test etmemek","Bütün parçaları son gün bağlamak"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Mühendislik süreci: önce mekanik (gövde, motor), sonra elektronik (sensör testi), sonra yazılım (kontrol ayarı). Her katman bir öncekinin üzerine inşa edilir.",
+      fb_yanlis:"Doğru yanıt: A) Önce mekanik, sonra sensör testi, sonra kontrol ayarı. Bu katmanlı yaklaşım hata tespitini kolaylaştırır. Her katmanı ayrı test etmek yerine hepsini son gün birden denemek zaman kaybıdır."
+    }
+  ]
+},
+
+// ==================== DENEME 5 ====================
+{
+  baslik: "Deneme 5",
+  sure: "20–25 dakika",
+  sorular: [
+    {
+      konu:"Temel Elektrik",
+      soru:"220 Ω ve 330 Ω direnç seri bağlanırsa toplam direnç kaç olur?",
+      secenekler:["110 Ω","220 Ω","550 Ω","660 Ω"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! Seri bağlama: Rtoplam = R1 + R2 = 220 + 330 = 550 Ω. Seri bağlamada dirençler basitçe toplanır.",
+      fb_yanlis:"Doğru yanıt: C) 550 Ω. Seri bağlama: Rtoplam = R1 + R2 = 220 + 330 = 550 Ω. Paralel için 1/Rtoplam = 1/220 + 1/330 ≈ 132 Ω olurdu. İki bağlama türünü karıştırmayın."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Kırmızı - Mor - Kahverengi - Altın renklerine sahip direncin değeri aşağıdakilerden hangisidir?",
+      secenekler:["27 Ω","270 Ω","2,7 kΩ","27 kΩ"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Kırmızı=2, Mor=7, Kahverengi=×10 (çarpan), Altın=±%5. 27×10 = 270 Ω. Renk kodu uygulamalarda sık gerekir.",
+      fb_yanlis:"Doğru yanıt: B) 270 Ω. Renk kodu: Kırmızı(2), Mor(7), Kahverengi(×10), Altın(±%5). 27×10=270 Ω. Renklerin sayısal karşılıkları: Siyah=0, Kahve=1, Kırmızı=2, Turuncu=3, Sarı=4, Yeşil=5, Mavi=6, Mor=7, Gri=8, Beyaz=9."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Açık devre için aşağıdakilerden hangisi doğrudur?",
+      secenekler:["Akım yolu tamamdır","Akım geçiş yolu kesilmiştir","Gerilim yoktur","Pil mutlaka bozuktur"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! Açık devre = kopuk yol. Akım için kapalı bir döngü gerekmez. Gerilim kaynağı hâlâ vardır ama akım geçemez. Pil ile ilgili değildir, yol kesilmesiyle ilgilidir.",
+      fb_yanlis:"Doğru yanıt: B) Akım geçiş yolu kesilmiştir. Açık devre: yolun bir noktası kopuktur (tel kopuk, anahtar açık). Gerilim kaynağı bozulmamıştır; sadece akım için kapalı bir döngü yoktur."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Bir kapasitörün temel işlevlerinden biri aşağıdakilerden hangisidir?",
+      secenekler:["Elektrik yükü depolamak","Sürekli ışık üretmek","Motoru mekanik olarak döndürmek","Kabloyu kesmek"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Kapasitör iki iletken plaka arasında elektrik yükü (enerji) depolar. Devre dalgalanmalarını düzeltmek, anlık enerji vermek gibi amaçlarla kullanılır.",
+      fb_yanlis:"Doğru yanıt: A) Elektrik yükü depolamak. Kapasitör = geçici enerji deposu. Motor sürücü güç girişinde sıklıkla kapasitör bulunur; gerilim dalgalanmalarını yumuşatır."
+    },
+    {
+      konu:"Temel Elektrik",
+      soru:"Aşağıdakilerden hangisi pasif devre elemanıdır?",
+      secenekler:["Direnç","Transistör","Mikrodenetleyici","Motor sürücü"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Pasif elemanlar (direnç, kapasitör, bobin) dışarıdan enerji almadan çalışır ve enerji depolamaz/üretmez. Aktif elemanlar (transistör, IC, mikrodenetleyici) güç kaynağı gerektirir.",
+      fb_yanlis:"Doğru yanıt: A) Direnç. Pasif elemanlar: direnç, kapasitör, bobin. Aktif elemanlar: transistör, entegre devre, mikrodenetleyici. Aktif elemanlar daha güçlü sinyaller üretebilir."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"4 bit ile temsil edilebilecek en büyük onluk sayı kaçtır?",
+      secenekler:["8","10","15","16"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! 4 bit: 0000 ile 1111 arası. 1111₂ = 8+4+2+1 = 15. 4 bit ile 0–15 arası 16 farklı sayı temsil edilebilir. Maksimum değer: 2⁴−1 = 15.",
+      fb_yanlis:"Doğru yanıt: C) 15. N bit → 0 ile (2ᴺ−1) arası. 4 bit → 0 ile 15 (16 farklı değer). En büyük değer 1111₂ = 15. 16 değil! 16 tane farklı değer var, ama en büyüğü 15."
+    },
+    {
+      konu:"Dijital Elektronik",
+      soru:"İkilik sayı sisteminde 1001 sayısının onluk karşılığı kaçtır?",
+      secenekler:["7","8","9","10"],
+      dogru:"C",
+      fb_dogru:"✓ Tebrikler! 1001₂ = 1×2³ + 0×2² + 0×2¹ + 1×2⁰ = 8 + 0 + 0 + 1 = 9.",
+      fb_yanlis:"Doğru yanıt: C) 9. 1001₂: en sol bit 1×8=8, ortadakiler 0×4=0 ve 0×2=0, en sağ 1×1=1. Toplam: 8+0+0+1=9. Her biti kendi basamak değeriyle çarpın ve toplayın."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Bir çizgi sensöründe eşik değeri (threshold) ayarlanırken amaç nedir?",
+      secenekler:["Siyah ile beyazı daha güvenilir ayırmak","Motorun çapını büyütmek","Pili şarj etmek","Kodu derlememek"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Eşik değeri, sensör okumasının 'siyah mı beyaz mı?' kararı verdiği sınırdır. Farklı parkur renkleri ve ışık koşullarına göre bu değer ayarlanmalıdır. Kalibrasyon ile eşik otomatik belirlenebilir.",
+      fb_yanlis:"Doğru yanıt: A) Siyah ile beyazı daha güvenilir ayırmak. Eşik: değer > eşik → siyah, değer < eşik → beyaz. Eşik yanlış seçilirse sensör yanlış okumalara neden olur. Sahada test etmek şarttır."
+    },
+    {
+      konu:"Arduino",
+      soru:"Analog pinlerle ilgili aşağıdakilerden hangisi genellikle doğrudur?",
+      secenekler:["Sensörlerden değişken değer okumada kullanılır","Sadece motor döndürür","Yalnızca HIGH verir","Kablosuz haberleşme yapar"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! A0–A5 analog pinleri analogRead() ile 0–1023 arasında değer okur. Potansiyometre, ışık sensörü, analog çizgi sensörü gibi bileşenlerden sürekli değişen değerler almak için kullanılır.",
+      fb_yanlis:"Doğru yanıt: A) Sensörlerden değişken değer okumada kullanılır. Analog pin = sürekli değişen voltajı sayısallaştırır. Dijital pin sadece 0 veya 5V okur; analog pin aralarındaki her değeri okuyabilir."
+    },
+    {
+      konu:"Arduino",
+      soru:"Bir Arduino programında derleme hatasının yaygın nedenlerinden biri hangisidir?",
+      secenekler:["Noktalı virgül unutmak","Robotu masaya koymak","Pili şarj etmek","LED kullanmak"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! C/C++ tabanlı Arduino kodunda her komut noktalı virgül (;) ile biter. Unutulursa derleyici hata verir. Hata satırının bir üstüne de bakın; Arduino IDE genellikle hatayı bir satır geç gösterir.",
+      fb_yanlis:"Doğru yanıt: A) Noktalı virgül unutmak. Arduino/C++ sözdiziminde ; zorunludur. Sık yapılan hatalar: ; unutmak, = yerine == kullanmak, büyük/küçük harf karıştırmak, eksik parantez. Hata mesajını okuyun!"
+    },
+    {
+      konu:"Arduino",
+      soru:"Aşağıdaki satırlardan hangisi 5 numaralı pini LOW yapar?",
+      secenekler:["pinMode(5, LOW);","digitalWrite(5, LOW);","analogRead(5, LOW);","delay(5, LOW);"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! digitalWrite(pin, HIGH/LOW) bir dijital pine HIGH (5V) veya LOW (0V) yazar. pinMode() pin modunu belirler (INPUT/OUTPUT), analogRead() analog okur, delay() bekleme yapar.",
+      fb_yanlis:"Doğru yanıt: B) digitalWrite(5, LOW). Her komutun ne yaptığını kesin olarak bilin: pinMode=mod ayarla, digitalWrite=dijital yaz, digitalRead=dijital oku, analogRead=analog oku, analogWrite=PWM yaz."
+    },
+    {
+      konu:"Arduino",
+      soru:"QTR-8A gibi çoklu sensör dizilerinde dizi (array) kullanmanın avantajı nedir?",
+      secenekler:["Birden fazla sensör değerini düzenli saklamak","Pili artırmak","Motoru mekanik olarak güçlendirmek","Direnci kaldırmak"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! int sensorler[8]; şeklinde tanımlanan dizi 8 sensör değerini for döngüsüyle okunup saklanabilmesini sağlar. 8 ayrı değişken yazmak yerine tek dizi + döngü çok daha temiz koddur.",
+      fb_yanlis:"Doğru yanıt: A) Birden fazla sensör değerini düzenli saklamak. int s[8] = {0}; + for(i=0;i<8;i++) s[i]=analogRead(A0+i); Dizi + döngü = çok güçlü kombinasyon. 8 ayrı değişken yerine 1 satır yeterli."
+    },
+    {
+      konu:"Arduino",
+      soru:"C/C++ tabanlı Arduino dizilerinde ilk elemanın indisi genellikle kaçtır?",
+      secenekler:["-1","0","1","2"],
+      dogru:"B",
+      fb_dogru:"✓ Tebrikler! C/C++'ta dizi indisleri 0'dan başlar: int s[8] tanımlandığında elemanlar s[0], s[1], …, s[7] olur. s[8] dizi sınırını aşar; bu yaygın ve tehlikeli bir hatadır.",
+      fb_yanlis:"Doğru yanıt: B) 0. C/C++ dizilerinde ilk indis her zaman 0'dır. int s[8]: s[0]'dan s[7]'ye kadar. s[8] yoktur! Bu 'off-by-one' (bir fazla/eksik) hatası en sık yapılan programlama hatasıdır."
+    },
+    {
+      konu:"Arduino",
+      soru:"Aşağıdaki kodlardan hangisi 8 elemanlı bir sensör dizisini tanımlamak için uygundur?",
+      secenekler:["int sensorDegerleri[8];","int sensorDegerleri(8);","array sensorDegerleri = 8;","bool 8 = sensorDegerleri;"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Arduino/C++'ta dizi tanımı: tip isim[boyut]; → int sensorDegerleri[8]; 8 elemanlı tam sayı dizisi oluşturur. Parantez kullanılamaz, 'array' anahtar kelime değildir.",
+      fb_yanlis:"Doğru yanıt: A) int sensorDegerleri[8]; Dizi sözdizimi: tip[boyut]. Parantez (8) fonksiyon çağrısı gibi algılanır; köşeli parantez [8] kullanılmalıdır. 'array' C++'ta geçerli bir tür adı değildir."
+    },
+    {
+      konu:"Arduino",
+      soru:"distance < 15 koşulu doğruysa robotun durması isteniyor. Bu durumda aşağıdaki yapılardan hangisi uygundur?",
+      secenekler:["if(distance < 15) { /* dur */ }","for(distance < 15) { /* dur */ }","setup(distance < 15)","analogRead(distance < 15)"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! if(koşul){ ... } koşullara göre karar vermek için kullanılır. for döngü içindir, setup başlangıç fonksiyonudur, analogRead pin okur. Karar yapıları için if/else kullanılır.",
+      fb_yanlis:"Doğru yanıt: A) if(distance < 15) { /* dur */ }. Koşullu karar = if. for = belirli sayıda döngü. setup = bir kez çalışan başlangıç. analogRead = analog değer oku. Her yapının amacını net bilin."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Çizgi izleyen bir robotta taban hız ile düzeltme değeri birlikte kullanıldığında temel amaç nedir?",
+      secenekler:["Düz giderken hız korumak, sapınca yön düzeltmek","Sadece pili boşaltmak","Sensörü kapatmak","Kodu silmek"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! solHız = taban − düzeltme, sağHız = taban + düzeltme (veya tersi). Düz gidişte düzeltme=0, iki motor eşit. Sapma oldukça bir motor yavaşlar/diğeri hızlanır ve çizgiye dönülür.",
+      fb_yanlis:"Doğru yanıt: A) Düz giderken hız korumak, sapınca yön düzeltmek. Bu yapı PID'nin temelidir: solHız=BASE-correction, sağHız=BASE+correction. Merkezdeyken correction=0 → her iki motor eşit hız."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"P değeri çok düşük seçilirse ne olabilir?",
+      secenekler:["Robot hataya çok yavaş tepki verir","Robot anında aşırı sallanır","Sensör sayısı artar","Pil gerilimi yükselir"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Kp çok küçük → küçük düzeltme → çizgiden yavaşça sapılır → robot çizgiyi takip edemez. Kp çok büyük → aşırı sallanma. Doğru Kp ikisi arasındaki dengeyi sağlar.",
+      fb_yanlis:"Doğru yanıt: A) Robot hataya çok yavaş tepki verir. Kp düşük → düzeltme=Kp×hata küçük → tepki yavaş → çizgi kaçırılabilir. Kp yüksek → tepki çok sert → sallanma. İdeal değer sahada deneme yanılmayla bulunur."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"D terimi özellikle hangi durumda faydalıdır?",
+      secenekler:["Hata çok hızlı değiştiğinde","Robot kapalıyken","Pil yokken","Kod derlenmezken"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! D terimi = hatanın türevi. Hata hızla değişiyorsa (robot virajda hızla çizgiye yaklaşıyorsa) D büyük düzeltme yapar ve aşmayı önler. Sabit hata durumlarında katkısı azdır.",
+      fb_yanlis:"Doğru yanıt: A) Hata çok hızlı değiştiğinde. D terimi: değişim hızını izler. Hata hızla azalıyor → D düzeltmeyi frenler → aşırı taşma olmaz. Yavaş değişen hatalarda D'nin etkisi minimal."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Deneme pistinde ayar yaparken en doğru yaklaşım hangisidir?",
+      secenekler:["Tek bir değişkeni değiştirip sonucu gözlemek","Her parametreyi aynı anda değiştirmek","Hiç not almamak","Sensörü kapatmak"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Bir değişkeni değiştirip test etmek, bilimsel yöntemin temel kuralıdır. Aynı anda birden fazla parametre değiştirirseniz hangisinin etkili olduğunu anlayamazsınız.",
+      fb_yanlis:"Doğru yanıt: A) Tek bir değişkeni değiştirip sonucu gözlemek. Kontrollü deney: tek değişken, tekrar, gözlem, not al. Kp'yi değiştirirken Kd'yi sabit tutun; sonra Kd'yi ayarlayın. Not almak ilerleyi hızlandırır."
+    },
+    {
+      konu:"Robotik Uygulama",
+      soru:"Yarışma öncesi son kontrolde aşağıdakilerden hangisi en mantıklıdır?",
+      secenekler:["Bağlantılar, sensör okumaları ve motor yönlerini tekrar denemek","Sadece gövdeyi boyamak","Kodu okumadan yüklemek","Pili ters bağlamak"],
+      dogru:"A",
+      fb_dogru:"✓ Tebrikler! Son kontrol listesi: bağlantılar doğru mu? Sensörler doğru değer veriyor mu? Motorlar doğru yönde mi dönüyor? Pil şarjı yeterli mi? Bu sistematik kontrol yarışmada sürpriz önler.",
+      fb_yanlis:"Doğru yanıt: A) Bağlantılar, sensör okumaları ve motor yönlerini tekrar denemek. Yarışmada en sık karşılaşılan sorunlar: ters motor, yanlış pin bağlantısı, düşük pil. Bunları önceden kontrol etmek zaman kazandırır."
+    }
+  ]
+}
+];
+
+// ============================================================
+// SAYFA YÖNETİMİ
+// ============================================================
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ============================================================
+// DENEME SAYFASI OLUŞTURMA
+// ============================================================
+function buildDeneme(pageId, data, idx) {
+  const page = document.getElementById(pageId);
+  const totalQ = data.sorular.length;
+  const state = { answers: new Array(totalQ).fill(null), correct: 0 };
+
+  const sections = [
+    { label: 'Temel Elektrik-Elektronik', range: [0,4] },
+    { label: 'Temel Dijital Elektronik', range: [5,9] },
+    { label: 'Arduino Programlama', range: [10,14] },
+    { label: 'Robotik Uygulama', range: [15,19] }
+  ];
+
+  let html = `
+  <div class="deneme-header">
+    <div class="dh-left">
+      <h2>${data.baslik}</h2>
+      <p>Konu başlıklarına göre 4 bölüm · Her soru 5 puan</p>
+      <div class="dh-chips">
+        <span class="dchip">⏱ ${data.sure}</span>
+        <span class="dchip">20 soru</span>
+        <span class="dchip">100 puan</span>
+      </div>
+    </div>
+    <div class="dh-score-box">
+      <div class="score-num" id="score-${pageId}">—</div>
+      <div class="score-label">PUAN</div>
+    </div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="prog-${pageId}"></div></div>
+  <div class="result-banner" id="rb-${pageId}">
+    <div class="rb-score" id="rb-score-${pageId}">0 <span>/ 100</span></div>
+    <div class="rb-msg" id="rb-msg-${pageId}"></div>
+    <button class="rb-badge" onclick="resetDeneme('${pageId}')">Tekrar Çöz</button>
+  </div>`;
+
+  sections.forEach(sec => {
+    html += `<div class="section-divider"><div class="sd-line"></div><div class="sd-label">${sec.label}</div><div class="sd-line"></div></div>`;
+    for(let qi = sec.range[0]; qi <= sec.range[1]; qi++) {
+      const q = data.sorular[qi];
+      const opts = ['A','B','C','D'];
+      html += `
+      <div class="q-card" id="qcard-${pageId}-${qi}">
+        <div class="q-header">
+          <span class="q-num">S${qi+1}</span>
+          <span class="q-konu">${q.konu}</span>
+        </div>
+        <div class="q-text">${q.soru}</div>
+        <div class="q-options" id="qopts-${pageId}-${qi}">`;
+      q.secenekler.forEach((opt, oi) => {
+        html += `<button class="q-opt" onclick="answer('${pageId}',${qi},${oi},${idx})" id="qopt-${pageId}-${qi}-${oi}">
+          <span class="opt-letter">${opts[oi]}</span>${opt}
+        </button>`;
+      });
+      html += `</div>
+        <div class="q-feedback" id="qfb-${pageId}-${qi}"></div>
+      </div>`;
+    }
+  });
+
+  page.innerHTML = html;
+  window['state_'+pageId] = state;
+}
+
+// ============================================================
+// CEVAPLAMA
+// ============================================================
+function answer(pageId, qi, oi, dIdx) {
+  const state = window['state_'+pageId];
+  if(state.answers[qi] !== null) return; // zaten cevaplandı
+
+  state.answers[qi] = oi;
+  const q = DENEMELER[dIdx].sorular[qi];
+  const opts = ['A','B','C','D'];
+  const correct = opts.indexOf(q.dogru);
+  const isCorrect = (oi === correct);
+  if(isCorrect) state.correct++;
+
+  // Tüm butonları kilitle
+  const card = document.getElementById(`qcard-${pageId}-${qi}`);
+  const optBtns = document.querySelectorAll(`#qopts-${pageId}-${qi} .q-opt`);
+  optBtns.forEach((btn, i) => {
+    btn.classList.add('locked');
+    if(i === correct && !isCorrect) btn.classList.add('show-correct');
+  });
+
+  const chosen = document.getElementById(`qopt-${pageId}-${qi}-${oi}`);
+  chosen.classList.add(isCorrect ? 'correct' : 'wrong');
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+  // Geri bildirim
+  const fb = document.getElementById(`qfb-${pageId}-${qi}`);
+  fb.className = `q-feedback show ${isCorrect ? 'fb-correct' : 'fb-wrong'}`;
+  fb.innerHTML = `<span class="fb-icon">${isCorrect ? '✓' : '✗'}</span><span class="fb-strong">${isCorrect ? 'Tebrikler!' : 'Hatalı yanıt.'}</span> ${isCorrect ? q.fb_dogru.replace('✓ Tebrikler! ','') : q.fb_yanlis}`;
+
+  // İlerleme ve puan güncelle
+  const answered = state.answers.filter(a => a !== null).length;
+  const puan = state.correct * 5;
+  document.getElementById(`prog-${pageId}`).style.width = (answered/20*100)+'%';
+  document.getElementById(`score-${pageId}`).textContent = puan;
+
+  // Tamamlandı mı?
+  if(answered === 20) showResult(pageId, state.correct);
+}
+
+function showResult(pageId, correct) {
+  const puan = correct * 5;
+  const rb = document.getElementById(`rb-${pageId}`);
+  rb.classList.add('show');
+  document.getElementById(`rb-score-${pageId}`).innerHTML = `${puan} <span>/ 100</span>`;
+  let msg = '';
+  if(correct >= 15) msg = `<strong>Harika!</strong> Konu temeli oturuyor. Süreli tekrar yaparak hızını artır.`;
+  else if(correct >= 10) msg = `<strong>İyi gidiş!</strong> Yanlışların kümelendiği konuya dön ve tekrar çöz.`;
+  else msg = `<strong>Devam et!</strong> Önce yanlış konuları tekrar et, sonra aynı denemeyi yeniden çöz.`;
+  document.getElementById(`rb-msg-${pageId}`).innerHTML = msg;
+  rb.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function resetDeneme(pageId) {
+  const navBtns = document.querySelectorAll('.tnav-btn');
+  const ids = ['d1','d2','d3','d4','d5'];
+  const dIdx = ids.indexOf(pageId);
+  buildDeneme(pageId, DENEMELER[dIdx], dIdx);
+  document.getElementById(`rb-${pageId}`).classList.remove('show');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ============================================================
+// BAŞLAT
+// ============================================================
+['d1','d2','d3','d4','d5'].forEach((id, i) => buildDeneme(id, DENEMELER[i], i));
+</script>
+</body>
+</html>
