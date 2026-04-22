@@ -1734,7 +1734,7 @@ QTRSensors <span class="vc">qtr</span>;
 // Hata aralığı −2500…+2500 olduğundan Kp çok küçük seçilir!</span>
 <span class="kw">float</span> <span class="vc">Kp</span>        = <span class="numc">0.08</span>;  <span class="cm">// Başlangıç — piste göre ayarla</span>
 <span class="kw">int</span>   <span class="vc">temelHiz</span>  = <span class="numc">160</span>;
-<span class="kw">int</span>   <span class="vc">sensorPinleri[6];</span>
+<span class="kw">uint16_t</span>   <span class="vc">sensorDegerleri[6];</span>
 
 
 <span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> <span class="vc">sol</span>, <span class="kw">int</span> <span class="vc">sag</span>) {
@@ -1749,7 +1749,8 @@ QTRSensors <span class="vc">qtr</span>;
   <span class="fn">pinMode</span>(<span class="vc">ENB</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN3</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN4</span>,OUTPUT);
 
   <span class="vc">qtr</span>.<span class="fn">setTypeAnalog</span>();
-  <span class="vc">qtr</span>.<span class="fn">setSensorPins</span>((uint8_t[]){A0, A1, A2, A3, A4, A5}, <span class="numc">6</span>);
+  <span class="kw">uint8_t</span> <span class="vc">pins[]</span> = {A0, A1, A2, A3, A4, A5};
+  <span class="vc">qtr</span>.<span class="fn">setSensorPins</span>(pins, <span class="numc">6</span>);
 
   <span class="cm">// Kalibrasyon — 4 saniye robotu çizgi üzerinde gezdir</span>
   <span class="kw">for</span> (<span class="kw">int</span> <span class="vc">i</span> = <span class="numc">0</span>; <span class="vc">i</span> &lt; <span class="numc">200</span>; <span class="vc">i</span>++) {
@@ -1760,7 +1761,7 @@ QTRSensors <span class="vc">qtr</span>;
 
 <span class="kw">void</span> <span class="fn">loop</span>() {
   <span class="cm">// ADIM 1: Konum oku — kütüphane her şeyi halleder</span>
-  <span class="kw">uint16_t</span> <span class="vc">konum</span> = <span class="vc">qtr</span>.<span class="fn">readLineBlack</span>(sensorPinleri);
+  <span class="kw">uint16_t</span> <span class="vc">konum</span> = <span class="vc">qtr</span>.<span class="fn">readLineBlack</span>(sensorDegerleri);
 
   <span class="cm">// ADIM 2: Hatayı hesapla</span>
   <span class="kw">int</span> <span class="vc">hata</span> = <span class="vc">konum</span> - <span class="numc">2500</span>;
@@ -1827,7 +1828,7 @@ QTRSensors <span class="vc">qtr</span>;
 <span class="kw">float</span> <span class="vc">Kd</span>          = <span class="numc">0.5</span>;   <span class="cm">// DEĞİŞİKLİK 1: Türev katsayısı eklendi</span>
 <span class="kw">int</span>   <span class="vc">temelHiz</span>    = <span class="numc">160</span>;
 <span class="kw">int</span>   <span class="vc">oncekiHata</span>  = <span class="numc">0</span>;    <span class="cm">// DEĞİŞİKLİK 2: Önceki hata hafızası eklendi</span>
-<span class="kw">int</span>   <span class="vc">sensorPinleri[]</span>;    
+<span class="kw">uint16_t</span>   <span class="vc">sensorDegerleri[]</span>;    
 
 
 <span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> <span class="vc">sol</span>, <span class="kw">int</span> <span class="vc">sag</span>) {
@@ -1842,7 +1843,8 @@ QTRSensors <span class="vc">qtr</span>;
   <span class="fn">pinMode</span>(<span class="vc">ENB</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN3</span>,OUTPUT); <span class="fn">pinMode</span>(<span class="vc">IN4</span>,OUTPUT);
 
   <span class="vc">qtr</span>.<span class="fn">setTypeAnalog</span>();
-  <span class="vc">qtr</span>.<span class="fn">setSensorPins</span>((uint8_t[]){A0, A1, A2, A3, A4, A5}, <span class="numc">6</span>);
+  <span class="kw">uint8_t</span> <span class="vc">pins[]</span> = {A0, A1, A2, A3, A4, A5};
+  <span class="vc">qtr</span>.<span class="fn">setSensorPins</span>(pins, <span class="numc">6</span>);
 
   <span class="cm">// Kalibrasyon — 4 saniye robotu çizgi üzerinde gezdir</span>
   <span class="kw">for</span> (<span class="kw">int</span> <span class="vc">i</span> = <span class="numc">0</span>; <span class="vc">i</span> &lt; <span class="numc">200</span>; <span class="vc">i</span>++) {
@@ -1853,7 +1855,7 @@ QTRSensors <span class="vc">qtr</span>;
 
 <span class="kw">void</span> <span class="fn">loop</span>() {
   <span class="cm">// ADIM 1: Konum oku (aynı)</span>
-  <span class="kw">uint16_t</span> <span class="vc">konum</span> = <span class="vc">qtr</span>.<span class="fn">readLineBlack</span>(sensorPinleri);
+  <span class="kw">uint16_t</span> <span class="vc">konum</span> = <span class="vc">qtr</span>.<span class="fn">readLineBlack</span>(sensorDegerleri);
 
   <span class="cm">// ADIM 2: Hatayı hesapla (aynı)</span>
   <span class="kw">int</span> <span class="vc">hata</span> = <span class="vc">konum</span> - <span class="numc">2500</span>;
