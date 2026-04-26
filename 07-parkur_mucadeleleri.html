@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parkur Mücadeleleri — QTR-8A Çizgi Takip Robotu</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #131720;
+    --surface2: #1a2030;
+    --border: #252d3d;
+    --accent: #00e5a0;
+    --accent2: #ff6b35;
+    --accent3: #7c6dfa;
+    --accent4: #f0c040;
+    --text: #e8ecf4;
+    --text-muted: #7a8499;
+    --code-bg: #0a0c12;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Syne', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    padding: 80px 40px 60px;
+    text-align: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 50% -10%, rgba(0,229,160,0.12) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px);
+    pointer-events: none;
+  }
+  .header-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.25);
+    padding: 4px 14px;
+    border-radius: 3px;
+    margin-bottom: 24px;
+  }
+  header h1 {
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  header h1 span { color: var(--accent); }
+  header p {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    max-width: 560px;
+    margin: 0 auto 36px;
+  }
+  .header-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid;
+    letter-spacing: 0.5px;
+  }
+  .chip-green  { border-color: rgba(0,229,160,0.4);  color: var(--accent);  background: rgba(0,229,160,0.06); }
+  .chip-orange { border-color: rgba(255,107,53,0.4); color: var(--accent2); background: rgba(255,107,53,0.06);}
+  .chip-purple { border-color: rgba(124,109,250,0.4);color: var(--accent3); background: rgba(124,109,250,0.06);}
+  .chip-yellow { border-color: rgba(240,192,64,0.4); color: var(--accent4); background: rgba(240,192,64,0.06);}
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,15,20,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  nav ul { list-style: none; display: flex; gap: 0; }
+  nav a {
+    display: inline-block;
+    padding: 14px 18px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color .2s, border-color .2s;
+    border-bottom: 2px solid transparent;
+  }
+  nav a:hover { color: var(--text); border-bottom-color: var(--border); }
+  nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── LAYOUT ── */
+  main { max-width: 1000px; margin: 0 auto; padding: 60px 24px 100px; }
+
+  /* ── SECTION HEADERS ── */
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 24px;
+  }
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  p { color: #b8c0d0; margin-bottom: 14px; }
+
+  section { margin-bottom: 80px; }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 60px 0;
+  }
+
+  /* ── INFO BOXES ── */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .info-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .info-card.green::before  { background: var(--accent); }
+  .info-card.orange::before { background: var(--accent2); }
+  .info-card.purple::before { background: var(--accent3); }
+  .info-card.yellow::before { background: var(--accent4); }
+  .info-card .card-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .info-card h4 { font-size: .85rem; font-weight: 700; margin-bottom: 6px; }
+  .info-card p  { font-size: .82rem; color: var(--text-muted); margin: 0; }
+
+  /* ── SENSOR DIAGRAM ── */
+  .sensor-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 24px 0;
+    text-align: center;
+  }
+  .sensor-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .sensor-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    border: 1px solid;
+    transition: all .3s;
+    cursor: default;
+  }
+  .sensor-box .snum { font-size: 14px; }
+  .sensor-box.white-surf { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); color: var(--text-muted); }
+  .sensor-box.black-surf { background: rgba(0,229,160,0.15); border-color: var(--accent); color: var(--accent); }
+  .sensor-diagram p { font-size: .83rem; color: var(--text-muted); margin: 0; }
+  .sensor-label-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .sensor-label {
+    width: 52px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  /* ── PD FORMULA BOX ── */
+  .formula-box {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent3);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 2;
+  }
+  .formula-box .var-p  { color: var(--accent); }
+  .formula-box .var-d  { color: var(--accent2); }
+  .formula-box .var-k  { color: var(--accent4); }
+  .formula-box .comment { color: #4a5568; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: .9rem;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .callout-green  { background: rgba(0,229,160,0.06);  border: 1px solid rgba(0,229,160,0.2);  }
+  .callout-orange { background: rgba(255,107,53,0.06); border: 1px solid rgba(255,107,53,0.2); }
+  .callout-purple { background: rgba(124,109,250,0.06);border: 1px solid rgba(124,109,250,0.2);}
+  .callout-yellow { background: rgba(240,192,64,0.06); border: 1px solid rgba(240,192,64,0.2); }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout p { margin: 0; color: var(--text); }
+
+  /* ── PARKUR CARDS ── */
+  .parkur-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+  .parkur-header {
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .parkur-num {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .p1 .parkur-num { background: rgba(0,229,160,0.15);  color: var(--accent); }
+  .p2 .parkur-num { background: rgba(124,109,250,0.15); color: var(--accent3); }
+  .p3 .parkur-num { background: rgba(255,107,53,0.15);  color: var(--accent2); }
+  .p4 .parkur-num { background: rgba(240,192,64,0.15);  color: var(--accent4); }
+  .parkur-title h3 { margin: 0 0 2px; font-size: 1.05rem; }
+  .parkur-title p  { margin: 0; font-size: .82rem; color: var(--text-muted); }
+  .parkur-body { padding: 28px; }
+  .parkur-body p { font-size: .9rem; }
+
+  /* ── TRACK VISUAL ── */
+  .track-visual {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 90px;
+  }
+  .track-visual svg { width: 100%; max-width: 460px; }
+
+  /* ── CODE BLOCK ── */
+  .code-tabs {
+    margin: 20px 0;
+  }
+  .tab-buttons {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .tab-btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 8px 18px;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    white-space: nowrap;
+    transition: all .15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── CODE ── */
+  .code-wrap {
+    position: relative;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-lang {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .copy-btn {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: 0.5px;
+  }
+  .copy-btn:hover { background: rgba(0,229,160,0.1); color: var(--accent); border-color: rgba(0,229,160,0.3); }
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.75;
+    tab-size: 2;
+  }
+  code { font-family: inherit; }
+
+  /* Syntax colors */
+  .kw  { color: #ff79c6; }   /* keywords */
+  .tp  { color: #8be9fd; }   /* types */
+  .fn  { color: #50fa7b; }   /* functions */
+  .nm  { color: #bd93f9; }   /* numbers */
+  .str { color: #f1fa8c; }   /* strings */
+  .cm  { color: #6272a4; font-style: italic; }  /* comments */
+  .pp  { color: #ff6ac1; }   /* preprocessor */
+  .op  { color: #ff79c6; }   /* operators */
+  .id  { color: var(--text); }
+  .acc { color: #ffb86c; }   /* special accented */
+
+  /* ── ALGO BOX ── */
+  .algo-steps {
+    counter-reset: step;
+    list-style: none;
+    margin: 16px 0;
+  }
+  .algo-steps li {
+    counter-increment: step;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    font-size: .88rem;
+    color: #b8c0d0;
+  }
+  .algo-steps li::before {
+    content: counter(step);
+    min-width: 26px; height: 26px;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; margin: 16px 0; }
+  th {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: #b8c0d0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--accent); }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width: 600px) {
+    header { padding: 50px 20px 40px; }
+    main { padding: 40px 16px 80px; }
+    nav a { padding: 12px 12px; font-size: 11px; }
+    .parkur-body { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<header>
+  <div class="header-tag">MEB Robot Tasarla Çalıştır</div>
+  <h1>Parkur <span>Mücadeleleri</span></h1>
+  <p>QTR-8A sensör, P / PD kontrol ve Arduino ile çizgi takip robotu geliştirme rehberi</p>
+  <div class="header-chips">
+    <span class="chip chip-green">QTR-8A</span>
+    <span class="chip chip-orange">L298N Motor Sürücü</span>
+    <span class="chip chip-purple">P / PD Kontrol</span>
+    <span class="chip chip-yellow">HY-SRF05 Ultrasonik</span>
+    <span class="chip chip-green">Arduino UNO</span>
+  </div>
+</header>
+
+<!-- ══════════════ NAV ══════════════ -->
+<nav>
+  <ul>
+    <li><a href="#sensor">QTR-8A Sensör</a></li>
+    <li><a href="#kalibrasyon">Kalibrasyon</a></li>
+    <li><a href="#parkur1">Parkur 1</a></li>
+    <li><a href="#parkur2">Parkur 2</a></li>
+    <li><a href="#parkur3">Parkur 3</a></li>
+    <li><a href="#parkur4">Parkur 4</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main>
+
+<!-- ════════════════════════════════════
+     BÖLÜM 1 — QTR-8A Sensör
+════════════════════════════════════ -->
+<section id="sensor">
+  <div class="section-num">// BÖLÜM 01</div>
+  <h2>QTR-8A Sensör — Çalışma Mantığı</h2>
+  <p>QTR-8A, satır içinde yan yana dizilmiş <strong>8 adet kızılötesi (IR) alıcı-verici</strong> içeren bir reflektans sensör dizisidir. Her sensör altındaki yüzeyden geri dönen ışık miktarını ölçer ve analog gerilim değeri olarak Arduino'ya iletir.</p>
+
+  <div class="info-grid">
+    <div class="info-card green">
+      <span class="card-icon">⚡</span>
+      <h4>Analog Çıkış</h4>
+      <p>Her sensör 0–1023 arası bir değer üretir. Beyaz yüzey → düşük değer, siyah yüzey → yüksek değer.</p>
+    </div>
+    <div class="info-card orange">
+      <span class="card-icon">📍</span>
+      <h4>Konum Hesabı</h4>
+      <p><code>readLineBlack()</code> 0–5000 arası ağırlıklı ortalama döndürür. Ortada çizgi → ~2500.</p>
+    </div>
+    <div class="info-card purple">
+      <span class="card-icon">🔧</span>
+      <h4>Kalibrasyon</h4>
+      <p>Sensörü hem siyah hem beyaz yüzey üzerinde gezdirerek min/max referans değerleri belirlenir.</p>
+    </div>
+    <div class="info-card yellow">
+      <span class="card-icon">🔌</span>
+      <h4>Bağlantı</h4>
+      <p>6 sensör A0–A5 pinlerine bağlanır. Kütüphane: <code>QTRSensors.h</code></p>
+    </div>
+  </div>
+
+  <h3>Sensör Numaralandırma ve Konum Değerleri</h3>
+  <div class="sensor-diagram">
+    <div class="sensor-label-row">
+      <div class="sensor-label">S0<br>A0</div>
+      <div class="sensor-label">S1<br>A1</div>
+      <div class="sensor-label">S2<br>A2</div>
+      <div class="sensor-label">S3<br>A3</div>
+      <div class="sensor-label">S4<br>A4</div>
+      <div class="sensor-label">S5<br>A5</div>
+    </div>
+    <div class="sensor-row" id="sensorRow">
+      <div class="sensor-box white-surf"><span class="snum">0</span><span>SOL</span></div>
+      <div class="sensor-box white-surf"><span class="snum">1</span></div>
+      <div class="sensor-box black-surf"><span class="snum">2</span></div>
+      <div class="sensor-box black-surf"><span class="snum">3</span></div>
+      <div class="sensor-box white-surf"><span class="snum">4</span></div>
+      <div class="sensor-box white-surf"><span class="snum">5</span><span>SAĞ</span></div>
+    </div>
+    <p>Çizgi ortada → readLineBlack() ≈ <strong style="color:var(--accent)">2500</strong> &nbsp;|&nbsp; Sol uçta → ≈ <strong style="color:var(--accent3)">0</strong> &nbsp;|&nbsp; Sağ uçta → ≈ <strong style="color:var(--accent2)">5000</strong></p>
+  </div>
+
+  <h3>P ve PD Kontrol Formülleri</h3>
+  <p>Çizginin merkezden sapmasına <em>hata</em> denir. Bu hatayı düzeltmek için iki yöntem kullanılır:</p>
+
+  <div class="formula-box">
+    <span class="cm">// Hata hesabı (merkez = 2500)</span><br>
+    <span class="tp">int</span> <span class="id">hata</span> = <span class="id">konum</span> <span class="op">-</span> <span class="nm">2500</span>;<br><br>
+    <span class="cm">// P (Oransal) Kontrol</span><br>
+    <span class="tp">int</span> <span class="id">duzeltme</span> = <span class="var-k">Kp</span> <span class="op">*</span> <span class="var-p">hata</span>;<br><br>
+    <span class="cm">// PD (Oransal + Türev) Kontrol</span><br>
+    <span class="tp">int</span> <span class="id">duzeltme</span> = (<span class="var-k">Kp</span> <span class="op">*</span> <span class="var-p">hata</span>) <span class="op">+</span> (<span class="var-k">Kd</span> <span class="op">*</span> (<span class="var-p">hata</span> <span class="op">-</span> <span class="var-d">oncekiHata</span>));<br>
+    <span class="id">oncekiHata</span> = <span class="var-p">hata</span>;<br><br>
+    <span class="cm">// Motor hızlarına uygulanması</span><br>
+    <span class="tp">int</span> <span class="id">solHiz</span> = <span class="id">temelHiz</span> <span class="op">+</span> <span class="id">duzeltme</span>;<br>
+    <span class="tp">int</span> <span class="id">sagHiz</span> = <span class="id">temelHiz</span> <span class="op">-</span> <span class="id">duzeltme</span>;
+  </div>
+
+  <div class="callout callout-purple">
+    <span class="callout-icon">💡</span>
+    <p><strong>PD'nin farkı nedir?</strong> P kontrol sadece anlık hataya tepki verir; virajlarda aşma (overshoot) yapar, robot zikzak çizer. PD kontrolde eklenen türev terimi (<em>Kd × Δhata</em>) hatanın ne kadar hızlı değiştiğini ölçer ve gereksiz salınımları bastırır. Sonuç: daha akıcı, daha kararlı bir çizgi takibi.</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Parametre</th><th>Tipik Değer</th><th>Rolü</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Kp</td><td>0.07 – 0.12</td><td>Anlık hataya tepki katsayısı. Büyütülürse hız artar ama titreme de artar.</td></tr>
+      <tr><td>Kd</td><td>0.15 – 0.25</td><td>Türev (değişim hızı) katsayısı. Salınımları söndürür.</td></tr>
+      <tr><td>temelHiz</td><td>110 – 150</td><td>Düz çizgideki ilerleme hızı (0–255 arası PWM).</td></tr>
+      <tr><td>cizgiKayipEsigi</td><td>~300</td><td>Tüm sensörlerin toplamı bu değerin altına düşerse çizgi kayıp sayılır.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ════════════════════════════════════
+     BÖLÜM 2 — KALİBRASYON
+════════════════════════════════════ -->
+<section id="kalibrasyon">
+  <div class="section-num">// BÖLÜM 02</div>
+  <h2>Kalibrasyon</h2>
+  <p>Kalibrasyon, sensörlerin gerçek zemindeki beyaz ve siyah rengi öğrenmesini sağlar. Robot koda yüklendikten sonra sensörler hem beyaz hem siyah zemin üzerinden geçirilir; bu süre zarfında kütüphane min/max değerleri kaydeder. Sonraki tüm okumalar bu referanslara göre normalize edilir.</p>
+
+  <div class="callout callout-orange">
+    <span class="callout-icon">⚠️</span>
+    <p><strong>Önemli:</strong> Kalibrasyon sırasında robotu yavaşça hem siyah çizginin üzerinden hem de beyaz zeminin üzerinden gezdirin. 200 × 20ms = <strong>4 saniye</strong> sürer. Kalibrasyon bittikten sonra Serial Monitor'de sensör değerlerini izleyin. Beyaz zeminde değerler düşük (~50–200), siyah üzerinde yüksek (~700–1000) olmalıdır. Sensör tamamen beyaz zemindeyken ve siyah zemindeyken toplam sensör değerlerini not edin. Ardından, <br><br> <strong>cizgiKayipEsigi = (beyazToplam + siyahToplam) / 2</strong> <br><br> formülüyle eşiği belirleyin.</p>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-header">
+      <span class="code-lang">Arduino — 00_kalibrasyon.ino</span>
+      <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+    </div>
+<pre><code><span class="cm">// cizgiKayipEsigi = (beyazToplam + cizgiToplam) / 2;</span>
+
+<span class="pp">#include</span> &lt;QTRSensors.h&gt;
+
+QTRSensors qtr;
+
+<span class="tp">uint16_t</span> sensorDegerleri[<span class="nm">6</span>];
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  Serial.<span class="fn">begin</span>(<span class="nm">115200</span>);
+
+  qtr.<span class="fn">setTypeAnalog</span>();
+  <span class="tp">uint8_t</span> pins[] = {A0, A1, A2, A3, A4, A5};
+  qtr.<span class="fn">setSensorPins</span>(pins, <span class="nm">6</span>);
+
+  <span class="cm">// Kalibrasyon</span>
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">200</span>; i++) {
+    qtr.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="nm">20</span>);
+  }
+
+  Serial.<span class="fn">println</span>(<span class="str">&quot;Sensor degerleri:&quot;</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  qtr.<span class="fn">readLineBlack</span>(sensorDegerleri);
+
+  <span class="kw">int</span> toplamDeger = <span class="nm">0</span>;
+
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">6</span>; i++) {
+    Serial.<span class="fn">print</span>(sensorDegerleri[i]);
+    Serial.<span class="fn">print</span>(<span class="str">&quot;\t&quot;</span>);
+    toplamDeger += sensorDegerleri[i];
+  }
+
+  Serial.<span class="fn">print</span>(<span class="str">&quot;Toplam: &quot;</span>);
+  Serial.<span class="fn">println</span>(toplamDeger);
+
+  <span class="fn">delay</span>(<span class="nm">100</span>);
+}</code></pre>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ════════════════════════════════════
+     PARKUR 1
+════════════════════════════════════ -->
+<section id="parkur1">
+  <div class="section-num">// PARKUR 01</div>
+  <h2>Temel Çizgi Takibi</h2>
+  <p>Robot, başlangıçtan bitişe kadar tek bir eğri çizgi üzerinde ilerler. Asıl hedef gereksiz zikzak yapmadan akıcı ilerlemektir.</p>
+
+  <div class="parkur-card p1">
+    <div class="parkur-header">
+      <div class="parkur-num">01</div>
+      <div class="parkur-title">
+        <h3>QTR-8A ile Temel Çizgi Takibi</h3>
+        <p>Kalibrasyon + P / PD Kontrol</p>
+      </div>
+    </div>
+    <div class="parkur-body">
+      <div class="track-visual">
+        <svg viewBox="0 0 460 80" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="60" r="8" fill="#00e5a0"/>
+          <path d="M 28 60 Q 120 10 230 40 Q 340 70 432 20" stroke="white" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <circle cx="440" cy="20" r="8" fill="#ff6b35"/>
+        </svg>
+      </div>
+
+      <ul class="algo-steps">
+        <li><strong>readLineBlack()</strong> ile anlık çizgi konumu okunur (0–5000).</li>
+        <li><strong>hata = konum − 2500</strong> hesaplanır. Negatif → çizgi solda, pozitif → çizgi sağda.</li>
+        <li><strong>P:</strong> duzeltme = Kp × hata ile sol/sağ motor hızları ayarlanır.</li>
+        <li><strong>PD:</strong> Ek olarak türev terimi (Kd × Δhata) eklenerek titreme bastırılır.</li>
+        <li>Hızlar <code>constrain(0, 255)</code> ile sınırlandırılır, motorlar sürülür.</li>
+      </ul>
+
+      <div class="code-tabs">
+        <div class="tab-buttons">
+          <button class="tab-btn active" onclick="switchTab(this,'p1-p')">P Kontrol</button>
+          <button class="tab-btn" onclick="switchTab(this,'p1-pd')">PD Kontrol</button>
+        </div>
+
+        <div id="p1-p" class="tab-panel active">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">01_temel_cizgi_takibi_p.ino — loop()</span>
+              <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+            </div>
+<pre><code><span class="cm">// Temel Çizgi Takibi - P</span>
+
+<span class="pp">#include</span> &lt;QTRSensors.h&gt;
+
+QTRSensors qtr;
+
+<span class="kw">const</span> <span class="tp">uint8_t</span> ENA = <span class="nm">6</span>, IN1 = <span class="nm">7</span>, IN2 = <span class="nm">8</span>;    <span class="cm">// Sağ motor</span>
+<span class="kw">const</span> <span class="tp">uint8_t</span> IN3 = <span class="nm">9</span>, IN4 = <span class="nm">10</span>, ENB = <span class="nm">11</span>;  <span class="cm">// Sol motor</span>
+
+<span class="kw">float</span> Kp = <span class="nm">0.08</span>;      <span class="cm">// S parkur için 0.10</span>
+
+<span class="kw">int</span> temelHiz = <span class="nm">130</span>;   <span class="cm">// S parkur için 120</span>
+
+<span class="tp">uint16_t</span> sensorDegerleri[<span class="nm">6</span>];
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(IN1, OUTPUT); <span class="fn">pinMode</span>(IN2, OUTPUT);
+  <span class="fn">pinMode</span>(IN3, OUTPUT); <span class="fn">pinMode</span>(IN4, OUTPUT);
+
+  qtr.<span class="fn">setTypeAnalog</span>();
+  <span class="tp">uint8_t</span> pinler[] = { A0, A1, A2, A3, A4, A5 };
+  qtr.<span class="fn">setSensorPins</span>(pinler, <span class="nm">6</span>);
+
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">200</span>; i++) {
+    qtr.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="nm">20</span>);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> konum = qtr.<span class="fn">readLineBlack</span>(sensorDegerleri);
+
+  <span class="cm">// Çizgi soldaysa hata negatif, sağdaysa pozitif olur</span>
+  <span class="kw">int</span> hata = konum - <span class="nm">2500</span>;
+
+  <span class="kw">int</span> duzeltme = Kp * hata;
+
+  <span class="kw">int</span> solHiz = temelHiz + duzeltme;
+  <span class="kw">int</span> sagHiz = temelHiz - duzeltme;
+
+  solHiz = <span class="fn">constrain</span>(solHiz, <span class="nm">0</span>, <span class="nm">255</span>);
+  sagHiz = <span class="fn">constrain</span>(sagHiz, <span class="nm">0</span>, <span class="nm">255</span>);
+
+  <span class="fn">motorSur</span>(solHiz, sagHiz);
+}
+
+<span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> solHiz, <span class="kw">int</span> sagHiz) {
+  <span class="fn">analogWrite</span>(ENA, <span class="fn">abs</span>(sagHiz));
+  <span class="fn">analogWrite</span>(ENB, <span class="fn">abs</span>(solHiz));
+
+  <span class="kw">if</span> (sagHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN1, LOW);
+    <span class="fn">digitalWrite</span>(IN2, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN1, HIGH);
+    <span class="fn">digitalWrite</span>(IN2, LOW);
+  }
+
+  <span class="kw">if</span> (solHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN3, LOW);
+    <span class="fn">digitalWrite</span>(IN4, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN3, HIGH);
+    <span class="fn">digitalWrite</span>(IN4, LOW);
+  }
+}</code></pre>
+          </div>
+        </div>
+
+        <div id="p1-pd" class="tab-panel">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">02_temel_cizgi_takibi_pd.ino — loop()</span>
+              <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+            </div>
+<pre><code><span class="cm">// Temel Çizgi Takibi - PD</span>
+
+<span class="pp">#include</span> &lt;QTRSensors.h&gt;
+
+QTRSensors qtr;
+
+<span class="kw">const</span> <span class="tp">uint8_t</span> ENA = <span class="nm">6</span>, IN1 = <span class="nm">7</span>, IN2 = <span class="nm">8</span>;    <span class="cm">// Sağ motor</span>
+<span class="kw">const</span> <span class="tp">uint8_t</span> IN3 = <span class="nm">9</span>, IN4 = <span class="nm">10</span>, ENB = <span class="nm">11</span>;  <span class="cm">// Sol motor</span>
+
+<span class="kw">float</span> Kp = <span class="nm">0.08</span>;      <span class="cm">// S parkur için 0.07</span>
+<span class="kw">float</span> Kd = <span class="nm">0.18</span>;
+
+<span class="kw">int</span> temelHiz = <span class="nm">130</span>;   <span class="cm">// S parkur için 125</span>
+
+<span class="tp">uint16_t</span> sensorDegerleri[<span class="nm">6</span>];
+
+<span class="kw">int</span> oncekiHata = <span class="nm">0</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(IN1, OUTPUT); <span class="fn">pinMode</span>(IN2, OUTPUT);
+  <span class="fn">pinMode</span>(IN3, OUTPUT); <span class="fn">pinMode</span>(IN4, OUTPUT);
+
+  qtr.<span class="fn">setTypeAnalog</span>();
+  <span class="tp">uint8_t</span> pinler[] = { A0, A1, A2, A3, A4, A5 };
+  qtr.<span class="fn">setSensorPins</span>(pinler, <span class="nm">6</span>);
+
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">200</span>; i++) {
+    qtr.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="nm">20</span>);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> konum = qtr.<span class="fn">readLineBlack</span>(sensorDegerleri);
+
+  <span class="kw">int</span> hata = konum - <span class="nm">2500</span>;
+
+  <span class="cm">// D = türev, hata bir önceki tura göre ne kadar değişti</span>
+  <span class="kw">int</span> duzeltme = (Kp * hata) + (Kd * (hata - oncekiHata));
+
+  oncekiHata = hata;
+
+  <span class="kw">int</span> solHiz = temelHiz + duzeltme;
+  <span class="kw">int</span> sagHiz = temelHiz - duzeltme;
+
+  solHiz = <span class="fn">constrain</span>(solHiz, <span class="nm">0</span>, <span class="nm">255</span>);
+  sagHiz = <span class="fn">constrain</span>(sagHiz, <span class="nm">0</span>, <span class="nm">255</span>);
+
+  <span class="fn">motorSur</span>(solHiz, sagHiz);
+}
+
+<span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> solHiz, <span class="kw">int</span> sagHiz) {
+  <span class="fn">analogWrite</span>(ENA, <span class="fn">abs</span>(sagHiz));
+  <span class="fn">analogWrite</span>(ENB, <span class="fn">abs</span>(solHiz));
+
+  <span class="kw">if</span> (sagHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN1, LOW);
+    <span class="fn">digitalWrite</span>(IN2, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN1, HIGH);
+    <span class="fn">digitalWrite</span>(IN2, LOW);
+  }
+
+  <span class="kw">if</span> (solHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN3, LOW);
+    <span class="fn">digitalWrite</span>(IN4, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN3, HIGH);
+    <span class="fn">digitalWrite</span>(IN4, LOW);
+  }
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     PARKUR 2
+════════════════════════════════════ -->
+<section id="parkur2">
+  <div class="section-num">// PARKUR 02</div>
+  <h2>Keskin Dönüş ve Çizgi Kaybı Toparlama</h2>
+  <p>Robot köşeye geldiğinde çizgiyi tüm sensörlerde kaybedebilir. Bu durumda rastgele davranmak yerine <strong>en son çizgiyi hangi tarafta gördüğünü hatırlaması</strong> gerekir.</p>
+
+  <div class="parkur-card p2">
+    <div class="parkur-header">
+      <div class="parkur-num">02</div>
+      <div class="parkur-title">
+        <h3>Keskin Dönüş ve Çizgi Kaybı Toparlama</h3>
+        <p>sonYon değişkeni + dönüş tetikleyicileri</p>
+      </div>
+    </div>
+    <div class="parkur-body">
+      <div class="track-visual">
+        <svg viewBox="0 0 460 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="80" r="8" fill="#00e5a0"/>
+          <polyline points="20,80 100,80 100,20 360,20 360,80 440,80" stroke="white" stroke-width="6" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+          <circle cx="440" cy="80" r="8" fill="#ff6b35"/>
+          <!-- Corner indicators -->
+          <rect x="86" y="12" width="28" height="28" fill="none" stroke="#7c6dfa" stroke-width="1.5" stroke-dasharray="3,2" rx="3"/>
+          <rect x="346" y="12" width="28" height="28" fill="none" stroke="#7c6dfa" stroke-width="1.5" stroke-dasharray="3,2" rx="3"/>
+        </svg>
+      </div>
+
+      <div class="callout callout-purple">
+        <span class="callout-icon">🧠</span>
+        <p><strong>Yeni kavram — sonYon:</strong> Her döngüde, hata −200'den küçükse <code>sonYon = -1</code> (sol), 200'den büyükse <code>sonYon = +1</code> (sağ) olarak güncellenir. Çizgi tamamen kaybolduğunda (toplamDeger &lt; eşik) robot durmuyor; son yöne dönme hareketi yapıyor.</p>
+      </div>
+
+      <ul class="algo-steps">
+        <li>Her döngüde <code>toplamDegerOku()</code> ile toplam sensör değeri hesaplanır.</li>
+        <li>Toplam &lt; cizgiKayipEsigi ise çizgi yok: <code>sonYon</code>'a göre yerinde dön.</li>
+        <li>Sol uç sensörler (S0, S1) siyah görüyorsa → keskin sola dön: <code>motorSur(-140, 140)</code>.</li>
+        <li>Sağ uç sensörler (S4, S5) siyah görüyorsa → keskin sağa dön: <code>motorSur(140, -140)</code>.</li>
+        <li>Normal durumda P veya PD kontrolle devam et.</li>
+      </ul>
+
+      <div class="code-tabs">
+        <div class="tab-buttons">
+          <button class="tab-btn active" onclick="switchTab(this,'p2-p')">P Kontrol</button>
+          <button class="tab-btn" onclick="switchTab(this,'p2-pd')">PD Kontrol</button>
+        </div>
+        <div id="p2-p" class="tab-panel active">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">03_90_derece_donus_p.ino — loop()</span>
+              <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+            </div>
+<pre><code><span class="cm">// 90 derece dönüş - P</span>
+
+<span class="pp">#include</span> &lt;QTRSensors.h&gt;
+
+QTRSensors qtr;
+
+<span class="kw">const</span> <span class="tp">uint8_t</span> ENA = <span class="nm">6</span>, IN1 = <span class="nm">7</span>, IN2 = <span class="nm">8</span>;    <span class="cm">// Sağ motor</span>
+<span class="kw">const</span> <span class="tp">uint8_t</span> IN3 = <span class="nm">9</span>, IN4 = <span class="nm">10</span>, ENB = <span class="nm">11</span>;  <span class="cm">// Sol motor</span>
+
+<span class="kw">float</span> Kp = <span class="nm">0.08</span>;
+
+<span class="kw">int</span> temelHiz = <span class="nm">130</span>;
+<span class="kw">int</span> aramaHizi = <span class="nm">120</span>;
+<span class="kw">int</span> donusHizi = <span class="nm">140</span>;
+<span class="kw">int</span> cizgiKayipEsigi = <span class="nm">500</span>;
+
+<span class="tp">uint16_t</span> sensorDegerleri[<span class="nm">6</span>];
+
+<span class="kw">int</span> sonYon = <span class="nm">0</span>;  <span class="cm">// -1 sol, +1 sağ</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(IN1, OUTPUT); <span class="fn">pinMode</span>(IN2, OUTPUT);
+  <span class="fn">pinMode</span>(IN3, OUTPUT); <span class="fn">pinMode</span>(IN4, OUTPUT);
+
+  qtr.<span class="fn">setTypeAnalog</span>();
+  <span class="tp">uint8_t</span> pinler[] = { A0, A1, A2, A3, A4, A5 };
+  qtr.<span class="fn">setSensorPins</span>(pinler, <span class="nm">6</span>);
+
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">200</span>; i++) {
+    qtr.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="nm">20</span>);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> konum = qtr.<span class="fn">readLineBlack</span>(sensorDegerleri);
+  <span class="kw">int</span> toplamDeger = <span class="fn">toplamDegerOku</span>();
+
+  <span class="cm">// Çizgi tamamen beyaz — son yöne dönmeye çalış</span>
+  <span class="kw">if</span> (toplamDeger &lt; cizgiKayipEsigi) {
+    <span class="kw">if</span> (sonYon == -<span class="nm">1</span>) {
+      <span class="fn">motorSur</span>(-aramaHizi, aramaHizi);
+    } <span class="kw">else</span> <span class="kw">if</span> (sonYon == <span class="nm">1</span>) {
+      <span class="fn">motorSur</span>(aramaHizi, -aramaHizi);
+    } <span class="kw">else</span> {
+      <span class="fn">motorDur</span>();
+    }
+    <span class="kw">return</span>;
+  }
+
+  <span class="kw">int</span> hata = konum - <span class="nm">2500</span>;
+
+  <span class="cm">// Son yönü güncelle</span>
+  <span class="kw">if</span> (hata &lt; -<span class="nm">200</span>) sonYon = -<span class="nm">1</span>;
+  <span class="kw">else</span> <span class="kw">if</span> (hata &gt; <span class="nm">200</span>) sonYon = <span class="nm">1</span>;
+
+  <span class="cm">// Keskin sola dönüş</span>
+  <span class="kw">if</span> (sensorDegerleri[<span class="nm">0</span>] &gt; <span class="nm">700</span> &amp;&amp; sensorDegerleri[<span class="nm">1</span>] &gt; <span class="nm">700</span> &amp;&amp; sensorDegerleri[<span class="nm">4</span>] &lt; <span class="nm">400</span> &amp;&amp; sensorDegerleri[<span class="nm">5</span>] &lt; <span class="nm">400</span>) {
+    sonYon = -<span class="nm">1</span>;
+    <span class="fn">motorSur</span>(-donusHizi, donusHizi);
+    <span class="kw">return</span>;
+  }
+
+  <span class="cm">// Keskin sağa dönüş</span>
+  <span class="kw">if</span> (sensorDegerleri[<span class="nm">4</span>] &gt; <span class="nm">700</span> &amp;&amp; sensorDegerleri[<span class="nm">5</span>] &gt; <span class="nm">700</span> &amp;&amp; sensorDegerleri[<span class="nm">0</span>] &lt; <span class="nm">400</span> &amp;&amp; sensorDegerleri[<span class="nm">1</span>] &lt; <span class="nm">400</span>) {
+    sonYon = <span class="nm">1</span>;
+    <span class="fn">motorSur</span>(donusHizi, -donusHizi);
+    <span class="kw">return</span>;
+  }
+
+  <span class="kw">int</span> duzeltme = Kp * hata;
+
+  <span class="kw">int</span> solHiz = <span class="fn">constrain</span>(temelHiz + duzeltme, <span class="nm">0</span>, <span class="nm">255</span>);
+  <span class="kw">int</span> sagHiz = <span class="fn">constrain</span>(temelHiz - duzeltme, <span class="nm">0</span>, <span class="nm">255</span>);
+
+  <span class="fn">motorSur</span>(solHiz, sagHiz);
+}
+
+<span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> solHiz, <span class="kw">int</span> sagHiz) {
+  <span class="fn">analogWrite</span>(ENA, <span class="fn">abs</span>(sagHiz));
+  <span class="fn">analogWrite</span>(ENB, <span class="fn">abs</span>(solHiz));
+
+  <span class="kw">if</span> (sagHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN1, LOW);
+    <span class="fn">digitalWrite</span>(IN2, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN1, HIGH);
+    <span class="fn">digitalWrite</span>(IN2, LOW);
+  }
+
+  <span class="kw">if</span> (solHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN3, LOW);
+    <span class="fn">digitalWrite</span>(IN4, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN3, HIGH);
+    <span class="fn">digitalWrite</span>(IN4, LOW);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">motorDur</span>() {
+  <span class="fn">analogWrite</span>(ENA, <span class="nm">0</span>);
+  <span class="fn">analogWrite</span>(ENB, <span class="nm">0</span>);
+
+  <span class="fn">digitalWrite</span>(IN1, LOW); <span class="fn">digitalWrite</span>(IN2, LOW);
+  <span class="fn">digitalWrite</span>(IN3, LOW); <span class="fn">digitalWrite</span>(IN4, LOW);
+}
+
+<span class="kw">int</span> <span class="fn">toplamDegerOku</span>() {
+  <span class="kw">int</span> toplamDeger = <span class="nm">0</span>;
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">6</span>; i++) {
+    toplamDeger += sensorDegerleri[i];
+  }
+  <span class="kw">return</span> toplamDeger;
+}</code></pre>
+          </div>
+        </div>
+        <div id="p2-pd" class="tab-panel">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">04_90_derece_donus_pd.ino — loop()</span>
+              <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+            </div>
+<pre><code><span class="cm">// 90 derece dönüş - PD</span>
+
+<span class="pp">#include</span> &lt;QTRSensors.h&gt;
+
+QTRSensors qtr;
+
+<span class="kw">const</span> <span class="tp">uint8_t</span> ENA = <span class="nm">6</span>, IN1 = <span class="nm">7</span>, IN2 = <span class="nm">8</span>;    <span class="cm">// Sağ motor</span>
+<span class="kw">const</span> <span class="tp">uint8_t</span> IN3 = <span class="nm">9</span>, IN4 = <span class="nm">10</span>, ENB = <span class="nm">11</span>;  <span class="cm">// Sol motor</span>
+
+<span class="kw">float</span> Kp = <span class="nm">0.08</span>;
+<span class="kw">float</span> Kd = <span class="nm">0.18</span>;
+
+<span class="kw">int</span> temelHiz = <span class="nm">130</span>;
+<span class="kw">int</span> aramaHizi = <span class="nm">120</span>;
+<span class="kw">int</span> donusHizi = <span class="nm">140</span>;
+<span class="kw">int</span> cizgiKayipEsigi = <span class="nm">500</span>;
+
+<span class="tp">uint16_t</span> sensorDegerleri[<span class="nm">6</span>];
+
+<span class="kw">int</span> oncekiHata = <span class="nm">0</span>;
+<span class="kw">int</span> sonYon = <span class="nm">0</span>;  <span class="cm">// -1 sol, +1 sağ</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(IN1, OUTPUT); <span class="fn">pinMode</span>(IN2, OUTPUT);
+  <span class="fn">pinMode</span>(IN3, OUTPUT); <span class="fn">pinMode</span>(IN4, OUTPUT);
+
+  qtr.<span class="fn">setTypeAnalog</span>();
+  <span class="tp">uint8_t</span> pinler[] = { A0, A1, A2, A3, A4, A5 };
+  qtr.<span class="fn">setSensorPins</span>(pinler, <span class="nm">6</span>);
+
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">200</span>; i++) {
+    qtr.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="nm">20</span>);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> konum = qtr.<span class="fn">readLineBlack</span>(sensorDegerleri);
+  <span class="kw">int</span> toplamDeger = <span class="fn">toplamDegerOku</span>();
+
+  <span class="cm">// Çizgi tamamen beyaz — son yöne dönmeye çalış</span>
+  <span class="kw">if</span> (toplamDeger &lt; cizgiKayipEsigi) {
+    <span class="kw">if</span> (sonYon == -<span class="nm">1</span>) {
+      <span class="fn">motorSur</span>(-aramaHizi, aramaHizi);
+    } <span class="kw">else</span> <span class="kw">if</span> (sonYon == <span class="nm">1</span>) {
+      <span class="fn">motorSur</span>(aramaHizi, -aramaHizi);
+    } <span class="kw">else</span> {
+      <span class="fn">motorDur</span>();
+    }
+    <span class="kw">return</span>;
+  }
+
+  <span class="kw">int</span> hata = konum - <span class="nm">2500</span>;
+
+  <span class="cm">// Son yönü güncelle</span>
+  <span class="kw">if</span> (hata &lt; -<span class="nm">200</span>) sonYon = -<span class="nm">1</span>;
+  <span class="kw">else</span> <span class="kw">if</span> (hata &gt; <span class="nm">200</span>) sonYon = <span class="nm">1</span>;
+
+  <span class="cm">// Keskin sola dönüş</span>
+  <span class="kw">if</span> (sensorDegerleri[<span class="nm">0</span>] &gt; <span class="nm">700</span> &amp;&amp; sensorDegerleri[<span class="nm">1</span>] &gt; <span class="nm">700</span> &amp;&amp; sensorDegerleri[<span class="nm">4</span>] &lt; <span class="nm">400</span> &amp;&amp; sensorDegerleri[<span class="nm">5</span>] &lt; <span class="nm">400</span>) {
+    sonYon = -<span class="nm">1</span>;
+    <span class="fn">motorSur</span>(-donusHizi, donusHizi);
+    <span class="kw">return</span>;
+  }
+
+  <span class="cm">// Keskin sağa dönüş</span>
+  <span class="kw">if</span> (sensorDegerleri[<span class="nm">4</span>] &gt; <span class="nm">700</span> &amp;&amp; sensorDegerleri[<span class="nm">5</span>] &gt; <span class="nm">700</span> &amp;&amp; sensorDegerleri[<span class="nm">0</span>] &lt; <span class="nm">400</span> &amp;&amp; sensorDegerleri[<span class="nm">1</span>] &lt; <span class="nm">400</span>) {
+    sonYon = <span class="nm">1</span>;
+    <span class="fn">motorSur</span>(donusHizi, -donusHizi);
+    <span class="kw">return</span>;
+  }
+
+  <span class="cm">// D = türev</span>
+  <span class="kw">int</span> duzeltme = (Kp * hata) + (Kd * (hata - oncekiHata));
+
+  oncekiHata = hata;
+
+  <span class="kw">int</span> solHiz = <span class="fn">constrain</span>(temelHiz + duzeltme, <span class="nm">0</span>, <span class="nm">255</span>);
+  <span class="kw">int</span> sagHiz = <span class="fn">constrain</span>(temelHiz - duzeltme, <span class="nm">0</span>, <span class="nm">255</span>);
+
+  <span class="fn">motorSur</span>(solHiz, sagHiz);
+}
+
+<span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> solHiz, <span class="kw">int</span> sagHiz) {
+  <span class="fn">analogWrite</span>(ENA, <span class="fn">abs</span>(sagHiz));
+  <span class="fn">analogWrite</span>(ENB, <span class="fn">abs</span>(solHiz));
+
+  <span class="kw">if</span> (sagHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN1, LOW);
+    <span class="fn">digitalWrite</span>(IN2, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN1, HIGH);
+    <span class="fn">digitalWrite</span>(IN2, LOW);
+  }
+
+  <span class="kw">if</span> (solHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN3, LOW);
+    <span class="fn">digitalWrite</span>(IN4, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN3, HIGH);
+    <span class="fn">digitalWrite</span>(IN4, LOW);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">motorDur</span>() {
+  <span class="fn">analogWrite</span>(ENA, <span class="nm">0</span>);
+  <span class="fn">analogWrite</span>(ENB, <span class="nm">0</span>);
+
+  <span class="fn">digitalWrite</span>(IN1, LOW); <span class="fn">digitalWrite</span>(IN2, LOW);
+  <span class="fn">digitalWrite</span>(IN3, LOW); <span class="fn">digitalWrite</span>(IN4, LOW);
+}
+
+<span class="kw">int</span> <span class="fn">toplamDegerOku</span>() {
+  <span class="kw">int</span> toplamDeger = <span class="nm">0</span>;
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">6</span>; i++) {
+    toplamDeger += sensorDegerleri[i];
+  }
+  <span class="kw">return</span> toplamDeger;
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     PARKUR 3
+════════════════════════════════════ -->
+<section id="parkur3">
+  <div class="section-num">// PARKUR 03</div>
+  <h2>Kavşakta Karar Verme — Sağa Dön</h2>
+  <p>Robot bir kavşakla karşılaştığında belirli bir karar kuralı uygulamalıdır. Bu parkurda kural nettir: <strong>kavşak algılanınca sağ kola dön.</strong></p>
+
+  <div class="parkur-card p3">
+    <div class="parkur-header">
+      <div class="parkur-num">03</div>
+      <div class="parkur-title">
+        <h3>Kavşakta Karar Verme (Sağa Dön)</h3>
+        <p>donusYapildiMi bayrağı + tetikleyici koşul</p>
+      </div>
+    </div>
+    <div class="parkur-body">
+      <div class="track-visual">
+        <svg viewBox="0 0 460 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="60" r="8" fill="#00e5a0"/>
+          <line x1="20" y1="60" x2="440" y2="60" stroke="white" stroke-width="6" stroke-linecap="round"/>
+          <line x1="290" y1="5" x2="290" y2="95" stroke="white" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="290" cy="92" r="8" fill="#ff6b35"/>
+          <!-- intersection highlight -->
+          <circle cx="290" cy="60" r="14" fill="none" stroke="#ff6b35" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.6"/>
+        </svg>
+      </div>
+
+      <div class="callout callout-orange">
+        <span class="callout-icon">🔀</span>
+        <p><strong>Kavşak tespiti:</strong> Sağ taraftaki 4 sensör (S2, S3, S4, S5) hepsi siyah görüyorsa kavşak vardır. Robot biraz ilerlendikten sonra (<code>delay(120)</code>) keskin sağa döner (<code>delay(220)</code>). <code>donusYapildiMi</code> bayrağı sayesinde bu manevra yalnızca bir kez yapılır.</p>
+      </div>
+
+      <ul class="algo-steps">
+        <li><code>toplamDegerOku()</code> ile çizgi kontrol edilir; kayıpsa dur.</li>
+        <li>S2, S3, S4, S5 değerlerinin tümü 500'ü aşıyorsa ve henüz dönüş yapılmadıysa → kavşak algılandı.</li>
+        <li>Kısa ileri gidiş (120 ms) → keskin sağa dönüş (220 ms).</li>
+        <li><code>donusYapildiMi = true</code> → bir daha bu bloğa girilmez.</li>
+        <li>Normal P / PD çizgi takibine devam et.</li>
+      </ul>
+
+      <div class="code-tabs">
+        <div class="tab-buttons">
+          <button class="tab-btn active" onclick="switchTab(this,'p3-p')">P Kontrol</button>
+          <button class="tab-btn" onclick="switchTab(this,'p3-pd')">PD Kontrol</button>
+        </div>
+        <div id="p3-p" class="tab-panel active">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">05_kavsakta_saga_don_p.ino — loop()</span>
+              <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+            </div>
+<pre><code><span class="cm">// Kavşakta sağa dönüş - P</span>
+
+<span class="pp">#include</span> &lt;QTRSensors.h&gt;
+
+QTRSensors qtr;
+
+<span class="kw">const</span> <span class="tp">uint8_t</span> ENA = <span class="nm">6</span>, IN1 = <span class="nm">7</span>, IN2 = <span class="nm">8</span>;    <span class="cm">// Sağ motor</span>
+<span class="kw">const</span> <span class="tp">uint8_t</span> IN3 = <span class="nm">9</span>, IN4 = <span class="nm">10</span>, ENB = <span class="nm">11</span>;  <span class="cm">// Sol motor</span>
+
+<span class="kw">float</span> Kp = <span class="nm">0.08</span>;
+
+<span class="kw">int</span> temelHiz = <span class="nm">130</span>;
+<span class="kw">int</span> cizgiKayipEsigi = <span class="nm">300</span>;
+
+<span class="kw">bool</span> donusYapildiMi = <span class="kw">false</span>;
+
+<span class="tp">uint16_t</span> sensorDegerleri[<span class="nm">6</span>];
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(IN1, OUTPUT); <span class="fn">pinMode</span>(IN2, OUTPUT);
+  <span class="fn">pinMode</span>(IN3, OUTPUT); <span class="fn">pinMode</span>(IN4, OUTPUT);
+
+  qtr.<span class="fn">setTypeAnalog</span>();
+  <span class="tp">uint8_t</span> pinler[] = { A0, A1, A2, A3, A4, A5 };
+  qtr.<span class="fn">setSensorPins</span>(pinler, <span class="nm">6</span>);
+
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">200</span>; i++) {
+    qtr.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="nm">20</span>);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> konum = qtr.<span class="fn">readLineBlack</span>(sensorDegerleri);
+  <span class="kw">int</span> toplamDeger = <span class="fn">toplamDegerOku</span>();
+
+  <span class="kw">if</span> (toplamDeger &lt; cizgiKayipEsigi) {
+    <span class="fn">motorDur</span>();
+    <span class="kw">return</span>;
+  }
+
+  <span class="cm">// Kavşakta sağ taraf da siyah görünürse sağa dön</span>
+  <span class="kw">if</span> (!donusYapildiMi &amp;&amp;
+      sensorDegerleri[<span class="nm">2</span>] &gt; <span class="nm">500</span> &amp;&amp;
+      sensorDegerleri[<span class="nm">3</span>] &gt; <span class="nm">500</span> &amp;&amp;
+      sensorDegerleri[<span class="nm">4</span>] &gt; <span class="nm">500</span> &amp;&amp;
+      sensorDegerleri[<span class="nm">5</span>] &gt; <span class="nm">500</span>) {
+
+    <span class="fn">motorSur</span>(<span class="nm">120</span>, <span class="nm">120</span>);
+    <span class="fn">delay</span>(<span class="nm">120</span>);
+
+    <span class="fn">motorSur</span>(<span class="nm">140</span>, -<span class="nm">140</span>);
+    <span class="fn">delay</span>(<span class="nm">220</span>);
+
+    donusYapildiMi = <span class="kw">true</span>;
+    <span class="kw">return</span>;
+  }
+
+  <span class="kw">int</span> hata = konum - <span class="nm">2500</span>;
+  <span class="kw">int</span> duzeltme = Kp * hata;
+
+  <span class="kw">int</span> solHiz = <span class="fn">constrain</span>(temelHiz + duzeltme, <span class="nm">0</span>, <span class="nm">255</span>);
+  <span class="kw">int</span> sagHiz = <span class="fn">constrain</span>(temelHiz - duzeltme, <span class="nm">0</span>, <span class="nm">255</span>);
+
+  <span class="fn">motorSur</span>(solHiz, sagHiz);
+}
+
+<span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> solHiz, <span class="kw">int</span> sagHiz) {
+  <span class="fn">analogWrite</span>(ENA, <span class="fn">abs</span>(sagHiz));
+  <span class="fn">analogWrite</span>(ENB, <span class="fn">abs</span>(solHiz));
+
+  <span class="kw">if</span> (sagHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN1, LOW);
+    <span class="fn">digitalWrite</span>(IN2, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN1, HIGH);
+    <span class="fn">digitalWrite</span>(IN2, LOW);
+  }
+
+  <span class="kw">if</span> (solHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN3, LOW);
+    <span class="fn">digitalWrite</span>(IN4, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN3, HIGH);
+    <span class="fn">digitalWrite</span>(IN4, LOW);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">motorDur</span>() {
+  <span class="fn">analogWrite</span>(ENA, <span class="nm">0</span>);
+  <span class="fn">analogWrite</span>(ENB, <span class="nm">0</span>);
+
+  <span class="fn">digitalWrite</span>(IN1, LOW); <span class="fn">digitalWrite</span>(IN2, LOW);
+  <span class="fn">digitalWrite</span>(IN3, LOW); <span class="fn">digitalWrite</span>(IN4, LOW);
+}
+
+<span class="kw">int</span> <span class="fn">toplamDegerOku</span>() {
+  <span class="kw">int</span> toplamDeger = <span class="nm">0</span>;
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">6</span>; i++) {
+    toplamDeger += sensorDegerleri[i];
+  }
+  <span class="kw">return</span> toplamDeger;
+}</code></pre>
+          </div>
+        </div>
+        <div id="p3-pd" class="tab-panel">
+          <div class="code-wrap">
+            <div class="code-header">
+              <span class="code-lang">06_kavsakta_saga_don_pd.ino — loop()</span>
+              <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+            </div>
+<pre><code><span class="cm">// Kavşakta sağa dönüş - PD</span>
+
+<span class="pp">#include</span> &lt;QTRSensors.h&gt;
+
+QTRSensors qtr;
+
+<span class="kw">const</span> <span class="tp">uint8_t</span> ENA = <span class="nm">6</span>, IN1 = <span class="nm">7</span>, IN2 = <span class="nm">8</span>;    <span class="cm">// Sağ motor</span>
+<span class="kw">const</span> <span class="tp">uint8_t</span> IN3 = <span class="nm">9</span>, IN4 = <span class="nm">10</span>, ENB = <span class="nm">11</span>;  <span class="cm">// Sol motor</span>
+
+<span class="kw">float</span> Kp = <span class="nm">0.08</span>;
+<span class="kw">float</span> Kd = <span class="nm">0.18</span>;
+
+<span class="kw">int</span> temelHiz = <span class="nm">130</span>;
+<span class="kw">int</span> cizgiKayipEsigi = <span class="nm">300</span>;
+
+<span class="kw">bool</span> donusYapildiMi = <span class="kw">false</span>;
+
+<span class="tp">uint16_t</span> sensorDegerleri[<span class="nm">6</span>];
+
+<span class="kw">int</span> oncekiHata = <span class="nm">0</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(IN1, OUTPUT); <span class="fn">pinMode</span>(IN2, OUTPUT);
+  <span class="fn">pinMode</span>(IN3, OUTPUT); <span class="fn">pinMode</span>(IN4, OUTPUT);
+
+  qtr.<span class="fn">setTypeAnalog</span>();
+  <span class="tp">uint8_t</span> pinler[] = { A0, A1, A2, A3, A4, A5 };
+  qtr.<span class="fn">setSensorPins</span>(pinler, <span class="nm">6</span>);
+
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">200</span>; i++) {
+    qtr.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="nm">20</span>);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> konum = qtr.<span class="fn">readLineBlack</span>(sensorDegerleri);
+  <span class="kw">int</span> toplamDeger = <span class="fn">toplamDegerOku</span>();
+
+  <span class="kw">if</span> (toplamDeger &lt; cizgiKayipEsigi) {
+    <span class="fn">motorDur</span>();
+    <span class="kw">return</span>;
+  }
+
+  <span class="cm">// Kavşakta sağ taraf da siyah görünürse sağa dön</span>
+  <span class="kw">if</span> (!donusYapildiMi &amp;&amp;
+      sensorDegerleri[<span class="nm">2</span>] &gt; <span class="nm">500</span> &amp;&amp;
+      sensorDegerleri[<span class="nm">3</span>] &gt; <span class="nm">500</span> &amp;&amp;
+      sensorDegerleri[<span class="nm">4</span>] &gt; <span class="nm">500</span> &amp;&amp;
+      sensorDegerleri[<span class="nm">5</span>] &gt; <span class="nm">500</span>) {
+
+    <span class="fn">motorSur</span>(<span class="nm">120</span>, <span class="nm">120</span>);
+    <span class="fn">delay</span>(<span class="nm">120</span>);
+
+    <span class="fn">motorSur</span>(<span class="nm">140</span>, -<span class="nm">140</span>);
+    <span class="fn">delay</span>(<span class="nm">220</span>);
+
+    donusYapildiMi = <span class="kw">true</span>;
+    <span class="kw">return</span>;
+  }
+
+  <span class="kw">int</span> hata = konum - <span class="nm">2500</span>;
+  <span class="kw">int</span> duzeltme = (Kp * hata) + (Kd * (hata - oncekiHata));
+
+  oncekiHata = hata;
+
+  <span class="kw">int</span> solHiz = <span class="fn">constrain</span>(temelHiz + duzeltme, <span class="nm">0</span>, <span class="nm">255</span>);
+  <span class="kw">int</span> sagHiz = <span class="fn">constrain</span>(temelHiz - duzeltme, <span class="nm">0</span>, <span class="nm">255</span>);
+
+  <span class="fn">motorSur</span>(solHiz, sagHiz);
+}
+
+<span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> solHiz, <span class="kw">int</span> sagHiz) {
+  <span class="fn">analogWrite</span>(ENA, <span class="fn">abs</span>(sagHiz));
+  <span class="fn">analogWrite</span>(ENB, <span class="fn">abs</span>(solHiz));
+
+  <span class="kw">if</span> (sagHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN1, LOW);
+    <span class="fn">digitalWrite</span>(IN2, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN1, HIGH);
+    <span class="fn">digitalWrite</span>(IN2, LOW);
+  }
+
+  <span class="kw">if</span> (solHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN3, LOW);
+    <span class="fn">digitalWrite</span>(IN4, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN3, HIGH);
+    <span class="fn">digitalWrite</span>(IN4, LOW);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">motorDur</span>() {
+  <span class="fn">analogWrite</span>(ENA, <span class="nm">0</span>);
+  <span class="fn">analogWrite</span>(ENB, <span class="nm">0</span>);
+
+  <span class="fn">digitalWrite</span>(IN1, LOW); <span class="fn">digitalWrite</span>(IN2, LOW);
+  <span class="fn">digitalWrite</span>(IN3, LOW); <span class="fn">digitalWrite</span>(IN4, LOW);
+}
+
+<span class="kw">int</span> <span class="fn">toplamDegerOku</span>() {
+  <span class="kw">int</span> toplamDeger = <span class="nm">0</span>;
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">6</span>; i++) {
+    toplamDeger += sensorDegerleri[i];
+  }
+  <span class="kw">return</span> toplamDeger;
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     PARKUR 4
+════════════════════════════════════ -->
+<section id="parkur4">
+  <div class="section-num">// PARKUR 04</div>
+  <h2>Engeli Aşma ve Devam Etme</h2>
+  <p>Robot engel gördüğünde çarpmadan etrafından dolaşır ve çizgi takibine devam eder. Engel geçildikten sonra parkur bitiminde durur.</p>
+
+  <div class="parkur-card p4">
+    <div class="parkur-header">
+      <div class="parkur-num">04</div>
+      <div class="parkur-title">
+        <h3>Engeli Aşma ve Devam Etme</h3>
+        <p>QTR-8A + HY-SRF05 Ultrasonik + P Kontrol</p>
+      </div>
+    </div>
+    <div class="parkur-body">
+      <div class="track-visual">
+        <svg viewBox="0 0 460 80" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="40" r="8" fill="#00e5a0"/>
+          <line x1="28" y1="40" x2="180" y2="40" stroke="white" stroke-width="6" stroke-linecap="round"/>
+          <rect x="190" y="20" width="80" height="40" rx="6" fill="#ff6b35" opacity="0.85"/>
+          <text x="230" y="46" text-anchor="middle" font-family="Syne,sans-serif" font-size="11" fill="white" font-weight="700">ENGEL</text>
+          <line x1="270" y1="40" x2="440" y2="40" stroke="white" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="440" cy="40" r="8" fill="#ff6b35"/>
+          <!-- bypass arc -->
+          <path d="M 180,40 Q 200,5 230,5 Q 260,5 280,40" stroke="#f0c040" stroke-width="2" fill="none" stroke-dasharray="5,3" opacity="0.7"/>
+        </svg>
+      </div>
+
+      <div class="callout callout-yellow">
+        <span class="callout-icon">📡</span>
+        <p><strong>HY-SRF05 ile mesafe ölçümü:</strong> TRIG pinine 10 µs'lik sinyal gönderilir. ECHO pininden gelen pulseIn süresi <code>/ 58.2</code> ile cm'ye çevrilir. Mesafe 12 cm'nin altındaysa <code>engeldenDolan()</code> çağrılır. Bu fonksiyon <strong>delay tabanlı</strong> sabit bir manevra dizisi uygular: dur → sağa dön → ileri → sola dön → ileri → çizgi takibine dön.</p>
+      </div>
+
+      <ul class="algo-steps">
+        <li>Her döngü başında <code>mesafeOlc()</code> ile ultrasonik mesafe ölçülür.</li>
+        <li>Mesafe 0 &lt; d &lt; 12 cm ise → <code>engeldenDolan()</code> çağrılır (delay tabanlı manevra).</li>
+        <li>Engel yoksa QTR-8A ile çizgi takibine devam edilir.</li>
+        <li>Çizgi kaybolursa (<code>toplamDeger &lt; eşik</code>) → <code>motorDur()</code> ile dur (parkur sonu).</li>
+      </ul>
+
+      <div class="code-wrap" style="margin-top:20px">
+        <div class="code-header">
+          <span class="code-lang">07_engelden_kac_p.ino — Tüm Dosya</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+        </div>
+<pre><code><span class="cm">// Engeli aş ve devam et - P</span>
+
+<span class="pp">#include</span> &lt;QTRSensors.h&gt;
+
+QTRSensors qtr;
+
+<span class="kw">const</span> <span class="tp">uint8_t</span> ENA = <span class="nm">6</span>, IN1 = <span class="nm">7</span>, IN2 = <span class="nm">8</span>;    <span class="cm">// Sağ motor</span>
+<span class="kw">const</span> <span class="tp">uint8_t</span> IN3 = <span class="nm">9</span>, IN4 = <span class="nm">10</span>, ENB = <span class="nm">11</span>;  <span class="cm">// Sol motor</span>
+
+<span class="cm">// HY-SRF05 pinleri</span>
+<span class="kw">const</span> <span class="tp">uint8_t</span> trigPin = <span class="nm">4</span>;
+<span class="kw">const</span> <span class="tp">uint8_t</span> echoPin = <span class="nm">5</span>;
+
+<span class="cm">// Engel algılama ayarı (cm)</span>
+<span class="kw">int</span> engelMesafeEsigi = <span class="nm">12</span>;
+
+<span class="cm">// Çizgi takip ayarları</span>
+<span class="kw">float</span> Kp = <span class="nm">0.08</span>;
+<span class="kw">int</span> temelHiz = <span class="nm">130</span>;
+<span class="kw">int</span> cizgiKayipEsigi = <span class="nm">300</span>;
+
+<span class="tp">uint16_t</span> sensorDegerleri[<span class="nm">6</span>];
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(IN1, OUTPUT); <span class="fn">pinMode</span>(IN2, OUTPUT);
+  <span class="fn">pinMode</span>(IN3, OUTPUT); <span class="fn">pinMode</span>(IN4, OUTPUT);
+
+  <span class="fn">pinMode</span>(trigPin, OUTPUT);
+  <span class="fn">pinMode</span>(echoPin, INPUT);
+
+  qtr.<span class="fn">setTypeAnalog</span>();
+  <span class="tp">uint8_t</span> pinler[] = { A0, A1, A2, A3, A4, A5 };
+  qtr.<span class="fn">setSensorPins</span>(pinler, <span class="nm">6</span>);
+
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">200</span>; i++) {
+    qtr.<span class="fn">calibrate</span>();
+    <span class="fn">delay</span>(<span class="nm">20</span>);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> mesafe = <span class="fn">mesafeOlc</span>();
+
+  <span class="cm">// Engel varsa etrafından dolaş</span>
+  <span class="kw">if</span> (mesafe &gt; <span class="nm">0</span> &amp;&amp; mesafe &lt; engelMesafeEsigi) {
+    <span class="fn">engeldenDolan</span>();
+    <span class="kw">return</span>;
+  }
+
+  <span class="kw">int</span> konum = qtr.<span class="fn">readLineBlack</span>(sensorDegerleri);
+  <span class="kw">int</span> toplamDeger = <span class="fn">toplamDegerOku</span>();
+
+  <span class="cm">// Çizgi kayıpsa dur</span>
+  <span class="kw">if</span> (toplamDeger &lt; cizgiKayipEsigi) {
+    <span class="fn">motorDur</span>();
+    <span class="kw">return</span>;
+  }
+
+  <span class="kw">int</span> hata = konum - <span class="nm">2500</span>;
+  <span class="kw">int</span> duzeltme = Kp * hata;
+
+  <span class="kw">int</span> solHiz = <span class="fn">constrain</span>(temelHiz + duzeltme, <span class="nm">0</span>, <span class="nm">255</span>);
+  <span class="kw">int</span> sagHiz = <span class="fn">constrain</span>(temelHiz - duzeltme, <span class="nm">0</span>, <span class="nm">255</span>);
+
+  <span class="fn">motorSur</span>(solHiz, sagHiz);
+}
+
+<span class="kw">int</span> <span class="fn">mesafeOlc</span>() {
+  <span class="fn">digitalWrite</span>(trigPin, LOW);
+  <span class="fn">delayMicroseconds</span>(<span class="nm">2</span>);
+
+  <span class="fn">digitalWrite</span>(trigPin, HIGH);
+  <span class="fn">delayMicroseconds</span>(<span class="nm">10</span>);
+  <span class="fn">digitalWrite</span>(trigPin, LOW);
+
+  <span class="kw">long</span> sure = <span class="fn">pulseIn</span>(echoPin, HIGH, <span class="nm">25000</span>);
+
+  <span class="kw">if</span> (sure == <span class="nm">0</span>) {
+    <span class="kw">return</span> <span class="nm">0</span>;
+  }
+
+  <span class="kw">return</span> sure / <span class="nm">58.2</span>;
+}
+
+<span class="kw">void</span> <span class="fn">engeldenDolan</span>() {
+  <span class="fn">motorDur</span>();
+  <span class="fn">delay</span>(<span class="nm">200</span>);
+
+  <span class="cm">// Sağa dön</span>
+  <span class="fn">motorSur</span>(<span class="nm">130</span>, -<span class="nm">130</span>);
+  <span class="fn">delay</span>(<span class="nm">350</span>);
+
+  <span class="cm">// İleri git</span>
+  <span class="fn">motorSur</span>(<span class="nm">130</span>, <span class="nm">130</span>);
+  <span class="fn">delay</span>(<span class="nm">500</span>);
+
+  <span class="cm">// Sola dön</span>
+  <span class="fn">motorSur</span>(-<span class="nm">130</span>, <span class="nm">130</span>);
+  <span class="fn">delay</span>(<span class="nm">350</span>);
+
+  <span class="cm">// Biraz daha ileri git</span>
+  <span class="fn">motorSur</span>(<span class="nm">130</span>, <span class="nm">130</span>);
+  <span class="fn">delay</span>(<span class="nm">500</span>);
+}
+
+<span class="kw">void</span> <span class="fn">motorSur</span>(<span class="kw">int</span> solHiz, <span class="kw">int</span> sagHiz) {
+  <span class="fn">analogWrite</span>(ENA, <span class="fn">abs</span>(sagHiz));
+  <span class="fn">analogWrite</span>(ENB, <span class="fn">abs</span>(solHiz));
+
+  <span class="kw">if</span> (sagHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN1, LOW);
+    <span class="fn">digitalWrite</span>(IN2, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN1, HIGH);
+    <span class="fn">digitalWrite</span>(IN2, LOW);
+  }
+
+  <span class="kw">if</span> (solHiz &lt; <span class="nm">0</span>) {
+    <span class="fn">digitalWrite</span>(IN3, LOW);
+    <span class="fn">digitalWrite</span>(IN4, HIGH);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(IN3, HIGH);
+    <span class="fn">digitalWrite</span>(IN4, LOW);
+  }
+}
+
+<span class="kw">void</span> <span class="fn">motorDur</span>() {
+  <span class="fn">analogWrite</span>(ENA, <span class="nm">0</span>);
+  <span class="fn">analogWrite</span>(ENB, <span class="nm">0</span>);
+
+  <span class="fn">digitalWrite</span>(IN1, LOW); <span class="fn">digitalWrite</span>(IN2, LOW);
+  <span class="fn">digitalWrite</span>(IN3, LOW); <span class="fn">digitalWrite</span>(IN4, LOW);
+}
+
+<span class="kw">int</span> <span class="fn">toplamDegerOku</span>() {
+  <span class="kw">int</span> toplamDeger = <span class="nm">0</span>;
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">6</span>; i++) {
+    toplamDeger += sensorDegerleri[i];
+  }
+  <span class="kw">return</span> toplamDeger;
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer style="border-top:1px solid var(--border); padding:30px 40px; text-align:center;">
+  <p style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); letter-spacing:1px;">
+    Ödemiş Bilim ve Sanat Merkezi &nbsp;·&nbsp; MEB Robot Tasarla Çalıştır &nbsp;·&nbsp; Arduino QTR-8A Eğitim Materyali
+  </p>
+</footer>
+
+<script>
+  // Tab switching
+  function switchTab(btn, panelId) {
+    const tabGroup = btn.closest('.code-tabs');
+    tabGroup.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    tabGroup.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  // Copy code
+  function copyCode(btn) {
+    const pre = btn.closest('.code-wrap').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✓ Kopyalandı';
+      btn.style.color = 'var(--accent)';
+      setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1800);
+    });
+  }
+
+  // Active nav on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
